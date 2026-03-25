@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from . import views
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 urlpatterns = [
     # Pages
@@ -10,7 +11,7 @@ urlpatterns = [
     path('audits/', views.audits, name='audits'),
     path('reports/', views.reports, name='reports'),
     path('settings/', views.settings_view, name='settings'),
-    
+    path('api/auth/login/', TokenObtainPairView.as_view()),
     # API - Upload
     path('api/upload/', views.api_upload_file, name='api_upload'),
     path('api/uploads/', views.api_get_uploads, name='api_uploads'),

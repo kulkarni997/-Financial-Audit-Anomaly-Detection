@@ -1,0 +1,43 @@
+[
+  {
+    "id": "audit_1774430428162",
+    "timestamp": "2026-03-25T14:50:28.162015",
+    "event_type": "upload",
+    "title": "File Uploaded: Untitled spreadsheet - Sheet1.csv",
+    "description": "Successfully uploaded transaction data file",
+    "details": {
+      "filename": "Untitled spreadsheet - Sheet1.csv",
+      "size": "2.70 KB",
+      "rows": 40,
+      "count": 40
+    }
+  },
+  {
+    "id": "audit_1774430449042",
+    "timestamp": "2026-03-25T14:50:49.042488",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed uploaded files for anomalies",
+    "details": {
+      "anomalies_detected": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "count": 0
+    }
+  },
+  {
+    "id": "audit_1774431042049",
+    "timestamp": "2026-03-25T15:00:42.049744",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed uploaded files for anomalies",
+    "details": {
+      "anomalies_detected": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "count": 0
+    }
+  }
+]

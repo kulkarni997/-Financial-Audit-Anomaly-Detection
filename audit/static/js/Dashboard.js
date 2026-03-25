@@ -87,16 +87,10 @@ Chart.defaults.plugins.legend.display = false;
 
 // ── 1. KPI CARDS ──────────────────────────────────────────────
 function renderKPICards(data) {
-  const cards = [
-    { id:'kpi-total',    val: data.total_transactions.toLocaleString() },
-    { id:'kpi-flagged',  val: data.flagged_count.toLocaleString() },
-    { id:'kpi-critical', val: data.critical_count.toLocaleString() },
-    { id:'kpi-score',    val: data.avg_risk_score.toFixed(1) },
-  ];
-  cards.forEach(c => {
-    const el = document.getElementById(c.id);
-    if (el) el.textContent = c.val;
-  });
+  document.getElementById("total-transactions").textContent = data.total_transactions;
+  document.getElementById("flagged-count").textContent = data.flagged_count;
+  document.getElementById("critical-count").textContent = data.critical_count;
+  document.getElementById("avg-risk").textContent = data.avg_risk_score;
 }
 
 // ── 2. SPARKLINES (mini canvas per KPI card) ──────────────────
@@ -388,12 +382,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   //   api.get('/dashboard/trends/?days=30')
   // ]);
 
-  renderKPICards(MOCK_SUMMARY);
+  const summary = await api.get("dashboard/summary/");
+  renderKPICards(summary);
   trendChartInstance = renderTrendChart(MOCK_TRENDS);
-  renderDoughnut(MOCK_SUMMARY);
-  renderVendors(MOCK_SUMMARY.top_vendors);
+  renderDoughnut(summary);
+  renderVendors(summary.top_vendors || []);
   renderFeed(MOCK_FEED);
-  renderHeatmap(MOCK_SUMMARY.heatmap_data);
+  renderVendors(summary.top_vendors || []);
   initPeriodControls();
 
   // Sparklines

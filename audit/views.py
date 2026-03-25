@@ -9,6 +9,18 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 from datetime import datetime
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+@api_view(['GET'])
+def dashboard_summary(request):
+    data = {
+        "total_transactions": 1000,
+        "flagged_count": 120,
+        "critical_count": 10,
+        "avg_risk_score": 35
+    }
+    return Response(data)
 
 # Create uploads directory if it doesn't exist
 UPLOADS_DIR = Path('uploaded_files')
