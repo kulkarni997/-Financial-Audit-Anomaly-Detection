@@ -1,120 +1,125 @@
-// API.js - Client-side API functions for Financial Audit Anomaly Detection
+/* ===============================
+   API.js - Central API Handler
+================================ */
 
-const API_BASE_URL = '/api/';
+const API_BASE = "/api/";
+const TOKEN_KEY = "access_token";
+const REFRESH_KEY = "refresh_token";
 
-/**
- * Generic GET request
- * @param {string} endpoint - API endpoint
- * @returns {Promise<Object>} Response data
- */
-async function apiGet(endpoint) {
-  try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return await response.json();
-  } catch (error) {
-    console.error('API GET error:', error);
-    throw error;
+/* 🔹 Core Request Function */
+async function request(method, endpoint, body = null, isForm = false) {
+  const headers = {};
+
+  // Add token
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
-}
 
-/**
- * Generic POST request
- * @param {string} endpoint - API endpoint
- * @param {Object} data - Data to send
- * @returns {Promise<Object>} Response data
- */
-async function apiPost(endpoint, data) {
+  // JSON vs FormData
+  if (!isForm) {
+    headers["Content-Type"] = "application/json";
+  }
+
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
+    let res = await fetch(API_BASE + endpoint, {
+      method,
+      headers,
+      body: body ? (isForm ? body : JSON.stringify(body)) : null,
     });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+
+    // 🔄 Handle expired token
+    if (res.status === 401) {
+      const refreshed = await refreshToken();
+      if (refreshed) {
+        return request(method, endpoint, body, isForm);
+      } else {
+        logout();
+        return;
+      }
     }
-    return await response.json();
-  } catch (error) {
-    console.error('API POST error:', error);
-    throw error;
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "API error");
+    }
+
+    return await res.json();
+
+  } catch (err) {
+    console.error("API Error:", err);
+    throw err;
   }
 }
 
-/**
- * Fetch transactions data
- * @param {Object} filters - Optional filters
- * @returns {Promise<Array>} Transactions array
- */
-async function getTransactions(filters = {}) {
-  const query = new URLSearchParams(filters).toString();
-  const endpoint = `transactions${query ? '?' + query : ''}`;
-  return apiGet(endpoint);
-}
+/* 🔹 Token Refresh */
+async function refreshToken() {
+  const refresh = localStorage.getItem(REFRESH_KEY);
+  if (!refresh) return false;
 
-/**
- * Fetch anomalies data
- * @param {Object} filters - Optional filters
- * @returns {Promise<Array>} Anomalies array
- */
-async function getAnomalies(filters = {}) {
-  const query = new URLSearchParams(filters).toString();
-  const endpoint = `anomalies${query ? '?' + query : ''}`;
-  return apiGet(endpoint);
-}
-
-/**
- * Upload audit data
- * @param {FormData} formData - File data
- * @returns {Promise<Object>} Upload result
- */
-async function uploadAuditData(formData) {
   try {
-    const response = await fetch(`${API_BASE_URL}upload`, {
-      method: 'POST',
-      body: formData,
+    const res = await fetch(API_BASE + "auth/refresh/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh }),
     });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return await response.json();
-  } catch (error) {
-    console.error('Upload error:', error);
-    throw error;
+
+    if (!res.ok) return false;
+
+    const data = await res.json();
+    localStorage.setItem(TOKEN_KEY, data.access);
+    return true;
+
+  } catch {
+    return false;
   }
 }
 
-/**
- * Get dashboard KPIs
- * @returns {Promise<Object>} KPI data
- */
-async function getDashboardKPIs() {
-  return apiGet('dashboard/kpis');
+/* 🔹 Logout */
+function logout() {
+  localStorage.clear();
+  window.location.href = "/login/";
 }
 
-/**
- * Get audit reports
- * @param {string} auditId - Optional audit ID
- * @returns {Promise<Object>} Report data
- */
-async function getAuditReports(auditId = null) {
-  const endpoint = auditId ? `reports/${auditId}` : 'reports';
-  return apiGet(endpoint);
+/* ===============================
+   Public API Methods
+================================ */
+
+const api = {
+  get: (url) => request("GET", url),
+  post: (url, body) => request("POST", url, body),
+  patch: (url, body) => request("PATCH", url, body),
+
+  // Upload (FormData)
+  upload: (url, formData) => request("POST", url, formData, true),
+};
+
+/* ===============================
+   Specific API Calls
+================================ */
+
+// Dashboard
+async function getDashboardSummary() {
+  return api.get("dashboard/summary/");
 }
 
-// Export functions for module usage (if using modules)
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    apiGet,
-    apiPost,
-    getTransactions,
-    getAnomalies,
-    uploadAuditData,
-    getDashboardKPIs,
-    getAuditReports,
-  };
+async function getDashboardTrends() {
+  return api.get("dashboard/trends/");
+}
+
+// Anomalies
+async function getAnomalies(params = "") {
+  return api.get(`anomalies/${params}`);
+}
+
+// Upload
+async function uploadAudit(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  return api.upload("audits/upload/", formData);
+}
+
+// Reports
+async function generateReport(data) {
+  return api.post("reports/generate/", data);
 }

@@ -249,6 +249,14 @@
 <!-- Our API client (load first so other scripts can use it) -->
 <script src="{% static 'js/api.js' %}"></script>
 
+<script>
+const publicPaths = ["/login/", "/"];
+
+if (!localStorage.getItem("access_token") && !publicPaths.includes(window.location.pathname)) {
+  window.location.href = "/login/";
+}
+</script>
+
 {% block extra_js %}{% endblock %}
 
 </body>

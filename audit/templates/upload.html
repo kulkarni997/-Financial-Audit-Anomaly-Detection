@@ -1,0 +1,522 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Upload Data{% endblock %}
+{% block breadcrumb %}Upload Data{% endblock %}
+{% block nav_upload %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+  .upload-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .upload-zone {
+    border: 2px dashed var(--border-bright);
+    border-radius: var(--r-lg);
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--dur) var(--ease);
+    background: var(--bg-elevated);
+  }
+
+  .upload-zone:hover,
+  .upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(59, 130, 246, 0.08);
+  }
+
+  .upload-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-subtle);
+    border-radius: var(--r-md);
+    color: var(--accent);
+  }
+
+  .upload-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .upload-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .upload-subtext {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+  }
+
+  .upload-button {
+    display: inline-block;
+    padding: 10px 24px;
+    background: var(--accent);
+    color: white;
+    border-radius: var(--r-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background var(--dur) var(--ease);
+    border: none;
+  }
+
+  .upload-button:hover {
+    background: var(--accent-hover);
+  }
+
+  #file-input {
+    display: none;
+  }
+
+  .file-list {
+    margin-top: 32px;
+  }
+
+  .file-item {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background: var(--bg-elevated);
+    border-radius: var(--r-md);
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .file-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-subtle);
+    border-radius: var(--r-sm);
+    color: var(--accent);
+    margin-right: 16px;
+    flex-shrink: 0;
+  }
+
+  .file-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .file-name {
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 4px;
+    word-break: break-all;
+  }
+
+  .file-size {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  .file-progress {
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+
+  .file-progress-bar {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 300ms ease;
+  }
+
+  .file-status {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .file-status.uploading {
+    color: var(--accent);
+  }
+
+  .file-status.success {
+    color: var(--risk-low);
+  }
+
+  .file-status.error {
+    color: var(--risk-critical);
+  }
+
+  .file-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: 16px;
+  }
+
+  .btn-remove {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(239, 68, 68, 0.1);
+    border: none;
+    border-radius: var(--r-sm);
+    color: var(--risk-critical);
+    cursor: pointer;
+    transition: background var(--dur) var(--ease);
+    flex-shrink: 0;
+  }
+
+  .btn-remove:hover {
+    background: rgba(239, 68, 68, 0.2);
+  }
+
+  .upload-info {
+    background: var(--accent-subtle);
+    border: 1px solid var(--accent-glow);
+    border-radius: var(--r-md);
+    padding: 16px;
+    margin-top: 24px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .upload-info strong {
+    color: var(--accent);
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── PAGE HEADER ─────────────────────────────────────────── -->
+<div class="page-header fade-up">
+  <h1>Upload Financial Data</h1>
+  <p>Upload CSV or Excel files containing transaction data for anomaly detection analysis</p>
+</div>
+
+<!-- ── UPLOAD SECTION ─────────────────────────────────────── -->
+<div class="upload-container fade-up">
+
+  <!-- Upload Zone -->
+  <div class="upload-zone" id="uploadZone">
+    <div class="upload-icon">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+      </svg>
+    </div>
+    <div class="upload-text">Drag and drop files here</div>
+    <div class="upload-subtext">or</div>
+    <button type="button" class="upload-button" id="selectFilesBtn">Select Files</button>
+    <input type="file" id="file-input" multiple accept=".csv,.xlsx,.xls">
+  </div>
+
+  <!-- File List -->
+  <div class="file-list" id="fileList" style="display: none;">
+    <div style="color: var(--text-secondary); font-weight: 500; margin-bottom: 12px;">
+      Files to upload:
+    </div>
+    <div id="filesContainer"></div>
+    <div style="display: flex; gap: 12px; margin-top: 16px;">
+      <button type="button" class="upload-button" id="uploadBtn"
+        style="background: var(--risk-low); padding: 12px 24px; font-weight: 600;">
+        Upload Files
+      </button>
+      <button type="button" id="clearBtn"
+        style="padding: 12px 24px; background: var(--border); color: var(--text-primary); border: none; border-radius: var(--r-md); cursor: pointer; font-weight: 500;">
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Info Box -->
+  <div class="upload-info">
+    <strong>Supported Formats:</strong> CSV (.csv), Excel (.xlsx, .xls)
+    <br>
+    <strong>Maximum File Size:</strong> 50 MB per file
+    <br>
+    <strong>Expected Columns:</strong> Date, Amount, Account ID, Description (or similar)
+  </div>
+
+</div>
+
+<!-- ── UPLOADED FILES ─────────────────────────────────────── -->
+<div class="upload-container fade-up" style="margin-top: 48px;">
+  <div style="color: var(--text-secondary); font-weight: 500; margin-bottom: 16px;">
+    Recent Uploads
+  </div>
+  <div id="uploadedFilesList" style="display: none;">
+    <!-- Files will be loaded here -->
+  </div>
+  <div id="noUploads" style="text-align: center; padding: 32px; color: var(--text-muted);">
+    No files uploaded yet
+  </div>
+</div>
+
+<script>
+const uploadZone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('file-input');
+const selectFilesBtn = document.getElementById('selectFilesBtn');
+const fileList = document.getElementById('fileList');
+const filesContainer = document.getElementById('filesContainer');
+const uploadBtn = document.getElementById('uploadBtn');
+const clearBtn = document.getElementById('clearBtn');
+const uploadedFilesList = document.getElementById('uploadedFilesList');
+const noUploads = document.getElementById('noUploads');
+
+let selectedFiles = new Map();
+
+// Get CSRF token from meta tag or cookie
+function getCSRFToken() {
+  const token = document.querySelector('[name=csrfmiddlewaretoken]') || 
+                document.querySelector('meta[name="csrf-token"]');
+  
+  if (token && token.content) {
+    return token.content;
+  }
+  if (token && token.value) {
+    return token.value;
+  }
+  
+  // Fallback to cookie
+  return getCookie('csrftoken');
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+// File selection
+selectFilesBtn.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', (e) => {
+  addFiles(e.target.files);
+  fileInput.value = '';
+});
+
+// Drag and drop
+uploadZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadZone.classList.add('dragover');
+});
+
+uploadZone.addEventListener('dragleave', () => {
+  uploadZone.classList.remove('dragover');
+});
+
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  addFiles(e.dataTransfer.files);
+});
+
+function addFiles(files) {
+  for (let file of files) {
+    if (!selectedFiles.has(file.name)) {
+      selectedFiles.set(file.name, {
+        file: file,
+        id: Date.now() + Math.random(),
+        status: 'pending'
+      });
+    }
+  }
+  renderFileList();
+}
+
+function renderFileList() {
+  if (selectedFiles.size === 0) {
+    fileList.style.display = 'none';
+    return;
+  }
+
+  fileList.style.display = 'block';
+  filesContainer.innerHTML = '';
+
+  for (let [name, data] of selectedFiles) {
+    const fileItem = document.createElement('div');
+    fileItem.className = 'file-item';
+    fileItem.id = 'file-' + data.id;
+
+    const sizeKB = (data.file.size / 1024).toFixed(2);
+    let statusHTML = '';
+
+    if (data.status === 'uploading') {
+      statusHTML = `
+        <div class="file-progress">
+          <div class="file-progress-bar" style="width: ${data.progress || 0}%"></div>
+        </div>
+        <div class="file-status uploading">
+          <span class="spinner"></span>
+          Uploading (${data.progress || 0}%)
+        </div>
+      `;
+    } else if (data.status === 'success') {
+      statusHTML = `<div class="file-status success">✓ Uploaded</div>`;
+    } else if (data.status === 'error') {
+      statusHTML = `<div class="file-status error">✗ ${data.error || 'Upload failed'}</div>`;
+    } else {
+      statusHTML = `<div class="file-status">Ready to upload</div>`;
+    }
+
+    fileItem.innerHTML = `
+      <div class="file-icon">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9 12h3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+        </svg>
+      </div>
+      <div class="file-info">
+        <div class="file-name">${name}</div>
+        <div class="file-size">${sizeKB} KB</div>
+        ${statusHTML}
+      </div>
+      <div class="file-actions">
+        <button type="button" class="btn-remove" onclick="removeFile('${data.id}')">×</button>
+      </div>
+    `;
+    filesContainer.appendChild(fileItem);
+  }
+}
+
+function removeFile(id) {
+  for (let [name, data] of selectedFiles) {
+    if (data.id == id) {
+      selectedFiles.delete(name);
+      break;
+    }
+  }
+  renderFileList();
+}
+
+clearBtn.addEventListener('click', () => {
+  selectedFiles.clear();
+  renderFileList();
+});
+
+uploadBtn.addEventListener('click', uploadFiles);
+
+async function uploadFiles() {
+  if (selectedFiles.size === 0) return;
+
+  uploadBtn.disabled = true;
+
+  for (let [name, data] of selectedFiles) {
+    if (data.status !== 'pending') continue;
+
+    data.status = 'uploading';
+    data.progress = 0;
+    renderFileList();
+
+    try {
+      const formData = new FormData();
+      formData.append('file', data.file);
+
+      const xhr = new XMLHttpRequest();
+
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          data.progress = Math.round((e.loaded / e.total) * 100);
+          renderFileList();
+        }
+      });
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status === 200 || xhr.status === 201) {
+          data.status = 'success';
+          loadUploadedFiles();
+        } else {
+          data.status = 'error';
+          data.error = 'HTTP ' + xhr.status;
+        }
+        renderFileList();
+      });
+
+      xhr.addEventListener('error', () => {
+        data.status = 'error';
+        data.error = 'Network error';
+        renderFileList();
+      });
+
+      xhr.open('POST', '/api/upload/');
+      xhr.setRequestHeader('X-CSRFToken', getCSRFToken());
+      xhr.send(formData);
+
+    } catch (err) {
+      data.status = 'error';
+      data.error = err.message;
+      renderFileList();
+    }
+  }
+
+  uploadBtn.disabled = false;
+}
+
+function loadUploadedFiles() {
+  fetch('/api/uploads/')
+    .then(r => r.json())
+    .then(data => {
+      if (data.files && data.files.length > 0) {
+        uploadedFilesList.innerHTML = data.files.map(f => `
+          <div class="file-item" style="cursor: default;">
+            <div class="file-icon" style="background: var(--risk-low-bg); color: var(--risk-low);">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/>
+              </svg>
+            </div>
+            <div class="file-info">
+              <div class="file-name">${f.name}</div>
+              <div class="file-size">${new Date(f.uploaded_at).toLocaleString()}</div>
+              <div class="file-status success">✓ ${f.row_count} rows processed</div>
+            </div>
+          </div>
+        `).join('');
+        uploadedFilesList.style.display = 'block';
+        noUploads.style.display = 'none';
+      }
+    });
+}
+
+// Load initial uploaded files
+loadUploadedFiles();
+</script>
+
+{% endblock %}
