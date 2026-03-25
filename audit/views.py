@@ -38,6 +38,22 @@ def settings_view(request):
     return render(request, 'settings.html')
 
 
+@require_http_methods(["POST"])
+def api_logout(request):
+    """Handle logout - mostly client-side with JWT tokens"""
+    try:
+        # Log logout event
+        log_audit_event(
+            'system',
+            'User Logout',
+            'User signed out of the system',
+            {}
+        )
+        return JsonResponse({'success': True, 'message': 'Logged out successfully'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
 # ═════════════════════════════════════════════════════════════════
 # AUDIT HISTORY FUNCTIONS
 # ═════════════════════════════════════════════════════════════════

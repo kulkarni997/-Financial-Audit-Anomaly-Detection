@@ -23,4 +23,7 @@ urlpatterns = [
     # API - Audit History
     path('api/audit-history/', views.api_audit_history, name='api_audit_history'),
     path('api/audit-stats/', views.api_audit_stats, name='api_audit_stats'),
+    
+    # API - Auth
+    path('api/auth/logout/', views.api_logout, name='api_logout'),
 ]
