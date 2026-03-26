@@ -11,6 +11,9 @@ import numpy as np
 from datetime import datetime
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+import csv
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 @api_view(['GET'])
 def dashboard_summary(request):
@@ -21,6 +24,33 @@ def dashboard_summary(request):
         "avg_risk_score": 35
     }
     return Response(data)
+
+@api_view(['GET'])
+def trends_view(request):
+    data = {
+        "labels": ["Nov 1", "Nov 3", "Nov 5", "Nov 7"],
+        "flagged": [4, 7, 3, 11],
+        "total": [120, 134, 98, 145]
+    }
+    return Response(data)
+
+@api_view(['POST'])
+def upload_file(request):
+    file = request.FILES.get('file')
+
+    if not file:
+        return Response({"error": "No file uploaded"}, status=400)
+
+    decoded = file.read().decode('utf-8').splitlines()
+    reader = csv.DictReader(decoded)
+
+    data = list(reader)
+
+    return Response({
+        "message": "File uploaded successfully",
+        "rows": len(data),
+        "sample": data[:5]
+    })
 
 # Create uploads directory if it doesn't exist
 UPLOADS_DIR = Path('uploaded_files')

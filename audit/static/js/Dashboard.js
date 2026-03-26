@@ -383,8 +383,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ]);
 
   const summary = await api.get("dashboard/summary/");
+  const trends = await api.get("dashboard/trends/");
+  
   renderKPICards(summary);
-  trendChartInstance = renderTrendChart(MOCK_TRENDS);
+  trendChartInstance = renderTrendChart(trends);
   renderDoughnut(summary);
   renderVendors(summary.top_vendors || []);
   renderFeed(MOCK_FEED);
