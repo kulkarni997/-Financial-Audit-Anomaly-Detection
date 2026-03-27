@@ -1,5 +1,5 @@
 date,amount,emp_id,vendor,category,department
-2024-06-01,2277,FIN0001,Amazon,Software,Finance
+2024-06-01,9999999999,FIN0001,Amazon,Software,Finance
 2024-06-01,1963,FIN0002,Swiggy,Office,Finance
 2024-06-01,3299,FIN0003,MakeMyTrip,Office,Finance
 2024-06-01,3851,FIN0004,MakeMyTrip,Food,Finance
