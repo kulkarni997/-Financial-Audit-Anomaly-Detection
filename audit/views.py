@@ -16,6 +16,10 @@ from rest_framework.response import Response
 from .ocr_utils import extract_text_from_image, extract_amount, detect_price_mismatch
 import csv
 import uuid
+from rest_framework.decorators import parser_classes
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+from rest_framework.parsers import MultiPartParser, FormParser
 
 @api_view(['GET'])
 def dashboard_summary(request):
@@ -36,7 +40,21 @@ def trends_view(request):
     }
     return Response(data)
 
+@swagger_auto_schema(
+    method='post',
+    manual_parameters=[
+        openapi.Parameter(
+            'file',
+            openapi.IN_FORM,
+            description="Upload invoice image",
+            type=openapi.TYPE_FILE,
+            required=True
+        )
+    ]
+)
 @api_view(['POST'])
+@csrf_exempt
+@parser_classes([MultiPartParser, FormParser])
 def upload_file(request):
     try:
         if 'file' not in request.FILES:
@@ -273,41 +291,53 @@ def analyze_file_for_anomalies(file_path):
 # ═════════════════════════════════════════════════════════════════
 
 #################
+
+@swagger_auto_schema(
+    method='post',
+    manual_parameters=[
+        openapi.Parameter(
+            'file',
+            openapi.IN_FORM,
+            description="Upload invoice image",
+            type=openapi.TYPE_FILE,
+            required=True
+        )
+    ]
+)
+@api_view(['POST'])
+@csrf_exempt
+@parser_classes([MultiPartParser, FormParser])
 def upload_invoice(request):
-    if request.method == "GET":
-        return JsonResponse({"msg": "OCR API working"})
 
-    if request.method == "POST":
-        file = request.FILES.get("file")
+    file = request.FILES.get("file") or request.data.get("file")
 
-        if not file:
-            return JsonResponse({"error": "No file uploaded"})
+    if not file:
+        return Response({"error": "No file uploaded"}, status=400)
 
-        os.makedirs("media", exist_ok=True)
+    os.makedirs("media", exist_ok=True)
 
-        file_path = f"media/{file.name}"
+    file_path = f"media/{file.name}"
 
-        with open(file_path, "wb+") as f:
-            for chunk in file.chunks():
-                f.write(chunk)
+    with open(file_path, "wb+") as f:
+        for chunk in file.chunks():
+            f.write(chunk)
 
-        text = extract_text_from_image(file_path)
-        amount = extract_amount(text)
-        mismatch = detect_price_mismatch(text)
-        risk = "low"
-        
-        if amount > 50000:
-                risk = "high"
+    text = extract_text_from_image(file_path)
+    amount = extract_amount(text)
+    mismatch = detect_price_mismatch(text)
 
-        if mismatch:
-                risk = "critical"
+    risk = "low"
+    if amount > 50000:
+        risk = "high"
+    if mismatch:
+        risk = "critical"
 
-        return JsonResponse({
+    return Response({
         "text": text[:200],
         "amount": amount,
         "risk": risk,
         "mismatch": mismatch
-        })
+    })
 
 @require_http_methods(["GET"])
 def api_get_uploads(request):

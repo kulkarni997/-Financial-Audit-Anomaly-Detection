@@ -1,12 +1,112 @@
 [
   {
-    "id": "anom_f482b206de7642f5a42d3324aeeae2d7",
-    "date": "2024-01-05",
-    "amount": 999999.0,
-    "account": "ACC5",
-    "type": "outlier",
+    "id": "anom_fc65ccfd78c54d82a96c82e3c965cdb6",
+    "date": "2024-01-15",
+    "amount": 646949.0,
+    "account": "N/A",
+    "type": "data_type",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Unusually high transaction ($646,949.00 vs avg $35,875.11)"
+  },
+  {
+    "id": "anom_aff458e8031947ca8a20848d1d1ad7b4",
+    "date": "2024-03-15",
+    "amount": 271509.0,
+    "account": "N/A",
+    "type": "data_type",
+    "risk": "low",
+    "risk_level": "low",
+    "reason": "Unusually high transaction ($271,509.00 vs avg $35,875.11)"
+  },
+  {
+    "id": "anom_3908ac2821c9484d829973a2544cbc02",
+    "date": "2024-01-08",
+    "amount": 26588.0,
+    "account": "N/A",
+    "type": "data_type",
+    "risk": "low",
+    "risk_level": "low",
+    "reason": "Statistical outlier (deviation: 0.07x std)"
+  },
+  {
+    "id": "anom_0b37a8e358ee420aa425b36eb96311b8",
+    "date": "2024-01-13",
+    "amount": 429315.0,
+    "account": "N/A",
+    "type": "data_type",
     "risk": "medium",
     "risk_level": "medium",
-    "reason": "Unusually high transaction ($999,999.00 vs avg $142,982.71)"
+    "reason": "Unusually high transaction ($429,315.00 vs avg $35,875.11)"
+  },
+  {
+    "id": "anom_0c5bd82f0ee84114b536679adbb2ab82",
+    "date": "2024-02-28",
+    "amount": 192882.0,
+    "account": "N/A",
+    "type": "data_type",
+    "risk": "low",
+    "risk_level": "low",
+    "reason": "Unusually high transaction ($192,882.00 vs avg $35,875.11)"
+  },
+  {
+    "id": "anom_0ada7ed238df45d9ae1c668cba7b25f2",
+    "date": "2024-01-13",
+    "amount": 446247.0,
+    "account": "N/A",
+    "type": "data_type",
+    "risk": "medium",
+    "risk_level": "medium",
+    "reason": "Unusually high transaction ($446,247.00 vs avg $35,875.11)"
+  },
+  {
+    "id": "anom_531b1496c707421786c4e5cc941d237f",
+    "date": "2024-01-22",
+    "amount": 748877.0,
+    "account": "N/A",
+    "type": "data_type",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Unusually high transaction ($748,877.00 vs avg $35,875.11)"
+  },
+  {
+    "id": "anom_7a1bf804a06547b7b6b7fd75c9c89cb3",
+    "date": "2024-02-15",
+    "amount": 930206.0,
+    "account": "N/A",
+    "type": "data_type",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Unusually high transaction ($930,206.00 vs avg $35,875.11)"
+  },
+  {
+    "id": "anom_ffcec22570db4d3ba9faf2fdac749c8e",
+    "date": "2024-02-25",
+    "amount": 194568.0,
+    "account": "N/A",
+    "type": "data_type",
+    "risk": "low",
+    "risk_level": "low",
+    "reason": "Unusually high transaction ($194,568.00 vs avg $35,875.11)"
+  },
+  {
+    "id": "anom_ecb5cdd7825d44b7bee927d67bb43aca",
+    "date": "2024-02-25",
+    "amount": 571687.0,
+    "account": "N/A",
+    "type": "data_type",
+    "risk": "high",
+    "risk_level": "high",
+    "reason": "Unusually high transaction ($571,687.00 vs avg $35,875.11)"
+  },
+  {
+    "id": "anom_a1e3d8bcecbb4098b1c4216d70058c9b",
+    "date": "2024-01-27",
+    "amount": 640727.0,
+    "account": "N/A",
+    "type": "data_type",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Unusually high transaction ($640,727.00 vs avg $35,875.11)"
   }
 ]

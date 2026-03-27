@@ -17,6 +17,7 @@ urlpatterns = [
     path('api/upload/', views.upload_file, name='api_upload'),
     path('api/uploads/', views.api_get_uploads, name='api_uploads'),
     path('audits/upload/', upload_file),
+    path('api/invoice/upload/', views.upload_invoice),
     # API - Anomalies
     path('api/anomalies/', views.api_get_anomalies, name='api_anomalies'),
     path('api/anomalies/stats/', views.api_anomaly_stats, name='api_anomaly_stats'),
