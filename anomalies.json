@@ -1,112 +1,1002 @@
 [
   {
-    "id": "anom_fc65ccfd78c54d82a96c82e3c965cdb6",
-    "date": "2024-01-15",
-    "amount": 646949.0,
-    "account": "N/A",
-    "type": "data_type",
+    "id": "anom_3b8bd75775e54eb1841caf98e518ccb4",
+    "date": "2024-06-01",
+    "amount": 9999999999.0,
+    "account": "FIN0001",
+    "type": "behavior_anomaly",
     "risk": "critical",
     "risk_level": "critical",
-    "reason": "Unusually high transaction ($646,949.00 vs avg $35,875.11)"
+    "reason": "Deviation from normal behavior (avg 7296.30)"
   },
   {
-    "id": "anom_aff458e8031947ca8a20848d1d1ad7b4",
-    "date": "2024-03-15",
-    "amount": 271509.0,
-    "account": "N/A",
-    "type": "data_type",
-    "risk": "low",
-    "risk_level": "low",
-    "reason": "Unusually high transaction ($271,509.00 vs avg $35,875.11)"
-  },
-  {
-    "id": "anom_3908ac2821c9484d829973a2544cbc02",
-    "date": "2024-01-08",
-    "amount": 26588.0,
-    "account": "N/A",
-    "type": "data_type",
-    "risk": "low",
-    "risk_level": "low",
-    "reason": "Statistical outlier (deviation: 0.07x std)"
-  },
-  {
-    "id": "anom_0b37a8e358ee420aa425b36eb96311b8",
-    "date": "2024-01-13",
-    "amount": 429315.0,
-    "account": "N/A",
-    "type": "data_type",
-    "risk": "medium",
-    "risk_level": "medium",
-    "reason": "Unusually high transaction ($429,315.00 vs avg $35,875.11)"
-  },
-  {
-    "id": "anom_0c5bd82f0ee84114b536679adbb2ab82",
-    "date": "2024-02-28",
-    "amount": 192882.0,
-    "account": "N/A",
-    "type": "data_type",
-    "risk": "low",
-    "risk_level": "low",
-    "reason": "Unusually high transaction ($192,882.00 vs avg $35,875.11)"
-  },
-  {
-    "id": "anom_0ada7ed238df45d9ae1c668cba7b25f2",
-    "date": "2024-01-13",
-    "amount": 446247.0,
-    "account": "N/A",
-    "type": "data_type",
-    "risk": "medium",
-    "risk_level": "medium",
-    "reason": "Unusually high transaction ($446,247.00 vs avg $35,875.11)"
-  },
-  {
-    "id": "anom_531b1496c707421786c4e5cc941d237f",
-    "date": "2024-01-22",
-    "amount": 748877.0,
-    "account": "N/A",
-    "type": "data_type",
+    "id": "anom_8fe7d7e28de44992b0f151b2d645391b",
+    "date": "2024-06-01",
+    "amount": 158242.0,
+    "account": "FIN0011",
+    "type": "behavior_anomaly",
     "risk": "critical",
     "risk_level": "critical",
-    "reason": "Unusually high transaction ($748,877.00 vs avg $35,875.11)"
+    "reason": "Deviation from normal behavior (avg 7296.30)"
   },
   {
-    "id": "anom_7a1bf804a06547b7b6b7fd75c9c89cb3",
-    "date": "2024-02-15",
-    "amount": 930206.0,
-    "account": "N/A",
-    "type": "data_type",
+    "id": "anom_4b507c12ce62484a981bc4f3650a05e5",
+    "date": "2024-06-01",
+    "amount": 125627.0,
+    "account": "FIN0042",
+    "type": "behavior_anomaly",
     "risk": "critical",
     "risk_level": "critical",
-    "reason": "Unusually high transaction ($930,206.00 vs avg $35,875.11)"
+    "reason": "Deviation from normal behavior (avg 7296.30)"
   },
   {
-    "id": "anom_ffcec22570db4d3ba9faf2fdac749c8e",
-    "date": "2024-02-25",
-    "amount": 194568.0,
-    "account": "N/A",
-    "type": "data_type",
-    "risk": "low",
-    "risk_level": "low",
-    "reason": "Unusually high transaction ($194,568.00 vs avg $35,875.11)"
-  },
-  {
-    "id": "anom_ecb5cdd7825d44b7bee927d67bb43aca",
-    "date": "2024-02-25",
-    "amount": 571687.0,
-    "account": "N/A",
-    "type": "data_type",
-    "risk": "high",
-    "risk_level": "high",
-    "reason": "Unusually high transaction ($571,687.00 vs avg $35,875.11)"
-  },
-  {
-    "id": "anom_a1e3d8bcecbb4098b1c4216d70058c9b",
-    "date": "2024-01-27",
-    "amount": 640727.0,
-    "account": "N/A",
-    "type": "data_type",
+    "id": "anom_ab163df1bc0a4a248940e631a817c8e0",
+    "date": "2024-06-01",
+    "amount": 129076.0,
+    "account": "FIN0043",
+    "type": "behavior_anomaly",
     "risk": "critical",
     "risk_level": "critical",
-    "reason": "Unusually high transaction ($640,727.00 vs avg $35,875.11)"
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_8560301dc9e449e79eef899220d31d2e",
+    "date": "2024-06-01",
+    "amount": 138691.0,
+    "account": "IT0037",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_a78f29d7187241e19f90674057ca58d6",
+    "date": "2024-06-01",
+    "amount": 120988.0,
+    "account": "IT0050",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_f1cce78ca1ce45bcb2cbcaa0155e923a",
+    "date": "2024-06-01",
+    "amount": 178939.0,
+    "account": "HR0002",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_259758be53574418a317d06878f6f8f2",
+    "date": "2024-06-01",
+    "amount": 152471.0,
+    "account": "HR0021",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_0e7433cc71804eb9a6f7d279ab06c90d",
+    "date": "2024-06-01",
+    "amount": 191794.0,
+    "account": "HR0039",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_5a1b7f1cd3e14490bc70a327209f7fd9",
+    "date": "2024-06-01",
+    "amount": 115438.0,
+    "account": "OPS0033",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_89f705bb57f145d389c938e9823a1f29",
+    "date": "2024-06-02",
+    "amount": 89629.0,
+    "account": "FIN0001",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_837fd0e6fbfb4a3ea788c3174eb443b2",
+    "date": "2024-06-02",
+    "amount": 145080.0,
+    "account": "HR0027",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_7837f5f3a6b34fc0b68801d07aeb5b90",
+    "date": "2024-06-02",
+    "amount": 192020.0,
+    "account": "HR0029",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_f6c1a6c2f4b5440692c1f9f812c10b21",
+    "date": "2024-06-02",
+    "amount": 90056.0,
+    "account": "OPS0010",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_2bf54a67d0294013baaa59cc37645244",
+    "date": "2024-06-03",
+    "amount": 114548.0,
+    "account": "OPS0010",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_6a61e0db66c84fbba07aa871627bcf4f",
+    "date": "2024-06-03",
+    "amount": 105054.0,
+    "account": "OPS0045",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_7338eb35d0ce44c5818743c41558903b",
+    "date": "2024-06-04",
+    "amount": 97998.0,
+    "account": "FIN0032",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_3d525bee606b4b7a97cab41f2e5a90c9",
+    "date": "2024-06-04",
+    "amount": 121433.0,
+    "account": "IT0015",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_edcd766a7c1f4694b75afedf40caf538",
+    "date": "2024-06-04",
+    "amount": 119419.0,
+    "account": "IT0019",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_f4f1b04bf95d4dca9c1e5648150e6026",
+    "date": "2024-06-04",
+    "amount": 179148.0,
+    "account": "IT0030",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_0f334d8340d7424d9ec3636e3b290955",
+    "date": "2024-06-04",
+    "amount": 146472.0,
+    "account": "HR0020",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_22495dec2157442595e802d2e8d4317b",
+    "date": "2024-06-04",
+    "amount": 91552.0,
+    "account": "HR0027",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_726977a00dd94d5294d823c71f04d10f",
+    "date": "2024-06-04",
+    "amount": 191995.0,
+    "account": "HR0036",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_704ed8d935cc46c3a3e9713849725f98",
+    "date": "2024-06-04",
+    "amount": 85505.0,
+    "account": "OPS0024",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_1157e261013f4f76bac77f2ec0cd9b41",
+    "date": "2024-06-05",
+    "amount": 169448.0,
+    "account": "FIN0012",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_bf82cb1a1b214fcf8d71825d40144eb0",
+    "date": "2024-06-05",
+    "amount": 94688.0,
+    "account": "IT0016",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_0dd35095ef21449ca501b743fc1b9d9b",
+    "date": "2024-06-05",
+    "amount": 125564.0,
+    "account": "IT0038",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_76e99e12c31246f78d73baff6254d097",
+    "date": "2024-06-05",
+    "amount": 94431.0,
+    "account": "IT0048",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_b83ca301729f4fe38ceb8ca7e8b8594e",
+    "date": "2024-06-05",
+    "amount": 185374.0,
+    "account": "HR0005",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_ec40cfeca135480d9c5f03f2e95d1641",
+    "date": "2024-06-05",
+    "amount": 176503.0,
+    "account": "HR0038",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_5d92d1bc47c94603a7dd8b5f9d7bdfc9",
+    "date": "2024-06-06",
+    "amount": 91143.0,
+    "account": "FIN0028",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_879354e526fd452e906d5a1afeab08e4",
+    "date": "2024-06-06",
+    "amount": 148548.0,
+    "account": "FIN0046",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_953cf9e0ab9e459db47b43956c4e6212",
+    "date": "2024-06-06",
+    "amount": 161988.0,
+    "account": "FIN0047",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_ecb266a604af466dbbe21a6ca1fce654",
+    "date": "2024-06-06",
+    "amount": 141967.0,
+    "account": "IT0045",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_9adca8dbd6c14868aa4ca61b6fe4ae3c",
+    "date": "2024-06-06",
+    "amount": 130506.0,
+    "account": "IT0047",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_2d60ac65634c404984016f7e6d6240b2",
+    "date": "2024-06-06",
+    "amount": 157039.0,
+    "account": "HR0043",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_b9052c21c41e440fb2f60d8bcc3982d6",
+    "date": "2024-06-06",
+    "amount": 167375.0,
+    "account": "OPS0050",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_6de68c43f9844e94817c363d956bd2ed",
+    "date": "2024-06-07",
+    "amount": 155732.0,
+    "account": "FIN0001",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_3553618845734647a6f47bd53efb61b3",
+    "date": "2024-06-07",
+    "amount": 98967.0,
+    "account": "FIN0013",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_0e28eb2908a84604af71881a9337728e",
+    "date": "2024-06-07",
+    "amount": 186790.0,
+    "account": "FIN0015",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_d9bc64594fab4c299f6cccec5277b03c",
+    "date": "2024-06-07",
+    "amount": 114934.0,
+    "account": "FIN0045",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_ce9ce04fa1bb47ed899d963a6060b4fc",
+    "date": "2024-06-07",
+    "amount": 104338.0,
+    "account": "FIN0048",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_e7f615adb67b4b8699a2b0d991d3be1e",
+    "date": "2024-06-07",
+    "amount": 166299.0,
+    "account": "IT0039",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_6824ffd3125f4d68b4443d446d9ce9f9",
+    "date": "2024-06-07",
+    "amount": 102680.0,
+    "account": "IT0048",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_ecb918ed8f7c47dbb424d4e732d2b69f",
+    "date": "2024-06-07",
+    "amount": 157324.0,
+    "account": "IT0049",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_e7b0ed91d258475097b70f5b29e58d8b",
+    "date": "2024-06-07",
+    "amount": 137978.0,
+    "account": "HR0015",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_92f0585e3aed431695d5135135ef6678",
+    "date": "2024-06-07",
+    "amount": 191958.0,
+    "account": "HR0028",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_ca5050265fc744ed9c9e8ddab4e1c66f",
+    "date": "2024-06-07",
+    "amount": 166630.0,
+    "account": "HR0035",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_a93a9efba3f1454fbee0a65230aff633",
+    "date": "2024-06-07",
+    "amount": 95019.0,
+    "account": "OPS0035",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_3412ef210f23406b8c78daf2b8c4c703",
+    "date": "2024-06-07",
+    "amount": 171447.0,
+    "account": "OPS0041",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_04eefb812df341a7b0f3bb0860503241",
+    "date": "2024-06-08",
+    "amount": 138359.0,
+    "account": "FIN0021",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_8fc6c759bbee4e69a28596d2fedc0048",
+    "date": "2024-06-08",
+    "amount": 179021.0,
+    "account": "FIN0038",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_1f86f7336b8049e69190154b5b8cb1ce",
+    "date": "2024-06-08",
+    "amount": 166555.0,
+    "account": "IT0030",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_6ecf0befd09f47ef83730a6dcd9135a2",
+    "date": "2024-06-08",
+    "amount": 123682.0,
+    "account": "HR0004",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_0723ac678a184229af0395d11c48510b",
+    "date": "2024-06-08",
+    "amount": 142654.0,
+    "account": "HR0019",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_334c63cb017d46d2ab0a476d18773da2",
+    "date": "2024-06-08",
+    "amount": 138695.0,
+    "account": "HR0048",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_156a43d8c5714ff7b16dd7c43eb3b4f0",
+    "date": "2024-06-08",
+    "amount": 122224.0,
+    "account": "HR0050",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_0a44bbf922114c2db2b6234d6d4d291f",
+    "date": "2024-06-08",
+    "amount": 166490.0,
+    "account": "OPS0002",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_5d70ce373c9843ffa312cee6681b75e4",
+    "date": "2024-06-08",
+    "amount": 101805.0,
+    "account": "OPS0028",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_c61a22bcba694d01bf303d05bf0786ce",
+    "date": "2024-06-09",
+    "amount": 107823.0,
+    "account": "FIN0007",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_79b06fc1b0f741e4b86cc33b52302c81",
+    "date": "2024-06-09",
+    "amount": 189328.0,
+    "account": "FIN0017",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_c15e24e44700450dabc02fb834c0da80",
+    "date": "2024-06-09",
+    "amount": 152163.0,
+    "account": "IT0021",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_0290712d068e4a95a3a2f3b5039f593c",
+    "date": "2024-06-09",
+    "amount": 118556.0,
+    "account": "IT0026",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_28b7ed11716145e8b97bc864441bbaaf",
+    "date": "2024-06-09",
+    "amount": 144945.0,
+    "account": "IT0028",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_ebd22230424142609b0dbeb11d03d9c0",
+    "date": "2024-06-09",
+    "amount": 165049.0,
+    "account": "HR0030",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_33ad518dc44e4389b4859732c14dea07",
+    "date": "2024-06-09",
+    "amount": 147925.0,
+    "account": "OPS0028",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_927e71e76e534192951f32febca7b24a",
+    "date": "2024-06-10",
+    "amount": 89791.0,
+    "account": "FIN0016",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_29fb12cf126e4213897d116219854eb4",
+    "date": "2024-06-10",
+    "amount": 199723.0,
+    "account": "FIN0037",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_51866ced3f224c42a6da6163d8aa20f2",
+    "date": "2024-06-10",
+    "amount": 135635.0,
+    "account": "FIN0040",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_00f5e29afa704fb2b278592e9d633e89",
+    "date": "2024-06-10",
+    "amount": 137317.0,
+    "account": "IT0002",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_3ad33769255e414a8eb6b8a54d7ed19f",
+    "date": "2024-06-10",
+    "amount": 86833.0,
+    "account": "OPS0023",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_bfb00c1376004217a5b05b43b47c2cd7",
+    "date": "2024-06-10",
+    "amount": 185045.0,
+    "account": "OPS0035",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_ab096c922a4b4b7894988a8fcbdea42e",
+    "date": "2024-06-10",
+    "amount": 129154.0,
+    "account": "OPS0037",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_738cb867bc504317b0d31153af503564",
+    "date": "2024-06-11",
+    "amount": 124813.0,
+    "account": "FIN0042",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_44bc3a3f7bae4c0c92f36d03575a2264",
+    "date": "2024-06-11",
+    "amount": 199799.0,
+    "account": "IT0011",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_f028b827ea3d457e9fd1ca614c1b73de",
+    "date": "2024-06-11",
+    "amount": 199009.0,
+    "account": "IT0041",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_c2cdd94378ff4e64aca530ca272b5e5c",
+    "date": "2024-06-11",
+    "amount": 181563.0,
+    "account": "HR0020",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_db1637699fbe4077a588792619be6f48",
+    "date": "2024-06-11",
+    "amount": 106194.0,
+    "account": "HR0048",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_ed16f7ddbd784441a67e7ff942d67d0c",
+    "date": "2024-06-11",
+    "amount": 151703.0,
+    "account": "OPS0004",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_4e930e45ce40469b81b1d74c28b02e35",
+    "date": "2024-06-11",
+    "amount": 147071.0,
+    "account": "OPS0017",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_711b2103d629418d9658aeda8a0a3468",
+    "date": "2024-06-11",
+    "amount": 199135.0,
+    "account": "OPS0028",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_16754cc1be5f4a1fb8e1ed2c40ce044a",
+    "date": "2024-06-12",
+    "amount": 100038.0,
+    "account": "FIN0014",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_a38c7c8b9a2343d9b063fa8a7da11c41",
+    "date": "2024-06-12",
+    "amount": 88726.0,
+    "account": "IT0030",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_6b4efc57b8a44bce9353f447ac362d91",
+    "date": "2024-06-12",
+    "amount": 173351.0,
+    "account": "IT0045",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_42ee7fbdff004542bc9542b302e47282",
+    "date": "2024-06-12",
+    "amount": 105712.0,
+    "account": "IT0047",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_2d8eca66174346d9883de0dd0ce84a8c",
+    "date": "2024-06-12",
+    "amount": 116950.0,
+    "account": "HR0025",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_ac804a532b8c44b7a8cccc3de7aa8ce5",
+    "date": "2024-06-12",
+    "amount": 183603.0,
+    "account": "HR0039",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_d4068e075879485296e9c9dace6b0b90",
+    "date": "2024-06-12",
+    "amount": 116148.0,
+    "account": "HR0048",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_b7fbd8ec4a044f3e8c863b9b45798818",
+    "date": "2024-06-13",
+    "amount": 145067.0,
+    "account": "IT0044",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_a6c820019ef345658abcdaf08c70ab35",
+    "date": "2024-06-13",
+    "amount": 148211.0,
+    "account": "OPS0014",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_1f2aed4174694bd298e0fe21fa0366b2",
+    "date": "2024-06-14",
+    "amount": 186629.0,
+    "account": "FIN0001",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_32c3e3bd21ed4eb290fa2e48d6ea66e1",
+    "date": "2024-06-14",
+    "amount": 177804.0,
+    "account": "FIN0033",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_d30f7f4d2e3b4e9a9e66cc608eed028e",
+    "date": "2024-06-14",
+    "amount": 103359.0,
+    "account": "FIN0034",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_1c7252954554467ebd42aad6663127b1",
+    "date": "2024-06-14",
+    "amount": 98912.0,
+    "account": "HR0045",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_c720140f986d4da896746410ac390f46",
+    "date": "2024-06-15",
+    "amount": 95690.0,
+    "account": "FIN0001",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_472739dbde454b798695ec1a0d1e842d",
+    "date": "2024-06-15",
+    "amount": 188327.0,
+    "account": "FIN0039",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_b33ed2ebffbd438d8dad4ef689d4b6f0",
+    "date": "2024-06-15",
+    "amount": 171289.0,
+    "account": "IT0004",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_12c1569c25d94d60bd0ae3956ece953d",
+    "date": "2024-06-15",
+    "amount": 162400.0,
+    "account": "IT0012",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_7319b6d802ec49bab4d7a9f3b9d787c4",
+    "date": "2024-06-15",
+    "amount": 93576.0,
+    "account": "IT0041",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
+  },
+  {
+    "id": "anom_4841643d6033449c955b963748afe9cf",
+    "date": "2024-06-15",
+    "amount": 134508.0,
+    "account": "OPS0047",
+    "type": "behavior_anomaly",
+    "risk": "critical",
+    "risk_level": "critical",
+    "reason": "Deviation from normal behavior (avg 7296.30)"
   }
 ]

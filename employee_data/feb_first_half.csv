@@ -1,7 +1,7 @@
 date,amount,emp_id,vendor,category,department
 2024-02-01,299,FIN0001,Flipkart,Software,Finance
 2024-02-01,2233,FIN0002,Flipkart,Food,Finance
-2024-02-01,2499,FIN0003,Swiggy,Software,Finance
+2024-02-01,24900,FIN0003,Swiggy,Software,Finance
 2024-02-01,3282,FIN0004,MakeMyTrip,Electronics,Finance
 2024-02-01,3978,FIN0005,Uber,Food,Finance
 2024-02-01,1102,FIN0006,MakeMyTrip,Software,Finance
