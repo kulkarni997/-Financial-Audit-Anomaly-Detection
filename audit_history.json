@@ -257,5 +257,32 @@
       "medium": 0,
       "count": 0
     }
+  },
+  {
+    "id": "audit_1b2567641fa1448da86085a0a617c549",
+    "timestamp": "2026-03-27T10:18:01.751219",
+    "event_type": "upload",
+    "title": "File Uploaded: test.csv",
+    "description": "Successfully uploaded transaction data file",
+    "details": {
+      "filename": "test.csv",
+      "size": "0.17 KB",
+      "rows": 7,
+      "count": 7
+    }
+  },
+  {
+    "id": "audit_699422d0bade47c1a880db04e6fa977d",
+    "timestamp": "2026-03-27T10:18:05.591429",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed file: test.csv",
+    "details": {
+      "anomalies_detected": 1,
+      "critical": 0,
+      "high": 0,
+      "medium": 1,
+      "count": 1
+    }
   }
 ]

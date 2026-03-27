@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": "anom_fb23a39d6dab43fd955f5a3482fe989a",
+    "date": "2024-01-05",
+    "amount": 999999.0,
+    "account": "ACC5",
+    "type": "outlier",
+    "risk": "medium",
+    "risk_level": "medium",
+    "reason": "Unusually high transaction ($999,999.00 vs avg $142,982.71)"
+  }
+]
