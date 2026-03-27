@@ -294,38 +294,15 @@ const noUploads = document.getElementById('noUploads');
 
 let selectedFiles = new Map();
 
-// Get CSRF token from meta tag or cookie
+// CSRF
 function getCSRFToken() {
-  const token = document.querySelector('[name=csrfmiddlewaretoken]') || 
-                document.querySelector('meta[name="csrf-token"]');
-  
-  if (token && token.content) {
-    return token.content;
-  }
-  if (token && token.value) {
-    return token.value;
-  }
-  
-  // Fallback to cookie
-  return getCookie('csrftoken');
+  return document.cookie
+    .split('; ')
+    .find(row => row.startsWith('csrftoken='))
+    ?.split('=')[1];
 }
 
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
-
-// File selection
+// Select files
 selectFilesBtn.addEventListener('click', () => fileInput.click());
 
 fileInput.addEventListener('change', (e) => {
@@ -333,7 +310,7 @@ fileInput.addEventListener('change', (e) => {
   fileInput.value = '';
 });
 
-// Drag and drop
+// Drag & drop
 uploadZone.addEventListener('dragover', (e) => {
   e.preventDefault();
   uploadZone.classList.add('dragover');
@@ -349,8 +326,14 @@ uploadZone.addEventListener('drop', (e) => {
   addFiles(e.dataTransfer.files);
 });
 
+// Add files
 function addFiles(files) {
   for (let file of files) {
+    if (!file.name.endsWith('.csv')) {
+      alert("Only CSV files allowed!");
+      continue;
+    }
+
     if (!selectedFiles.has(file.name)) {
       selectedFiles.set(file.name, {
         file: file,
@@ -362,6 +345,7 @@ function addFiles(files) {
   renderFileList();
 }
 
+// Render list
 function renderFileList() {
   if (selectedFiles.size === 0) {
     fileList.style.display = 'none';
@@ -371,52 +355,29 @@ function renderFileList() {
   fileList.style.display = 'block';
   filesContainer.innerHTML = '';
 
-  for (let [name, data] of selectedFiles) {
+  selectedFiles.forEach((data, name) => {
+    const sizeKB = (data.file.size / 1024).toFixed(2);
+
     const fileItem = document.createElement('div');
     fileItem.className = 'file-item';
-    fileItem.id = 'file-' + data.id;
-
-    const sizeKB = (data.file.size / 1024).toFixed(2);
-    let statusHTML = '';
-
-    if (data.status === 'uploading') {
-      statusHTML = `
-        <div class="file-progress">
-          <div class="file-progress-bar" style="width: ${data.progress || 0}%"></div>
-        </div>
-        <div class="file-status uploading">
-          <span class="spinner"></span>
-          Uploading (${data.progress || 0}%)
-        </div>
-      `;
-    } else if (data.status === 'success') {
-      statusHTML = `<div class="file-status success">✓ Uploaded</div>`;
-    } else if (data.status === 'error') {
-      statusHTML = `<div class="file-status error">✗ ${data.error || 'Upload failed'}</div>`;
-    } else {
-      statusHTML = `<div class="file-status">Ready to upload</div>`;
-    }
 
     fileItem.innerHTML = `
-      <div class="file-icon">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M9 12h3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-        </svg>
-      </div>
+      <div class="file-icon">📄</div>
       <div class="file-info">
         <div class="file-name">${name}</div>
         <div class="file-size">${sizeKB} KB</div>
-        ${statusHTML}
+        <div class="file-status">${data.status}</div>
       </div>
       <div class="file-actions">
-        <button type="button" class="btn-remove" onclick="removeFile('${data.id}')">×</button>
+        <button class="btn-remove" onclick="removeFile('${data.id}')">×</button>
       </div>
     `;
+
     filesContainer.appendChild(fileItem);
-  }
+  });
 }
 
+// Remove file
 function removeFile(id) {
   for (let [name, data] of selectedFiles) {
     if (data.id == id) {
@@ -427,95 +388,65 @@ function removeFile(id) {
   renderFileList();
 }
 
+// Clear all
 clearBtn.addEventListener('click', () => {
   selectedFiles.clear();
   renderFileList();
 });
 
-uploadBtn.addEventListener('click', uploadFiles);
-
-async function uploadFiles() {
+// 🚀 UPLOAD MULTIPLE CSV
+uploadBtn.addEventListener('click', async () => {
   if (selectedFiles.size === 0) return;
 
   uploadBtn.disabled = true;
 
-  for (let [name, data] of selectedFiles) {
-    if (data.status !== 'pending') continue;
+  const formData = new FormData();
 
-    data.status = 'uploading';
-    data.progress = 0;
-    renderFileList();
+  selectedFiles.forEach((data) => {
+    formData.append('files', data.file); // 🔥 MULTIPLE FILES
+  });
 
-    try {
-      const formData = new FormData();
-      formData.append('file', data.file);
+  try {
+    const response = await fetch('/upload/', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': getCSRFToken()
+      }
+    });
 
-      const xhr = new XMLHttpRequest();
+    // redirect to anomalies
+    window.location.href = "/anomalies/";
 
-      xhr.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable) {
-          data.progress = Math.round((e.loaded / e.total) * 100);
-          renderFileList();
-        }
-      });
-
-      xhr.addEventListener('load', () => {
-        if (xhr.status === 200 || xhr.status === 201) {
-          data.status = 'success';
-          loadUploadedFiles();
-        } else {
-          data.status = 'error';
-          data.error = 'HTTP ' + xhr.status;
-        }
-        renderFileList();
-      });
-
-      xhr.addEventListener('error', () => {
-        data.status = 'error';
-        data.error = 'Network error';
-        renderFileList();
-      });
-
-      xhr.open('POST', '/api/upload/');
-      xhr.setRequestHeader('X-CSRFToken', getCSRFToken());
-      xhr.send(formData);
-
-    } catch (err) {
-      data.status = 'error';
-      data.error = err.message;
-      renderFileList();
-    }
+  } catch (err) {
+    alert("Upload failed: " + err.message);
   }
 
   uploadBtn.disabled = false;
-}
+});
 
+// Load uploaded history
 function loadUploadedFiles() {
   fetch('/api/uploads/')
     .then(r => r.json())
     .then(data => {
       if (data.files && data.files.length > 0) {
         uploadedFilesList.innerHTML = data.files.map(f => `
-          <div class="file-item" style="cursor: default;">
-            <div class="file-icon" style="background: var(--risk-low-bg); color: var(--risk-low);">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/>
-              </svg>
-            </div>
+          <div class="file-item">
+            <div class="file-icon">✅</div>
             <div class="file-info">
               <div class="file-name">${f.name}</div>
               <div class="file-size">${new Date(f.uploaded_at).toLocaleString()}</div>
-              <div class="file-status success">✓ ${f.row_count} rows processed</div>
             </div>
           </div>
         `).join('');
+
         uploadedFilesList.style.display = 'block';
         noUploads.style.display = 'none';
       }
     });
 }
 
-// Load initial uploaded files
 loadUploadedFiles();
 </script>
 
