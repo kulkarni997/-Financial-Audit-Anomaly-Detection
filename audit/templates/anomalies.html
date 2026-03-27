@@ -493,7 +493,7 @@ function applyFilters() {
     const order = sortFilter === 'risk_asc' ? 1 : -1;
     const riskOrder = { critical: 4, high: 3, medium: 2, low: 1 };
     filteredAnomalies.sort((a, b) => {
-      return (riskOrder[b.risk_level] - riskOrder[a.risk_level]) * order;
+      return (riskOrder[b.risk] - riskOrder[a.risk]) * order;
     });
   }
   
@@ -525,8 +525,8 @@ function sortTable(field) {
     let bVal = b[field];
     
     if (field === 'risk') {
-      aVal = riskOrder[a.risk_level];
-      bVal = riskOrder[b.risk_level];
+      aVal = riskOrder[a.risk];
+      bVal = riskOrder[b.risk];
     } else if (field === 'date') {
       aVal = new Date(aVal);
       bVal = new Date(bVal);
@@ -567,11 +567,11 @@ function renderAnomalies() {
     <tr class="anomaly-row" onclick="toggleDetails(this, ${start + idx})">
       <td>${new Date(a.date).toLocaleDateString()}</td>
       <td>$${parseFloat(a.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-      <td>${a.account_id || '—'}</td>
+      <td>${a.account || '—'}</td>
       <td><small style="color: var(--text-secondary);">${a.type}</small></td>
       <td>
-        <span class="risk-badge risk-${a.risk_level}">
-          ${a.risk_level.charAt(0).toUpperCase() + a.risk_level.slice(1)}
+        <span class="risk-badge risk-${a.risk}">
+          ${a.risk.charAt(0).toUpperCase() + a.risk.slice(1)}
         </span>
       </td>
       <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${a.reason}</td>
@@ -586,7 +586,7 @@ function renderAnomalies() {
           </div>
           <div class="detail-item">
             <span class="detail-label">Account:</span>
-            <span class="detail-value">${a.account_id || '—'}</span>
+            <span class="detail-value">${a.account || '—'}</span>
           </div>
           <div class="detail-item">
             <span class="detail-label">Date:</span>
@@ -649,9 +649,9 @@ function exportAnomalies() {
     ...filteredAnomalies.map(a => [
       new Date(a.date).toISOString(),
       a.amount,
-      a.account_id || '',
+      a.account || '',
       a.type,
-      a.risk_level,
+      a.risk,
       `"${a.reason.replace(/"/g, '""')}"`
     ].join(','))
   ].join('\n');

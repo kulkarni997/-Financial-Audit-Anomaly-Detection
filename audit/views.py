@@ -6,14 +6,14 @@ from django.middleware.csrf import get_token
 import json
 import os
 from pathlib import Path
+from io import StringIO
 import pandas as pd
 import numpy as np
 from datetime import datetime
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import csv
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
+import uuid
 
 @api_view(['GET'])
 def dashboard_summary(request):
@@ -36,21 +36,24 @@ def trends_view(request):
 
 @api_view(['POST'])
 def upload_file(request):
-    file = request.FILES.get('file')
+    try:
+        if 'file' not in request.FILES:
+            return Response({'error': 'No file provided'}, status=400)
 
-    if not file:
-        return Response({"error": "No file uploaded"}, status=400)
+        uploaded_file = request.FILES['file']
 
-    decoded = file.read().decode('utf-8').splitlines()
-    reader = csv.DictReader(decoded)
+        file_path = UPLOADS_DIR / uploaded_file.name
+        with open(file_path, 'wb+') as f:
+            for chunk in uploaded_file.chunks():
+                f.write(chunk)
 
-    data = list(reader)
+        return Response({
+            'success': True,
+            'filename': uploaded_file.name
+        })
 
-    return Response({
-        "message": "File uploaded successfully",
-        "rows": len(data),
-        "sample": data[:5]
-    })
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
 
 # Create uploads directory if it doesn't exist
 UPLOADS_DIR = Path('uploaded_files')
@@ -63,7 +66,6 @@ def dashboard(request):
     return render(request, 'Dashboard.html')
 
 def upload(request):
-    # Ensure CSRF cookie is set
     get_token(request)
     return render(request, 'upload.html')
 
@@ -82,15 +84,8 @@ def settings_view(request):
 
 @require_http_methods(["POST"])
 def api_logout(request):
-    """Handle logout - mostly client-side with JWT tokens"""
     try:
-        # Log logout event
-        log_audit_event(
-            'system',
-            'User Logout',
-            'User signed out of the system',
-            {}
-        )
+        log_audit_event('system', 'User Logout', 'User signed out of the system', {})
         return JsonResponse({'success': True, 'message': 'Logged out successfully'})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
@@ -101,7 +96,6 @@ def api_logout(request):
 # ═════════════════════════════════════════════════════════════════
 
 def load_audit_history():
-    """Load audit history from JSON file"""
     if AUDIT_HISTORY_FILE.exists():
         try:
             with open(AUDIT_HISTORY_FILE, 'r') as f:
@@ -111,23 +105,19 @@ def load_audit_history():
     return []
 
 def save_audit_history(history):
-    """Save audit history to JSON file"""
     with open(AUDIT_HISTORY_FILE, 'w') as f:
         json.dump(history, f, indent=2)
 
 def log_audit_event(event_type, title, description, details=None):
-    """Log an audit event"""
     history = load_audit_history()
-    
     event = {
-        'id': f"audit_{int(datetime.now().timestamp() * 1000)}",
+        'id': f"audit_{uuid.uuid4().hex}",
         'timestamp': datetime.now().isoformat(),
-        'event_type': event_type,  # upload, detection, export, system
+        'event_type': event_type,
         'title': title,
         'description': description,
         'details': details or {}
     }
-    
     history.append(event)
     save_audit_history(history)
     return event
@@ -138,7 +128,6 @@ def log_audit_event(event_type, title, description, details=None):
 # ═════════════════════════════════════════════════════════════════
 
 def load_anomalies():
-    """Load anomalies from JSON file"""
     if ANOMALIES_FILE.exists():
         try:
             with open(ANOMALIES_FILE, 'r') as f:
@@ -148,123 +137,122 @@ def load_anomalies():
     return []
 
 def save_anomalies(anomalies):
-    """Save anomalies to JSON file"""
+    print("💾 Saving anomalies:", len(anomalies))
+    
     with open(ANOMALIES_FILE, 'w') as f:
         json.dump(anomalies, f, indent=2)
 
-def detect_outliers_iqr(df, column):
-    """Detect outliers using Interquartile Range method"""
-    Q1 = df[column].quantile(0.25)
-    Q3 = df[column].quantile(0.75)
-    IQR = Q3 - Q1
-    lower_bound = Q1 - 1.5 * IQR
-    upper_bound = Q3 + 1.5 * IQR
-    return (df[column] < lower_bound) | (df[column] > upper_bound)
+    print("✅ Saved to file:", ANOMALIES_FILE.resolve())
 
-def detect_outliers_zscore(df, column, threshold=3):
-    """Detect outliers using Z-score method"""
-    z_scores = np.abs((df[column] - df[column].mean()) / df[column].std())
-    return z_scores > threshold
 
 def analyze_file_for_anomalies(file_path):
-    """Analyze uploaded file for anomalies"""
+    """Analyze uploaded file for anomalies. Assumes columns: date, amount, account_id, vendor, category"""
     anomalies = []
-    
+
     try:
-        # Load file
+        # ── 1. Load file ──────────────────────────────────────────────
         if str(file_path).endswith('.csv'):
             df = pd.read_csv(file_path)
         else:
             df = pd.read_excel(file_path)
-        
-        # Ensure we have required columns
+
+        # Normalise column names: strip whitespace, lowercase for lookup
+        df.columns = df.columns.str.strip()
+        col_map = {c.lower(): c for c in df.columns}
+
+        # ── 2. Resolve 'amount' column ────────────────────────────────
         amount_col = None
-        for col in df.columns:
-            if col.lower() in ['amount', 'value', 'transaction_amount']:
-                amount_col = col
+        for candidate in ['amount', 'transaction_amount', 'value']:
+            if candidate in col_map:
+                amount_col = col_map[candidate]
                 break
-        
-        if not amount_col:
-            return anomalies
-        
-        # Convert to numeric
-        df['amount_numeric'] = pd.to_numeric(df[amount_col], errors='coerce')
-        df = df.dropna(subset=['amount_numeric'])
-        
-        if len(df) < 5:  # Need at least 5 rows for statistical analysis
-            return anomalies
-        
-        # Detect outliers using IQR
-        outliers_iqr = detect_outliers_iqr(df, 'amount_numeric')
-        
-        # Detect outliers using Z-score
-        outliers_zscore = detect_outliers_zscore(df, 'amount_numeric')
-        
-        # Combine detections
-        for idx, row in df.iterrows():
-            is_outlier_iqr = outliers_iqr.iloc[idx]
-            is_outlier_zscore = outliers_zscore.iloc[idx]
-            
-            if is_outlier_iqr or is_outlier_zscore:
-                amount = row['amount_numeric']
-                mean_amount = df['amount_numeric'].mean()
-                std_amount = df['amount_numeric'].std()
-                
-                # Calculate risk level
-                deviation = abs(amount - mean_amount) / (std_amount if std_amount > 0 else 1)
-                
-                if deviation > 4:
-                    risk_level = 'critical'
-                elif deviation > 3:
-                    risk_level = 'high'
-                elif deviation > 2:
-                    risk_level = 'medium'
-                else:
-                    risk_level = 'low'
-                
-                # Determine reason
-                if amount > mean_amount * 2:
-                    reason = f"Unusually high transaction amount (${amount:.2f} vs avg ${mean_amount:.2f})"
-                    anomaly_type = "outlier"
-                else:
-                    reason = f"Statistical outlier detected (z-score: {deviation:.2f})"
-                    anomaly_type = "outlier"
-                
-                # Get date
-                date_col = None
-                for col in df.columns:
-                    if col.lower() in ['date', 'transaction_date', 'datetime']:
-                        date_col = col
-                        break
-                
-                date_str = str(row[date_col]) if date_col else datetime.now().isoformat()
-                
-                # Get account
-                account_col = None
-                for col in df.columns:
-                    if col.lower() in ['account', 'account_id', 'account_number']:
-                        account_col = col
-                        break
-                
-                account_id = str(row[account_col]) if account_col else None
-                
-                anomaly = {
-                    'id': f"anom_{int(datetime.now().timestamp() * 1000)}_{idx}",
-                    'date': date_str,
-                    'amount': float(amount),
-                    'account_id': account_id,
-                    'type': anomaly_type,
-                    'risk_level': risk_level,
-                    'reason': reason,
-                    'description': f"Row {idx} from {Path(file_path).name}",
-                    'source_file': Path(file_path).name,
-                    'created_at': datetime.now().isoformat()
-                }
-                anomalies.append(anomaly)
-    
+
+        if amount_col is None:
+            print(f"[SKIP] No amount column in {file_path}. Columns: {list(df.columns)}")
+            return []
+
+        # ── 3. Clean & validate data ──────────────────────────────────
+        df['_amount'] = pd.to_numeric(df[amount_col], errors='coerce')
+        df = df.dropna(subset=['_amount']).reset_index(drop=True)  # ← reset_index is key
+
+        if len(df) < 5:
+            print(f"[SKIP] Too few rows ({len(df)}) in {file_path}")
+            return []
+
+        # ── 4. Resolve optional columns ───────────────────────────────
+        date_col    = next((col_map[k] for k in ['date', 'transaction_date', 'datetime'] if k in col_map), None)
+        account_col = next((col_map[k] for k in ['account_id', 'account', 'account_number'] if k in col_map), None)
+
+        # ── 5. Compute statistics ─────────────────────────────────────
+        mean_amt = df['_amount'].mean()
+        std_amt  = df['_amount'].std()
+
+        Q1  = df['_amount'].quantile(0.25)
+        Q3  = df['_amount'].quantile(0.75)
+        IQR = Q3 - Q1
+        iqr_lower = Q1 - 1.5 * IQR
+        iqr_upper = Q3 + 1.5 * IQR
+
+        # ── 6. Flag outliers (boolean Series, aligned with reset index) ──
+        # FIX: compute boolean masks directly — no .iloc[idx] lookups
+        iqr_mask    = (df['_amount'] < iqr_lower) | (df['_amount'] > iqr_upper)
+        zscore_mask = (np.abs((df['_amount'] - mean_amt) / (std_amt if std_amt > 0 else 1)) > 3)
+        outlier_mask = iqr_mask | zscore_mask
+
+        outlier_df = df[outlier_mask]
+
+        # ── 7. Build anomaly objects ──────────────────────────────────
+        for _, row in outlier_df.iterrows():
+            amount    = float(row['_amount'])
+            deviation = abs(amount - mean_amt) / (std_amt if std_amt > 0 else 1)
+
+            if deviation > 4:
+                risk = 'critical'
+            elif deviation > 3:
+                risk = 'high'
+            elif deviation > 2:
+                risk = 'medium'
+            else:
+                risk = 'low'
+
+            if amount > mean_amt * 2:
+                reason = f"Unusually high transaction (${amount:,.2f} vs avg ${mean_amt:,.2f})"
+            elif amount < 0:
+                reason = f"Negative transaction amount (${amount:,.2f})"
+            else:
+                reason = f"Statistical outlier (deviation: {deviation:.2f}x std)"
+
+            anomalies.append({
+                'id':         f"anom_{uuid.uuid4().hex}",   # FIX: unique IDs
+                'date':       str(row[date_col]) if date_col else datetime.now().date().isoformat(),
+                'amount':     amount,
+                'account':    str(row[account_col]) if account_col else "N/A",
+                'type':       'outlier',
+                'risk':       risk,
+                'risk_level': risk,
+                'reason':     reason,
+            })
+
+        # ── 8. Fallback: top 5 if nothing flagged ─────────────────────
+        if not anomalies:
+            print(f"[FALLBACK] No statistical outliers in {file_path}, using top 5")
+            for _, row in df.nlargest(5, '_amount').iterrows():
+                amount = float(row['_amount'])
+                anomalies.append({
+                    'id':         f"anom_{uuid.uuid4().hex}",
+                    'date':       str(row[date_col]) if date_col else datetime.now().date().isoformat(),
+                    'amount':     amount,
+                    'account':    str(row[account_col]) if account_col else "N/A",
+                    'type':       'top_value',
+                    'risk':       'medium',
+                    'risk_level': 'medium',
+                    'reason':     f"Top 5 highest transaction (${amount:,.2f})",
+                })
+
     except Exception as e:
-        print(f"Error analyzing file: {e}")
-    
+        print(f"[ERROR] analyze_file_for_anomalies({file_path}): {e}")
+
+    print(f"[RESULT] {file_path}: {len(anomalies)} anomalies")
     return anomalies
 
 
@@ -273,26 +261,22 @@ def analyze_file_for_anomalies(file_path):
 # ═════════════════════════════════════════════════════════════════
 
 @require_http_methods(["POST"])
-@csrf_exempt  # Allow uploads without CSRF for API access
+@csrf_exempt
 def api_upload_file(request):
-    """Handle file upload"""
     try:
         if 'file' not in request.FILES:
             return JsonResponse({'error': 'No file provided'}, status=400)
-        
+
         uploaded_file = request.FILES['file']
-        
-        # Validate file
-        if uploaded_file.size > 50 * 1024 * 1024:  # 50 MB
+
+        if uploaded_file.size > 50 * 1024 * 1024:
             return JsonResponse({'error': 'File too large (max 50 MB)'}, status=400)
-        
-        # Save file
+
         file_path = UPLOADS_DIR / uploaded_file.name
         with open(file_path, 'wb+') as f:
             for chunk in uploaded_file.chunks():
                 f.write(chunk)
-        
-        # Process file to count rows
+
         row_count = 0
         try:
             if uploaded_file.name.endswith('.csv'):
@@ -301,16 +285,14 @@ def api_upload_file(request):
                 df = pd.read_excel(file_path)
             else:
                 return JsonResponse({'error': 'Unsupported file format'}, status=400)
-            
             row_count = len(df)
-        except Exception as e:
+        except Exception:
             row_count = 0
-        
-        # Log audit event
+
         log_audit_event(
             'upload',
             f'File Uploaded: {uploaded_file.name}',
-            f'Successfully uploaded transaction data file',
+            'Successfully uploaded transaction data file',
             {
                 'filename': uploaded_file.name,
                 'size': f"{uploaded_file.size / 1024:.2f} KB",
@@ -318,84 +300,83 @@ def api_upload_file(request):
                 'count': row_count
             }
         )
-        
+
         return JsonResponse({
             'success': True,
             'filename': uploaded_file.name,
             'size': uploaded_file.size,
             'row_count': row_count
         }, status=201)
-    
+
     except Exception as e:
-        log_audit_event(
-            'upload',
-            'File Upload Failed',
-            f'Error uploading file: {str(e)}',
-            {'error': str(e)}
-        )
+        log_audit_event('upload', 'File Upload Failed', f'Error: {str(e)}', {'error': str(e)})
         return JsonResponse({'error': str(e)}, status=500)
 
 
 @require_http_methods(["GET"])
 def api_get_uploads(request):
-    """Get list of uploaded files"""
     try:
         files = []
         if UPLOADS_DIR.exists():
             for file_path in sorted(UPLOADS_DIR.glob('*'), key=lambda p: p.stat().st_mtime, reverse=True):
-                if file_path.is_file():
-                    stat = file_path.stat()
-                    
-                    # Try to get row count
-                    row_count = 0
-                    try:
-                        if file_path.suffix == '.csv':
-                            df = pd.read_csv(file_path)
-                        elif file_path.suffix in ('.xlsx', '.xls'):
-                            df = pd.read_excel(file_path)
-                        else:
-                            continue
-                        row_count = len(df)
-                    except:
-                        pass
-                    
-                    files.append({
-                        'name': file_path.name,
-                        'size': stat.st_size,
-                        'uploaded_at': pd.Timestamp.fromtimestamp(stat.st_mtime).isoformat(),
-                        'row_count': row_count
-                    })
-        
+                if not file_path.is_file():
+                    continue
+                stat = file_path.stat()
+                row_count = 0
+                try:
+                    if file_path.suffix == '.csv':
+                        df = pd.read_csv(file_path)
+                    elif file_path.suffix in ('.xlsx', '.xls'):
+                        df = pd.read_excel(file_path)
+                    else:
+                        continue
+                    row_count = len(df)
+                except:
+                    pass
+
+                files.append({
+                    'name': file_path.name,
+                    'size': stat.st_size,
+                    'uploaded_at': pd.Timestamp.fromtimestamp(stat.st_mtime).isoformat(),
+                    'row_count': row_count
+                })
+
         return JsonResponse({'files': files})
-    
+
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
 
 @require_http_methods(["GET"])
 def api_get_anomalies(request):
-    """Get list of anomalies"""
     try:
-        anomalies = load_anomalies()
+        if not ANOMALIES_FILE.exists():
+            print("❌ anomalies.json not found")
+            return JsonResponse({'anomalies': []})
+
+        with open(ANOMALIES_FILE, 'r') as f:
+            anomalies = json.load(f)
+
+        print("📤 Returning anomalies:", len(anomalies))
+
         return JsonResponse({'anomalies': anomalies})
+
     except Exception as e:
+        print("ERROR reading anomalies:", e)
         return JsonResponse({'error': str(e)}, status=500)
 
 
 @require_http_methods(["GET"])
 def api_anomaly_stats(request):
-    """Get anomaly statistics"""
     try:
         anomalies = load_anomalies()
-        
         stats = {
-            'total': len(anomalies),
+            'total':    len(anomalies),
             'critical': len([a for a in anomalies if a.get('risk_level') == 'critical']),
-            'high': len([a for a in anomalies if a.get('risk_level') == 'high']),
-            'medium': len([a for a in anomalies if a.get('risk_level') == 'medium']),
-            'low': len([a for a in anomalies if a.get('risk_level') == 'low']),
+            'high':     len([a for a in anomalies if a.get('risk_level') == 'high']),
+            'medium':   len([a for a in anomalies if a.get('risk_level') == 'medium']),
+            'low':      len([a for a in anomalies if a.get('risk_level') == 'low']),
         }
-        
         return JsonResponse(stats)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
@@ -403,46 +384,54 @@ def api_anomaly_stats(request):
 
 @require_http_methods(["POST"])
 @csrf_exempt
+@require_http_methods(["POST"])
+@csrf_exempt
 def api_detect_anomalies(request):
-    """Detect anomalies in uploaded files"""
     try:
-        all_anomalies = []
-        
-        # Analyze each uploaded file
-        if UPLOADS_DIR.exists():
-            for file_path in UPLOADS_DIR.glob('*'):
-                if file_path.is_file():
-                    file_anomalies = analyze_file_for_anomalies(file_path)
-                    all_anomalies.extend(file_anomalies)
-        
-        # Save anomalies
+        # 📂 Get uploaded files
+        files = list(UPLOADS_DIR.glob('*'))
+
+        if not files:
+            return JsonResponse({'error': 'No uploaded files found'}, status=400)
+
+        # ✅ Use ONLY latest uploaded file
+        latest_file = max(files, key=lambda f: f.stat().st_mtime)
+
+        print("📄 Processing file:", latest_file)
+
+        # 🔍 Run detection
+        all_anomalies = analyze_file_for_anomalies(latest_file)
+
+        print("🚨 Detected anomalies:", len(all_anomalies))
+
+        # 💾 Save anomalies
         save_anomalies(all_anomalies)
-        
-        # Log audit event
+
+        # 📝 Log event
         log_audit_event(
             'detection',
             'Anomaly Detection Completed',
-            f'Analyzed uploaded files for anomalies',
+            f'Analyzed file: {latest_file.name}',
             {
                 'anomalies_detected': len(all_anomalies),
                 'critical': len([a for a in all_anomalies if a.get('risk_level') == 'critical']),
-                'high': len([a for a in all_anomalies if a.get('risk_level') == 'high']),
-                'medium': len([a for a in all_anomalies if a.get('risk_level') == 'medium']),
-                'count': len(all_anomalies)
+                'high':     len([a for a in all_anomalies if a.get('risk_level') == 'high']),
+                'medium':   len([a for a in all_anomalies if a.get('risk_level') == 'medium']),
+                'count':    len(all_anomalies)
             }
         )
-        
+
         return JsonResponse({
             'success': True,
             'detected_count': len(all_anomalies),
             'message': f'Detected {len(all_anomalies)} anomalies'
         })
-    
+
     except Exception as e:
         log_audit_event(
             'detection',
             'Anomaly Detection Failed',
-            f'Error detecting anomalies: {str(e)}',
+            f'Error: {str(e)}',
             {'error': str(e)}
         )
         return JsonResponse({'error': str(e)}, status=500)
@@ -450,7 +439,6 @@ def api_detect_anomalies(request):
 
 @require_http_methods(["GET"])
 def api_audit_history(request):
-    """Get audit history"""
     try:
         history = load_audit_history()
         return JsonResponse({'events': history})
@@ -460,17 +448,14 @@ def api_audit_history(request):
 
 @require_http_methods(["GET"])
 def api_audit_stats(request):
-    """Get audit statistics"""
     try:
         history = load_audit_history()
-        
         stats = {
-            'total': len(history),
-            'uploads': len([e for e in history if e.get('event_type') == 'upload']),
+            'total':      len(history),
+            'uploads':    len([e for e in history if e.get('event_type') == 'upload']),
             'detections': len([e for e in history if e.get('event_type') == 'detection']),
-            'exports': len([e for e in history if e.get('event_type') == 'export']),
+            'exports':    len([e for e in history if e.get('event_type') == 'export']),
         }
-        
         return JsonResponse(stats)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)

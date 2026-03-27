@@ -39,5 +39,223 @@
       "medium": 0,
       "count": 0
     }
+  },
+  {
+    "id": "audit_1774530715565",
+    "timestamp": "2026-03-26T18:41:55.565653",
+    "event_type": "upload",
+    "title": "File Uploaded: anomalies-2026-03-25.csv",
+    "description": "Successfully uploaded transaction data file",
+    "details": {
+      "filename": "anomalies-2026-03-25.csv",
+      "size": "0.04 KB",
+      "rows": 0,
+      "count": 0
+    }
+  },
+  {
+    "id": "audit_1774531832318",
+    "timestamp": "2026-03-26T19:00:32.318394",
+    "event_type": "upload",
+    "title": "File Uploaded: fitzpatrick17k.csv",
+    "description": "Successfully uploaded transaction data file",
+    "details": {
+      "filename": "fitzpatrick17k.csv",
+      "size": "4008.15 KB",
+      "rows": 16577,
+      "count": 16577
+    }
+  },
+  {
+    "id": "audit_1774532184870",
+    "timestamp": "2026-03-26T19:06:24.870539",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed uploaded files for anomalies",
+    "details": {
+      "anomalies_detected": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "count": 0
+    }
+  },
+  {
+    "id": "audit_1774532541116",
+    "timestamp": "2026-03-26T19:12:21.116128",
+    "event_type": "upload",
+    "title": "File Uploaded: Book(Sheet1).csv",
+    "description": "Successfully uploaded transaction data file",
+    "details": {
+      "filename": "Book(Sheet1).csv",
+      "size": "0.61 KB",
+      "rows": 15,
+      "count": 15
+    }
+  },
+  {
+    "id": "audit_1774532548702",
+    "timestamp": "2026-03-26T19:12:28.702571",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed uploaded files for anomalies",
+    "details": {
+      "anomalies_detected": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "count": 0
+    }
+  },
+  {
+    "id": "audit_1774532567848",
+    "timestamp": "2026-03-26T19:12:47.848631",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed uploaded files for anomalies",
+    "details": {
+      "anomalies_detected": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "count": 0
+    }
+  },
+  {
+    "id": "audit_1774533614420",
+    "timestamp": "2026-03-26T19:30:14.420329",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed uploaded files for anomalies",
+    "details": {
+      "anomalies_detected": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "count": 0
+    }
+  },
+  {
+    "id": "audit_1774534581564",
+    "timestamp": "2026-03-26T19:46:21.564685",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed uploaded files for anomalies",
+    "details": {
+      "anomalies_detected": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "count": 0
+    }
+  },
+  {
+    "id": "audit_456f5e1e690a42f9a69dbce5a92bc00d",
+    "timestamp": "2026-03-26T20:06:03.507080",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed uploaded files for anomalies",
+    "details": {
+      "anomalies_detected": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "count": 0
+    }
+  },
+  {
+    "id": "audit_51a4fb4b0ff94508bffa89b0fc7cb7a8",
+    "timestamp": "2026-03-26T20:06:12.879087",
+    "event_type": "upload",
+    "title": "File Uploaded: Book(Sheet1).csv",
+    "description": "Successfully uploaded transaction data file",
+    "details": {
+      "filename": "Book(Sheet1).csv",
+      "size": "0.61 KB",
+      "rows": 15,
+      "count": 15
+    }
+  },
+  {
+    "id": "audit_e0ecdfe8da5e465ea9eb244c4a7c4635",
+    "timestamp": "2026-03-26T20:06:19.562974",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed uploaded files for anomalies",
+    "details": {
+      "anomalies_detected": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "count": 0
+    }
+  },
+  {
+    "id": "audit_272c9a0420cb4da58aab64419d3ef871",
+    "timestamp": "2026-03-26T20:18:56.450225",
+    "event_type": "upload",
+    "title": "File Uploaded: test_transactions.csv",
+    "description": "Successfully uploaded transaction data file",
+    "details": {
+      "filename": "test_transactions.csv",
+      "size": "0.49 KB",
+      "rows": 10,
+      "count": 10
+    }
+  },
+  {
+    "id": "audit_a56c745f0e04409d94699e219d2db189",
+    "timestamp": "2026-03-26T20:19:01.038882",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed uploaded files for anomalies",
+    "details": {
+      "anomalies_detected": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "count": 0
+    }
+  },
+  {
+    "id": "audit_e80a2fc63d624afa96bc730e3d5f53bd",
+    "timestamp": "2026-03-27T07:56:41.563571",
+    "event_type": "upload",
+    "title": "File Uploaded: test_transactions.csv",
+    "description": "Successfully uploaded transaction data file",
+    "details": {
+      "filename": "test_transactions.csv",
+      "size": "0.49 KB",
+      "rows": 10,
+      "count": 10
+    }
+  },
+  {
+    "id": "audit_b34c52c84afb48419b2f8e6704ee944d",
+    "timestamp": "2026-03-27T07:56:46.671342",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed file: test_transactions.csv",
+    "details": {
+      "anomalies_detected": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "count": 0
+    }
+  },
+  {
+    "id": "audit_0ac80ddc2fa04f22a9ee10c0081018cb",
+    "timestamp": "2026-03-27T07:58:15.822385",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed file: test_transactions.csv",
+    "details": {
+      "anomalies_detected": 0,
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "count": 0
+    }
   }
 ]
