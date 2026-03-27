@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from .ocr_utils import extract_text_from_image, extract_amount
 from django.middleware.csrf import get_token
 import json
 import os
@@ -12,6 +13,7 @@ import numpy as np
 from datetime import datetime
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from .ocr_utils import extract_text_from_image, extract_amount, detect_price_mismatch
 import csv
 import uuid
 
@@ -160,9 +162,19 @@ def analyze_file_for_anomalies(file_path):
         df.columns = df.columns.str.strip()
         col_map = {c.lower(): c for c in df.columns}
 
+        # ✅ ADD THIS
+        data_type = "unknown"
+
+        if 'emp_id' in col_map:
+            data_type = "employee"
+        elif 'product_id' in col_map:
+            data_type = "goods"
+        elif 'department' in col_map:
+            data_type = "department"
+
         # ── 2. Resolve 'amount' column ────────────────────────────────
         amount_col = None
-        for candidate in ['amount', 'transaction_amount', 'value']:
+        for candidate in ['amount', 'transaction_amount', 'value', 'total_price']:
             if candidate in col_map:
                 amount_col = col_map[candidate]
                 break
@@ -181,7 +193,7 @@ def analyze_file_for_anomalies(file_path):
 
         # ── 4. Resolve optional columns ───────────────────────────────
         date_col    = next((col_map[k] for k in ['date', 'transaction_date', 'datetime'] if k in col_map), None)
-        account_col = next((col_map[k] for k in ['account_id', 'account', 'account_number'] if k in col_map), None)
+        account_col = next((col_map[k] for k in ['account_id', 'account', 'account_number', 'emp_id'] if k in col_map), None)
 
         # ── 5. Compute statistics ─────────────────────────────────────
         mean_amt = df['_amount'].mean()
@@ -227,7 +239,7 @@ def analyze_file_for_anomalies(file_path):
                 'date':       str(row[date_col]) if date_col else datetime.now().date().isoformat(),
                 'amount':     amount,
                 'account':    str(row[account_col]) if account_col else "N/A",
-                'type':       'outlier',
+                'type':       'data_type',
                 'risk':       risk,
                 'risk_level': risk,
                 'reason':     reason,
@@ -260,58 +272,42 @@ def analyze_file_for_anomalies(file_path):
 # API ENDPOINTS
 # ═════════════════════════════════════════════════════════════════
 
-@require_http_methods(["POST"])
-@csrf_exempt
-def api_upload_file(request):
-    try:
-        if 'file' not in request.FILES:
-            return JsonResponse({'error': 'No file provided'}, status=400)
+#################
+def upload_invoice(request):
+    if request.method == "GET":
+        return JsonResponse({"msg": "OCR API working"})
 
-        uploaded_file = request.FILES['file']
+    if request.method == "POST":
+        file = request.FILES.get("file")
 
-        if uploaded_file.size > 50 * 1024 * 1024:
-            return JsonResponse({'error': 'File too large (max 50 MB)'}, status=400)
+        if not file:
+            return JsonResponse({"error": "No file uploaded"})
 
-        file_path = UPLOADS_DIR / uploaded_file.name
-        with open(file_path, 'wb+') as f:
-            for chunk in uploaded_file.chunks():
+        os.makedirs("media", exist_ok=True)
+
+        file_path = f"media/{file.name}"
+
+        with open(file_path, "wb+") as f:
+            for chunk in file.chunks():
                 f.write(chunk)
 
-        row_count = 0
-        try:
-            if uploaded_file.name.endswith('.csv'):
-                df = pd.read_csv(file_path)
-            elif uploaded_file.name.endswith(('.xlsx', '.xls')):
-                df = pd.read_excel(file_path)
-            else:
-                return JsonResponse({'error': 'Unsupported file format'}, status=400)
-            row_count = len(df)
-        except Exception:
-            row_count = 0
+        text = extract_text_from_image(file_path)
+        amount = extract_amount(text)
+        mismatch = detect_price_mismatch(text)
+        risk = "low"
+        
+        if amount > 50000:
+                risk = "high"
 
-        log_audit_event(
-            'upload',
-            f'File Uploaded: {uploaded_file.name}',
-            'Successfully uploaded transaction data file',
-            {
-                'filename': uploaded_file.name,
-                'size': f"{uploaded_file.size / 1024:.2f} KB",
-                'rows': row_count,
-                'count': row_count
-            }
-        )
+        if mismatch:
+                risk = "critical"
 
         return JsonResponse({
-            'success': True,
-            'filename': uploaded_file.name,
-            'size': uploaded_file.size,
-            'row_count': row_count
-        }, status=201)
-
-    except Exception as e:
-        log_audit_event('upload', 'File Upload Failed', f'Error: {str(e)}', {'error': str(e)})
-        return JsonResponse({'error': str(e)}, status=500)
-
+        "text": text[:200],
+        "amount": amount,
+        "risk": risk,
+        "mismatch": mismatch
+        })
 
 @require_http_methods(["GET"])
 def api_get_uploads(request):
@@ -346,6 +342,8 @@ def api_get_uploads(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+def api_upload_file(request):
+    return JsonResponse({"msg": "upload working"})
 
 @require_http_methods(["GET"])
 def api_get_anomalies(request):
@@ -384,8 +382,6 @@ def api_anomaly_stats(request):
 
 @require_http_methods(["POST"])
 @csrf_exempt
-@require_http_methods(["POST"])
-@csrf_exempt
 def api_detect_anomalies(request):
     try:
         # 📂 Get uploaded files
@@ -420,6 +416,8 @@ def api_detect_anomalies(request):
                 'count':    len(all_anomalies)
             }
         )
+
+        
 
         return JsonResponse({
             'success': True,

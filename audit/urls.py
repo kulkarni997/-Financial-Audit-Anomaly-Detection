@@ -14,7 +14,7 @@ urlpatterns = [
     path('settings/', views.settings_view, name='settings'),
     path('api/auth/login/', TokenObtainPairView.as_view()),
     # API - Upload
-    path('api/upload/', views.api_upload_file, name='api_upload'),
+    path('api/upload/', views.upload_file, name='api_upload'),
     path('api/uploads/', views.api_get_uploads, name='api_uploads'),
     path('audits/upload/', upload_file),
     # API - Anomalies
@@ -25,7 +25,7 @@ urlpatterns = [
     # API - Audit History
     path('api/audit-history/', views.api_audit_history, name='api_audit_history'),
     path('api/audit-stats/', views.api_audit_stats, name='api_audit_stats'),
-
+    path('api/invoice/upload/', views.upload_invoice),
     # API - Auth
     path('api/auth/logout/', views.api_logout, name='api_logout'),
     path('api/dashboard/trends/', views.trends_view, name='trends'),
