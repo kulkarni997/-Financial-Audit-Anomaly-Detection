@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Detailed Audit Report{% endblock %}
+{% block nav_reports %}active{% endblock %}
+{% block breadcrumb %}Reports{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-5 text-center">📊 Professional Forensic Audit</h1>
+
+    <div class="card mb-5 shadow-sm border-danger">
+        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">1. Employee Risk Assessment</h4>
+            <span class="badge bg-light text-danger">{{ results.employee|length }} Anomalies</span>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Employee ID</th>
+                                    <th>Risk Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for r in results.employee %}
+                                <tr>
+                                    <td><strong>{{ r.emp_id_original }}</strong></td>
+                                    <td><span class="badge {% if r.risk_score < -0.1 %}bg-danger{% else %}bg-warning text-dark{% endif %}">{{ r.risk_score }}</span></td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="2" class="text-center text-muted">No high-risk employees identified.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="p-3 bg-light border rounded">
+                        <h6 class="text-danger"><i class="fas fa-robot"></i> Gemini AI Insight</h6>
+                        <hr>
+                        <p class="mb-0">{{ employee_summary }}</p>
+                    </div>
+                    <div class="mt-3">
+                        <canvas id="employeeChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-5 shadow-sm border-primary">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">2. Departmental Analysis</h4>
+            <span class="badge bg-light text-primary">{{ results.department|length }} Issues</span>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Department Name</th>
+                                    <th>Anomaly Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for r in results.department %}
+                                <tr>
+                                    <td>{{ r.department_original }}</td>
+                                    <td><code>{{ r.anomaly_score }}</code></td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="2" class="text-center text-muted">No departmental discrepancies detected.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="p-3 bg-light border rounded">
+                        <h6 class="text-primary"><i class="fas fa-building"></i> Gemini AI Insight</h6>
+                        <hr>
+                        <p class="mb-0">{{ department_summary }}</p>
+                    </div>
+                    <div class="mt-3">
+                        <canvas id="deptChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-5 shadow-sm border-warning">
+        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">3. Goods & Inventory Alerts</h4>
+            <span class="badge bg-dark text-white">{{ results.goods|length }} Flags</span>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-hover table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Product Identity</th>
+                                    <th>Raw Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for r in results.goods %}
+                                <tr>
+                                    <td>{{ r.product_name }}</td>
+                                    <td>{{ r.raw_score }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="2" class="text-center text-muted">No inventory anomalies found.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="p-3 bg-light border rounded">
+                        <h6 class="text-dark"><i class="fas fa-boxes"></i> Gemini AI Insight</h6>
+                        <hr>
+                        <p class="mb-0">{{ goods_summary }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mb-5 pb-5">
+        <a href="{% url 'download_report' %}" class="btn btn-lg btn-success shadow">
+            <i class="fas fa-file-pdf"></i> Download Official PDF Report
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Employee Risk Chart
+    new Chart(document.getElementById('employeeChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ employee_json|safe }},
+            datasets: [{
+                label: 'Risk Level',
+                data: {{ emp_scores_json|safe }},
+                backgroundColor: 'rgba(220, 53, 69, 0.6)',
+                borderColor: 'rgba(220, 53, 69, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+
+    // Department Chart
+    new Chart(document.getElementById('deptChart'), {
+        type: 'line',
+        data: {
+            labels: {{ dept_json|safe }},
+            datasets: [{
+                label: 'Anomaly Intensity',
+                data: {{ dept_scores_json|safe }},
+                borderColor: '#0d6efd',
+                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: { responsive: true }
+    });
+</script>
+{% endblock %}

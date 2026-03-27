@@ -1,884 +1,165 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Reports{% endblock %}
-{% block breadcrumb %}Reports{% endblock %}
-{% block nav_reports %}active{% endblock %}
-
-{% block extra_css %}
-<style>
-  .report-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 20px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-  }
-
-  .report-filters {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .filter-group {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .filter-label {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-  }
-
-  .filter-input,
-  .filter-select {
-    padding: 8px 12px;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: var(--r-sm);
-    color: var(--text-primary);
-    cursor: pointer;
-    font-size: 0.9rem;
-  }
-
-  .filter-input {
-    cursor: text;
-    min-width: 150px;
-  }
-
-  .filter-select:hover,
-  .filter-input:hover {
-    border-color: var(--accent);
-  }
-
-  .export-btn {
-    padding: 10px 20px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: var(--r-md);
-    cursor: pointer;
-    font-weight: 500;
-    transition: background var(--dur) var(--ease);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .export-btn:hover {
-    background: var(--accent-hover);
-  }
-
-  .export-menu {
-    position: relative;
-    display: inline-block;
-  }
-
-  .export-dropdown {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 100%;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    margin-top: 8px;
-    z-index: 100;
-    min-width: 200px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  }
-
-  .export-dropdown.show {
-    display: block;
-  }
-
-  .export-option {
-    padding: 12px 16px;
-    cursor: pointer;
-    color: var(--text-primary);
-    transition: background var(--dur) var(--ease);
-    border: none;
-    background: none;
-    width: 100%;
-    text-align: left;
-    font-size: 0.9rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .export-option:last-child {
-    border-bottom: none;
-  }
-
-  .export-option:hover {
-    background: var(--accent-subtle);
-  }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-
-  .stat-card {
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    padding: 16px;
-    text-align: center;
-  }
-
-  .stat-value {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-  }
-
-  .stat-label {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-  }
-
-  .stat-trend {
-    font-size: 0.8rem;
-    color: var(--risk-low);
-    margin-top: 4px;
-  }
-
-  .stat-trend.down {
-    color: var(--risk-high);
-  }
-
-  .charts-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 20px;
-    margin-bottom: 24px;
-  }
-
-  .chart-card {
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    padding: 20px;
-  }
-
-  .chart-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 16px;
-  }
-
-  .chart-placeholder {
-    width: 100%;
-    height: 250px;
-    background: var(--bg-surface);
-    border-radius: var(--r-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-  }
-
-  .risk-distribution {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-top: 16px;
-  }
-
-  .risk-bar {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .risk-label {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    text-align: center;
-    font-weight: 500;
-  }
-
-  .risk-bar-bg {
-    width: 100%;
-    height: 120px;
-    background: var(--bg-surface);
-    border-radius: var(--r-sm);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .risk-bar-fill {
-    height: 100%;
-    width: 0%;
-    transition: width 0.5s ease;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    color: white;
-    font-weight: 600;
-    font-size: 0.85rem;
-    padding-bottom: 4px;
-  }
-
-  .risk-bar-fill.critical {
-    background: var(--risk-critical);
-  }
-
-  .risk-bar-fill.high {
-    background: var(--risk-high);
-  }
-
-  .risk-bar-fill.medium {
-    background: var(--risk-medium);
-  }
-
-  .risk-bar-fill.low {
-    background: var(--risk-low);
-  }
-
-  .risk-count {
-    font-size: 0.9rem;
-    color: var(--text-primary);
-    text-align: center;
-    font-weight: 600;
-  }
-
-  .timeline-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 16px;
-  }
-
-  .timeline-entry {
-    display: flex;
-    gap: 12px;
-    padding: 12px;
-    background: var(--bg-surface);
-    border-radius: var(--r-sm);
-    border-left: 3px solid var(--accent);
-  }
-
-  .timeline-date {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    min-width: 80px;
-    font-weight: 500;
-  }
-
-  .timeline-content {
-    flex: 1;
-  }
-
-  .timeline-title {
-    font-size: 0.9rem;
-    color: var(--text-primary);
-    font-weight: 500;
-  }
-
-  .timeline-desc {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    margin-top: 2px;
-  }
-
-  .timeline-count {
-    font-size: 0.9rem;
-    color: var(--accent);
-    font-weight: 600;
-  }
-
-  .full-width {
-    grid-column: 1 / -1;
-  }
-
-  .loading {
-    text-align: center;
-    padding: 48px 24px;
-    color: var(--text-muted);
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 24px;
-    height: 24px;
-    border: 3px solid rgba(59, 130, 246, 0.3);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-right: 12px;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  .summary-section {
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    padding: 20px;
-    margin-bottom: 24px;
-  }
-
-  .section-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 16px;
-  }
-
-  .summary-text {
-    color: var(--text-secondary);
-    line-height: 1.6;
-    font-size: 0.95rem;
-  }
-
-  .priority-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .priority-item:last-child {
-    border-bottom: none;
-  }
-
-  .priority-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: white;
-    flex-shrink: 0;
-  }
-
-  .priority-icon.critical {
-    background: var(--risk-critical);
-  }
-
-  .priority-icon.high {
-    background: var(--risk-high);
-  }
-
-  .priority-icon.medium {
-    background: var(--risk-medium);
-  }
-
-  .priority-text {
-    flex: 1;
-    font-size: 0.9rem;
-    color: var(--text-primary);
-  }
-</style>
-{% endblock %}
+{% block title %} Audit Analysis{% endblock %}
 
 {% block content %}
-
-<!-- ── PAGE HEADER ─────────────────────────────────────────── -->
-<div class="page-header fade-up">
-  <div class="report-header">
-    <div>
-      <h1>Reports</h1>
-      <p>Comprehensive financial audit analysis and trends</p>
-    </div>
-    <div class="export-menu">
-      <button class="export-btn" onclick="toggleExportMenu()">
-        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9.5A2 2 0 0 1 4 2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 0 9.5 3V1H4a1 1 0 0 0-1 1v9.5a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
-          <path d="M4.5 6.5A.5.5 0 0 1 5 6h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5z"/>
-        </svg>
-        Export Report
-      </button>
-      <div class="export-dropdown" id="exportDropdown">
-        <button class="export-option" onclick="exportReportPDF()">📄 Export as PDF</button>
-        <button class="export-option" onclick="exportReportCSV()">📊 Export as CSV</button>
-        <button class="export-option" onclick="exportReportJSON()">⚙️ Export as JSON</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Filters -->
-<div class="report-filters fade-up">
-  <div class="filter-group">
-    <label class="filter-label">Date Range:</label>
-    <input type="date" class="filter-input" id="startDate" onchange="loadReportData()" title="Start Date">
-    <span style="color: var(--text-muted);">to</span>
-    <input type="date" class="filter-input" id="endDate" onchange="loadReportData()" title="End Date">
-  </div>
-
-  <button class="export-btn" style="background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border);" 
-    onclick="clearDateFilters()">
-    Clear Filters
-  </button>
-</div>
-
-<!-- Statistics Summary -->
-<div class="stats-grid fade-up" id="statsContainer">
-  <div class="stat-card">
-    <div class="stat-value" id="stat-total">—</div>
-    <div class="stat-label">Total Anomalies</div>
-    <div class="stat-trend" id="trend-total">↗ 12% vs last period</div>
-  </div>
-
-  <div class="stat-card">
-    <div class="stat-value" id="stat-critical">—</div>
-    <div class="stat-label">Critical Issues</div>
-    <div class="stat-trend down" id="trend-critical">↗ 5% vs last period</div>
-  </div>
-
-  <div class="stat-card">
-    <div class="stat-value" id="stat-high">—</div>
-    <div class="stat-label">High Priority</div>
-    <div class="stat-trend" id="trend-high">↘ 3% vs last period</div>
-  </div>
-
-  <div class="stat-card">
-    <div class="stat-value" id="stat-resolved">—</div>
-    <div class="stat-label">Resolution Rate</div>
-    <div class="stat-trend">↗ 8% vs last period</div>
-  </div>
-</div>
-
-<!-- Main Charts -->
-<div class="charts-container fade-up">
-  <!-- Anomalies Over Time -->
-  <div class="chart-card">
-    <div class="chart-title">📈 Anomalies Over Time</div>
-    <div class="chart-placeholder" style="height: 280px;">
-      <canvas id="anomalyTrendChart" style="width: 100%; height: 100%;"></canvas>
-    </div>
-    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 12px; text-align: center;">
-      Showing detected anomalies by week
+<div class="container">
+  
+  <div class="header-section">
+    <h1>📊 Audit Intelligence Report</h1>
+    <div class="action-buttons">
+        <a href="{% url 'download_report' %}" class="btn-download">📥 Download PDF Report</a>
     </div>
   </div>
 
-  <!-- Risk Level Distribution -->
-  <div class="chart-card">
-    <div class="chart-title">🎯 Risk Distribution</div>
-    <div class="risk-distribution">
-      <div class="risk-bar">
-        <div class="risk-label">Critical</div>
-        <div class="risk-bar-bg">
-          <div class="risk-bar-fill critical" id="critical-bar" data-value="0">
-            <span>0</span>
-          </div>
-        </div>
-        <div class="risk-count" id="critical-count">0</div>
-      </div>
-
-      <div class="risk-bar">
-        <div class="risk-label">High</div>
-        <div class="risk-bar-bg">
-          <div class="risk-bar-fill high" id="high-bar" data-value="0">
-            <span>0</span>
-          </div>
-        </div>
-        <div class="risk-count" id="high-count">0</div>
-      </div>
-
-      <div class="risk-bar">
-        <div class="risk-label">Medium</div>
-        <div class="risk-bar-bg">
-          <div class="risk-bar-fill medium" id="medium-bar" data-value="0">
-            <span>0</span>
-          </div>
-        </div>
-        <div class="risk-count" id="medium-count">0</div>
-      </div>
-
-      <div class="risk-bar">
-        <div class="risk-label">Low</div>
-        <div class="risk-bar-bg">
-          <div class="risk-bar-fill low" id="low-bar" data-value="0">
-            <span>0</span>
-          </div>
-        </div>
-        <div class="risk-count" id="low-count">0</div>
-      </div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="label">Total Flagged</span>
+      <span class="value">{{ total }}</span>
+    </div>
+    <div class="stat-card critical">
+      <span class="label">Critical Risk</span>
+      <span class="value">{{ critical }}</span>
+    </div>
+    <div class="stat-card high">
+      <span class="label">High Risk</span>
+      <span class="value">{{ high }}</span>
+    </div>
+    <div class="stat-card warning">
+      <span class="label">Medium/Low</span>
+      <span class="value">{{ medium|add:low }}</span>
     </div>
   </div>
 
-  <!-- Recent Activity -->
-  <div class="chart-card">
-    <div class="chart-title">⏱️ Recent Activity</div>
-    <div class="timeline-list" id="recentActivity">
-      <div class="timeline-entry">
-        <div class="timeline-date">Today</div>
-        <div class="timeline-content">
-          <div class="timeline-title">No activity yet</div>
-        </div>
-      </div>
+  <div class="card ai-insight-card">
+    <div class="card-header">
+      <h2>🤖 AI Executive Summary</h2>
+      <span class="ai-badge">Gemini 1.5 Pro Analysis</span>
+    </div>
+    <div class="ai-content">
+      {{ ai_summary|linebreaks }}
     </div>
   </div>
-</div>
 
-<!-- Executive Summary -->
-<div class="summary-section fade-up">
-  <div class="section-title">📋 Executive Summary</div>
-  <div class="summary-text" id="executiveSummary">
-    <p>Loading report data...</p>
-  </div>
-</div>
-
-<!-- Priority Action Items -->
-<div class="summary-section fade-up">
-  <div class="section-title">⚡ Priority Action Items</div>
-  <div id="priorityItems">
-    <div style="text-align: center; color: var(--text-muted); padding: 20px;">
-      Loading action items...
+  <div class="chart-container-grid">
+    <div class="card">
+      <h3>📈 Employee Risk Distribution</h3>
+      <canvas id="employeeChart"></canvas>
+    </div>
+    <div class="card">
+      <h3>🏢 Departmental Anomaly Variance</h3>
+      <canvas id="deptChart"></canvas>
     </div>
   </div>
+
+  <div class="card">
+    <div class="card-header">
+        <h2>Detailed Employee Audit</h2>
+    </div>
+    <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Employee ID</th>
+              <th>Calculated Risk</th>
+              <th>Status Severity</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in results.employee %}
+            <tr class="{% if r.risk_score < -0.1 %}row-critical{% elif r.risk_score < -0.05 %}row-high{% endif %}">
+              <td><strong>{{ r.emp_id_original }}</strong></td>
+              <td>{{ r.risk_score|floatformat:4 }}</td>
+              <td>
+                {% if r.risk_score < -0.1 %}
+                    <span class="status-pill crit">CRITICAL</span>
+                {% elif r.risk_score < -0.05 %}
+                    <span class="status-pill hi">HIGH</span>
+                {% else %}
+                    <span class="status-pill ok">STABLE</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+  </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-let anomalyChart = null;
-let reportData = {};
+// Shared configuration for a professional look
+const commonOptions = {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+        y: { grid: { color: '#333' }, ticks: { color: '#aaa' } },
+        x: { grid: { display: false }, ticks: { color: '#aaa' } }
+    }
+};
 
-// Load report data on page load
-document.addEventListener('DOMContentLoaded', () => {
-  setDefaultDateRange();
-  loadReportData();
+// Logic to color bars based on severity
+const getBarColor = (data) => data.map(v => v < -0.1 ? '#ff4d4d' : v < -0.05 ? '#fb923c' : '#4ade80');
+
+new Chart(document.getElementById('employeeChart'), {
+  type: 'bar',
+  data: {
+    labels: {{ employee_labels|safe }},
+    datasets: [{
+      label: 'Risk Score',
+      data: {{ employee_scores|safe }},
+      backgroundColor: getBarColor({{ employee_scores|safe }})
+    }]
+  },
+  options: commonOptions
 });
 
-function setDefaultDateRange() {
-  const today = new Date();
-  const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-  
-  document.getElementById('endDate').value = today.toISOString().split('T')[0];
-  document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
-}
-
-function clearDateFilters() {
-  setDefaultDateRange();
-  loadReportData();
-}
-
-async function loadReportData() {
-  try {
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
-    
-    // Get anomalies
-    const anomRes = await fetch('/api/anomalies/');
-    const anomData = await anomRes.json();
-    const anomalies = (anomData.anomalies || []).filter(a => {
-      const aDate = new Date(a.created_at || a.date).toISOString().split('T')[0];
-      return aDate >= startDate && aDate <= endDate;
-    });
-    
-    // Get audit history
-    const auditRes = await fetch('/api/audit-history/');
-    const auditData = await auditRes.json();
-    const auditEvents = (auditData.events || []).filter(e => {
-      const eDate = new Date(e.timestamp).toISOString().split('T')[0];
-      return eDate >= startDate && eDate <= endDate;
-    });
-    
-    reportData = { anomalies, auditEvents, startDate, endDate };
-    renderReport();
-  } catch (err) {
-    console.error('Error loading report data:', err);
-  }
-}
-
-function renderReport() {
-  updateStats();
-  updateCharts();
-  updateActivityTimeline();
-  updateExecutiveSummary();
-  updatePriorityItems();
-}
-
-function updateStats() {
-  const anomalies = reportData.anomalies || [];
-  
-  const total = anomalies.length;
-  const critical = anomalies.filter(a => a.risk_level === 'critical').length;
-  const high = anomalies.filter(a => a.risk_level === 'high').length;
-  const medium = anomalies.filter(a => a.risk_level === 'medium').length;
-  const low = anomalies.filter(a => a.risk_level === 'low').length;
-  
-  document.getElementById('stat-total').textContent = total;
-  document.getElementById('stat-critical').textContent = critical;
-  document.getElementById('stat-high').textContent = high;
-  document.getElementById('stat-resolved').textContent = Math.round((medium + low) / (total || 1) * 100) + '%';
-  
-  // Update risk bars with animation
-  updateRiskBars(critical, high, medium, low, total);
-}
-
-function updateRiskBars(critical, high, medium, low, total) {
-  const maxValue = Math.max(critical, high, medium, low) || 1;
-  
-  const updateBar = (id, value) => {
-    const bar = document.getElementById(id + '-bar');
-    const count = document.getElementById(id + '-count');
-    const percentage = (value / maxValue) * 100;
-    bar.style.width = percentage + '%';
-    bar.querySelector('span').textContent = value;
-    count.textContent = value;
-  };
-  
-  updateBar('critical', critical);
-  updateBar('high', high);
-  updateBar('medium', medium);
-  updateBar('low', low);
-}
-
-function updateCharts() {
-  const anomalies = reportData.anomalies || [];
-  
-  // Group by date
-  const dateGroups = {};
-  anomalies.forEach(a => {
-    const date = new Date(a.created_at || a.date).toISOString().split('T')[0];
-    dateGroups[date] = (dateGroups[date] || 0) + 1;
-  });
-  
-  const sortedDates = Object.keys(dateGroups).sort();
-  const counts = sortedDates.map(d => dateGroups[d]);
-  
-  // Create or update chart
-  const ctx = document.getElementById('anomalyTrendChart');
-  
-  if (anomalyChart) {
-    anomalyChart.data.labels = sortedDates;
-    anomalyChart.data.datasets[0].data = counts;
-    anomalyChart.update();
-  } else {
-    anomalyChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: sortedDates.length > 0 ? sortedDates : ['No data'],
-        datasets: [{
-          label: 'Anomalies Detected',
-          data: counts.length > 0 ? counts : [0],
-          borderColor: '#3b82f6',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          tension: 0.4,
-          fill: true,
-          pointRadius: 4,
-          pointBackgroundColor: '#3b82f6',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: { display: false },
-          filler: { propagate: true }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { color: 'rgba(148, 163, 184, 0.7)' },
-            grid: { color: 'rgba(148, 163, 184, 0.1)' }
-          },
-          x: {
-            ticks: { color: 'rgba(148, 163, 184, 0.7)' },
-            grid: { color: 'rgba(148, 163, 184, 0.1)' }
-          }
-        }
-      }
-    });
-  }
-}
-
-function updateActivityTimeline() {
-  const events = reportData.auditEvents || [];
-  const recentList = document.getElementById('recentActivity');
-  
-  if (events.length === 0) {
-    recentList.innerHTML = `
-      <div class="timeline-entry">
-        <div class="timeline-date">—</div>
-        <div class="timeline-content">
-          <div class="timeline-title">No recent activity in this period</div>
-        </div>
-      </div>
-    `;
-    return;
-  }
-  
-  const recent = events.slice(-5).reverse();
-  recentList.innerHTML = recent.map(e => {
-    const date = new Date(e.timestamp);
-    const dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-    const count = e.details?.count || e.details?.anomalies_detected || '—';
-    
-    return `
-      <div class="timeline-entry">
-        <div class="timeline-date">${dateStr}</div>
-        <div class="timeline-content">
-          <div class="timeline-title">${e.title}</div>
-          <div class="timeline-desc">${e.description}</div>
-        </div>
-        <div class="timeline-count">${count}</div>
-      </div>
-    `;
-  }).join('');
-}
-
-function updateExecutiveSummary() {
-  const anomalies = reportData.anomalies || [];
-  const total = anomalies.length;
-  const critical = anomalies.filter(a => a.risk_level === 'critical').length;
-  const high = anomalies.filter(a => a.risk_level === 'high').length;
-  const avgAmount = anomalies.length > 0 
-    ? (anomalies.reduce((sum, a) => sum + (a.amount || 0), 0) / anomalies.length).toFixed(2)
-    : 0;
-  
-  const period = `${reportData.startDate} to ${reportData.endDate}`;
-  
-  let summary = `<p>During the period of <strong>${period}</strong>, our anomaly detection system identified <strong>${total} anomalies</strong> across your financial transactions.</p>`;
-  
-  if (total === 0) {
-    summary += `<p>No anomalies were detected. Your financial data appears to be within normal parameters.</p>`;
-  } else {
-    summary += `<p>Of these, <strong>${critical} were classified as critical</strong> and <strong>${high} as high priority</strong>, requiring immediate attention.</p>`;
-    summary += `<p>The average transaction amount involved in anomalies was <strong>$${avgAmount}</strong>, indicating significant deviations from normal patterns.</p>`;
-    summary += `<p>We recommend reviewing the critical and high-priority items listed below and taking appropriate action to mitigate identified risks.</p>`;
-  }
-  
-  document.getElementById('executiveSummary').innerHTML = summary;
-}
-
-function updatePriorityItems() {
-  const anomalies = reportData.anomalies || [];
-  const critical = anomalies.filter(a => a.risk_level === 'critical').slice(0, 3);
-  const high = anomalies.filter(a => a.risk_level === 'high').slice(0, 2);
-  
-  const items = [...critical, ...high];
-  
-  if (items.length === 0) {
-    document.getElementById('priorityItems').innerHTML = `
-      <div style="text-align: center; color: var(--text-muted); padding: 20px;">
-        No priority items at this time
-      </div>
-    `;
-    return;
-  }
-  
-  document.getElementById('priorityItems').innerHTML = items.map(a => `
-    <div class="priority-item">
-      <div class="priority-icon ${a.risk_level}">!</div>
-      <div class="priority-text">
-        <strong>${a.reason || a.description}</strong><br>
-        <span style="font-size: 0.8rem; color: var(--text-muted);">Amount: $${a.amount?.toFixed(2) || 'N/A'} | Account: ${a.account_id || 'Unknown'}</span>
-      </div>
-    </div>
-  `).join('');
-}
-
-function toggleExportMenu() {
-  const dropdown = document.getElementById('exportDropdown');
-  dropdown.classList.toggle('show');
-}
-
-// Close dropdown when clicking outside
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('.export-menu')) {
-    document.getElementById('exportDropdown').classList.remove('show');
-  }
-});
-
-function exportReportPDF() {
-  // Simple PDF export using basic HTML-to-PDF approach
-  const reportHTML = document.querySelector('.page-header').parentElement.innerHTML;
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write(`
-    <html>
-      <head>
-        <title>Financial Audit Report</title>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          h1 { color: #003366; }
-          .stat-card { display: inline-block; margin: 10px; padding: 10px; border: 1px solid #ddd; }
-          .stat-value { font-size: 24px; font-weight: bold; }
-          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: #f5f5f5; }
-        </style>
-      </head>
-      <body>
-        <h1>Financial Audit Anomaly Report</h1>
-        <p>Report Period: ${reportData.startDate} to ${reportData.endDate}</p>
-        <h2>Summary</h2>
-        <p>Total Anomalies Detected: ${(reportData.anomalies || []).length}</p>
-        <p><a href="#" onclick="window.print(); return false;">Click here to print/save as PDF</a></p>
-      </body>
-    </html>
-  `);
-  printWindow.document.close();
-}
-
-function exportReportCSV() {
-  const anomalies = reportData.anomalies || [];
-  const csv = [
-    ['Date', 'Amount', 'Account', 'Type', 'Risk Level', 'Reason'].join(','),
-    ...anomalies.map(a => [
-      a.date || a.created_at || 'N/A',
-      a.amount || 0,
-      a.account_id || 'N/A',
-      a.type || 'N/A',
-      a.risk_level || 'N/A',
-      (a.reason || '').replace(/"/g, '""')
-    ].map(v => `"${v}"`).join(','))
-  ].join('\n');
-  
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `audit-report-${new Date().toISOString().split('T')[0]}.csv`;
-  a.click();
-  window.URL.revokeObjectURL(url);
-}
-
-function exportReportJSON() {
-  const report = {
-    period: `${reportData.startDate} to ${reportData.endDate}`,
-    statistics: {
-      total_anomalies: (reportData.anomalies || []).length,
-      critical: (reportData.anomalies || []).filter(a => a.risk_level === 'critical').length,
-      high: (reportData.anomalies || []).filter(a => a.risk_level === 'high').length,
-      medium: (reportData.anomalies || []).filter(a => a.risk_level === 'medium').length,
-      low: (reportData.anomalies || []).filter(a => a.risk_level === 'low').length,
-    },
-    anomalies: reportData.anomalies || [],
-    audit_events: reportData.auditEvents || []
-  };
-  
-  const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `audit-report-${new Date().toISOString().split('T')[0]}.json`;
-  a.click();
-  window.URL.revokeObjectURL(url);
-}
+// ... Apply similar logic for Dept and Goods charts ...
 </script>
 
+<style>
+:root {
+  --bg-dark: #0f172a;
+  --card-bg: #1e293b;
+  --crit-red: #ef4444;
+  --warn-orange: #f59e0b;
+  --safe-green: #10b981;
+  --text-main: #f1f5f9;
+}
+
+body { background: var(--bg-dark); color: var(--text-main); font-family: 'Inter', sans-serif; }
+
+.header-section { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; }
+
+.btn-download {
+    background: #3b82f6; color: white; padding: 10px 20px;
+    border-radius: 8px; text-decoration: none; font-weight: bold;
+    transition: 0.3s;
+}
+.btn-download:hover { background: #2563eb; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0; }
+.stat-card { background: var(--card-bg); padding: 1.5rem; border-radius: 12px; border-left: 5px solid #3b82f6; }
+.stat-card.critical { border-left-color: var(--crit-red); }
+.stat-card.high { border-left-color: var(--warn-orange); }
+
+.ai-insight-card { border: 1px solid #334155; line-height: 1.6; }
+.ai-content { padding: 1rem; color: #cbd5e1; font-size: 1.1rem; }
+.ai-badge { background: #4f46e5; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
+
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-spacing: 0; margin-top: 1rem; }
+th { text-align: left; padding: 12px; background: #334155; color: #94a3b8; }
+td { padding: 12px; border-bottom: 1px solid #334155; }
+
+.status-pill { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; }
+.status-pill.crit { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+.status-pill.hi { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.status-pill.ok { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+
+.chart-container-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+</style>
 {% endblock %}
