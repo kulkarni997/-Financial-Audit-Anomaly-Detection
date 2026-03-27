@@ -22,6 +22,19 @@ from drf_yasg import openapi
 from rest_framework.parsers import MultiPartParser, FormParser
 import psycopg2
 
+def get_behavior_stats():
+    db_rows = fetch_db_transactions()
+
+    amounts = [float(amount) for _, amount, _ in db_rows]
+
+    if not amounts:
+        return 0, 1
+
+    mean = np.mean(amounts)
+    std = np.std(amounts)
+
+    return mean, std
+
 def fetch_db_transactions():
     conn = psycopg2.connect(
         dbname="AuditAI",
@@ -182,7 +195,10 @@ def save_anomalies(anomalies):
 
     print("✅ Saved to file:", ANOMALIES_FILE.resolve())
 
+
 def analyze_file_for_anomalies(file_path):
+
+    db_mean, db_std = get_behavior_stats()
     """Analyze uploaded file for anomalies. Assumes columns: date, amount, account_id, vendor, category"""
     anomalies = []
 
@@ -272,18 +288,18 @@ def analyze_file_for_anomalies(file_path):
             emp = str(row[account_col]) if account_col else "N/A"
             date_val = str(row[date_col]).split(" ")[0] if date_col else ""
 
-            # Normal anomaly
-            anomalies.append({
-                'id': f"anom_{uuid.uuid4().hex}",
-                'date': date_val if date_col else datetime.now().date().isoformat(),
-                'amount': amount,
-                'account': emp,
-                'type': data_type,   # ✅ FIXED
-                'risk': risk,
-                'risk_level': risk,
-                'reason': reason,
-            })
-
+            # Behavior-based anomaly
+            if abs(amount - db_mean) > (3 * db_std):
+                anomalies.append({
+                    'id': f"anom_{uuid.uuid4().hex}",
+                    'date': date_val,
+                    'amount': amount,
+                    'account': emp,
+                    'type': 'behavior_anomaly',
+                    'risk': 'critical',
+                    'risk_level': 'critical',
+                    'reason': f"Deviation from normal behavior (avg {db_mean:.2f})"
+                })
         # ── 8. Fallback ──────────────────────────────────────────────
         if not anomalies:
             for _, row in df.nlargest(5, '_amount').iterrows():
@@ -298,7 +314,7 @@ def analyze_file_for_anomalies(file_path):
                     'risk_level': 'medium',
                     'reason': f"Top 5 highest transaction (${amount:,.2f})",
                 })
-
+        
     except Exception as e:
         print(f"[ERROR] analyze_file_for_anomalies({file_path}): {e}")
 
@@ -444,6 +460,8 @@ def api_detect_anomalies(request):
         latest_file = max(files, key=lambda f: f.stat().st_mtime)
 
         print("📄 Processing file:", latest_file)
+
+        
 
         # 🔍 Run detection
         all_anomalies = analyze_file_for_anomalies(latest_file)

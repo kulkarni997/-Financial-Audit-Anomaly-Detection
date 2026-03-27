@@ -382,5 +382,19 @@
       "medium": 27,
       "count": 166
     }
+  },
+  {
+    "id": "audit_61bfd65830af4b3e92d7f352304d492b",
+    "timestamp": "2026-03-27T21:02:08.232984",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed file: feb_sec_half.csv",
+    "details": {
+      "anomalies_detected": 83,
+      "critical": 83,
+      "high": 0,
+      "medium": 0,
+      "count": 83
+    }
   }
 ]

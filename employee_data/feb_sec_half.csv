@@ -1,5 +1,5 @@
 date,amount,emp_id,vendor,category,department
-2024-02-16,1162,FIN0001,MakeMyTrip,Software,Finance
+2024-02-16,99999999,FIN0001,MakeMyTrip,Software,Finance
 2024-02-16,3621,FIN0002,Flipkart,Food,Finance
 2024-02-16,1500,FIN0003,MakeMyTrip,Electronics,Finance
 2024-02-16,3555,FIN0004,Amazon,Electronics,Finance
