@@ -232,29 +232,36 @@ def upload_zip(request):
     return render(request, "upload.html")
 
 def anomalies(request):
-    """Dashboard view providing analytics data for Chart.js and UI."""
+    """Dashboard view providing both tables and Chart.js graphs."""
     results = request.session.get("results", {"employee": [], "department": [], "goods": []})
-    
-    # Calculate Statistics for the UI
+
     emp_list = results.get("employee", [])
+    dept_list = results.get("department", [])
+    goods_list = results.get("goods", [])
+
+    # Optional: basic stats for cards
     stats = {
-        "total": len(emp_list) + len(results.get("department", [])) + len(results.get("goods", [])),
-        "critical": sum(1 for r in emp_list if r.get("risk_score", 0) < -0.1),
-        "high": sum(1 for r in emp_list if -0.1 <= r.get("risk_score", 0) < -0.05),
-        "medium": sum(1 for r in emp_list if -0.05 <= r.get("risk_score", 0) < 0),
-        "low": sum(1 for r in emp_list if r.get("risk_score", 0) >= 0),
+        "total": len(emp_list) + len(dept_list) + len(goods_list),
+        "critical": sum(1 for r in emp_list if float(r.get("risk_score", 0)) < -0.1),
+        "high": sum(1 for r in emp_list if -0.1 <= float(r.get("risk_score", 0)) < -0.05),
+        "medium": sum(1 for r in emp_list if -0.05 <= float(r.get("risk_score", 0)) < 0),
+        "low": sum(1 for r in emp_list if float(r.get("risk_score", 0)) >= 0),
     }
 
-    # Prepare JSON safe data for Chart.js (Frontend)
+    # Context for template: tables and chart.js
     context = {
         **stats,
-        "results": results,
-        "employee_json": mark_safe(json.dumps([r.get("emp_id_original") for r in emp_list])),
-        "emp_scores_json": mark_safe(json.dumps([r.get("risk_score") for r in emp_list])),
-        "dept_json": mark_safe(json.dumps([r.get("department_original") for r in results["department"]])),
-        "dept_scores_json": mark_safe(json.dumps([r.get("anomaly_score") for r in results["department"]])),
+        "results": results,  # this provides tables: results.employee, results.department, results.goods
+
+        # Chart.js variables (match template)
+        "employee_labels": mark_safe(json.dumps([r.get("emp_id_original") for r in emp_list])),
+        "employee_scores": mark_safe(json.dumps([float(r.get("risk_score", 0)) for r in emp_list])),
+        "department_labels": mark_safe(json.dumps([r.get("department_original") for r in dept_list])),
+        "department_scores": mark_safe(json.dumps([float(r.get("anomaly_score", 0)) for r in dept_list])),
+        "goods_labels": mark_safe(json.dumps([r.get("product_name") for r in goods_list])),
+        "goods_scores": mark_safe(json.dumps([float(r.get("raw_score", 0)) for r in goods_list])),
     }
-    
+
     return render(request, "anomalies.html", context)
 
 def show_report(request):
