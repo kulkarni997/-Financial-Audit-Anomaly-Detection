@@ -284,5 +284,19 @@
       "medium": 1,
       "count": 1
     }
+  },
+  {
+    "id": "audit_8f862c201eb94d20a41ec6bdbc771a4d",
+    "timestamp": "2026-03-27T10:36:54.095720",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed file: test.csv",
+    "details": {
+      "anomalies_detected": 1,
+      "critical": 0,
+      "high": 0,
+      "medium": 1,
+      "count": 1
+    }
   }
 ]
