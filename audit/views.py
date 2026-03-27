@@ -20,7 +20,25 @@ from rest_framework.decorators import parser_classes
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.parsers import MultiPartParser, FormParser
+import psycopg2
 
+def fetch_db_transactions():
+    conn = psycopg2.connect(
+        dbname="AuditAI",
+        user="postgres",
+        password="Next@123",
+        host="localhost",
+        port="5432"
+    )
+    cur = conn.cursor()
+
+    cur.execute("SELECT emp_id, amount, date FROM expense")
+    rows = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return rows
 @api_view(['GET'])
 def dashboard_summary(request):
     data = {
@@ -164,7 +182,6 @@ def save_anomalies(anomalies):
 
     print("✅ Saved to file:", ANOMALIES_FILE.resolve())
 
-
 def analyze_file_for_anomalies(file_path):
     """Analyze uploaded file for anomalies. Assumes columns: date, amount, account_id, vendor, category"""
     anomalies = []
@@ -176,13 +193,12 @@ def analyze_file_for_anomalies(file_path):
         else:
             df = pd.read_excel(file_path)
 
-        # Normalise column names: strip whitespace, lowercase for lookup
+        # Normalize column names
         df.columns = df.columns.str.strip()
         col_map = {c.lower(): c for c in df.columns}
 
-        # ✅ ADD THIS
+        # Detect data type
         data_type = "unknown"
-
         if 'emp_id' in col_map:
             data_type = "employee"
         elif 'product_id' in col_map:
@@ -201,41 +217,41 @@ def analyze_file_for_anomalies(file_path):
             print(f"[SKIP] No amount column in {file_path}. Columns: {list(df.columns)}")
             return []
 
-        # ── 3. Clean & validate data ──────────────────────────────────
+        # ── 3. Clean data ─────────────────────────────────────────────
         df['_amount'] = pd.to_numeric(df[amount_col], errors='coerce')
-        df = df.dropna(subset=['_amount']).reset_index(drop=True)  # ← reset_index is key
+        df = df.dropna(subset=['_amount']).reset_index(drop=True)
 
         if len(df) < 5:
             print(f"[SKIP] Too few rows ({len(df)}) in {file_path}")
             return []
 
         # ── 4. Resolve optional columns ───────────────────────────────
-        date_col    = next((col_map[k] for k in ['date', 'transaction_date', 'datetime'] if k in col_map), None)
+        date_col = next((col_map[k] for k in ['date', 'transaction_date', 'datetime'] if k in col_map), None)
         account_col = next((col_map[k] for k in ['account_id', 'account', 'account_number', 'emp_id'] if k in col_map), None)
 
-        # ── 5. Compute statistics ─────────────────────────────────────
+        # ── 5. Stats ──────────────────────────────────────────────────
         mean_amt = df['_amount'].mean()
-        std_amt  = df['_amount'].std()
+        std_amt = df['_amount'].std()
 
-        Q1  = df['_amount'].quantile(0.25)
-        Q3  = df['_amount'].quantile(0.75)
+        Q1 = df['_amount'].quantile(0.25)
+        Q3 = df['_amount'].quantile(0.75)
         IQR = Q3 - Q1
         iqr_lower = Q1 - 1.5 * IQR
         iqr_upper = Q3 + 1.5 * IQR
 
-        # ── 6. Flag outliers (boolean Series, aligned with reset index) ──
-        # FIX: compute boolean masks directly — no .iloc[idx] lookups
-        iqr_mask    = (df['_amount'] < iqr_lower) | (df['_amount'] > iqr_upper)
+        # ── 6. Outlier mask ───────────────────────────────────────────
+        iqr_mask = (df['_amount'] < iqr_lower) | (df['_amount'] > iqr_upper)
         zscore_mask = (np.abs((df['_amount'] - mean_amt) / (std_amt if std_amt > 0 else 1)) > 3)
         outlier_mask = iqr_mask | zscore_mask
 
         outlier_df = df[outlier_mask]
 
-        # ── 7. Build anomaly objects ──────────────────────────────────
+        # ── 7. Build anomalies ────────────────────────────────────────
         for _, row in outlier_df.iterrows():
-            amount    = float(row['_amount'])
+            amount = float(row['_amount'])
             deviation = abs(amount - mean_amt) / (std_amt if std_amt > 0 else 1)
 
+            # Risk
             if deviation > 4:
                 risk = 'critical'
             elif deviation > 3:
@@ -245,6 +261,7 @@ def analyze_file_for_anomalies(file_path):
             else:
                 risk = 'low'
 
+            # Reason
             if amount > mean_amt * 2:
                 reason = f"Unusually high transaction (${amount:,.2f} vs avg ${mean_amt:,.2f})"
             elif amount < 0:
@@ -252,31 +269,34 @@ def analyze_file_for_anomalies(file_path):
             else:
                 reason = f"Statistical outlier (deviation: {deviation:.2f}x std)"
 
+            emp = str(row[account_col]) if account_col else "N/A"
+            date_val = str(row[date_col]).split(" ")[0] if date_col else ""
+
+            # Normal anomaly
             anomalies.append({
-                'id':         f"anom_{uuid.uuid4().hex}",   # FIX: unique IDs
-                'date':       str(row[date_col]) if date_col else datetime.now().date().isoformat(),
-                'amount':     amount,
-                'account':    str(row[account_col]) if account_col else "N/A",
-                'type':       'data_type',
-                'risk':       risk,
+                'id': f"anom_{uuid.uuid4().hex}",
+                'date': date_val if date_col else datetime.now().date().isoformat(),
+                'amount': amount,
+                'account': emp,
+                'type': data_type,   # ✅ FIXED
+                'risk': risk,
                 'risk_level': risk,
-                'reason':     reason,
+                'reason': reason,
             })
 
-        # ── 8. Fallback: top 5 if nothing flagged ─────────────────────
+        # ── 8. Fallback ──────────────────────────────────────────────
         if not anomalies:
-            print(f"[FALLBACK] No statistical outliers in {file_path}, using top 5")
             for _, row in df.nlargest(5, '_amount').iterrows():
                 amount = float(row['_amount'])
                 anomalies.append({
-                    'id':         f"anom_{uuid.uuid4().hex}",
-                    'date':       str(row[date_col]) if date_col else datetime.now().date().isoformat(),
-                    'amount':     amount,
-                    'account':    str(row[account_col]) if account_col else "N/A",
-                    'type':       'top_value',
-                    'risk':       'medium',
+                    'id': f"anom_{uuid.uuid4().hex}",
+                    'date': str(row[date_col]) if date_col else datetime.now().date().isoformat(),
+                    'amount': amount,
+                    'account': str(row[account_col]) if account_col else "N/A",
+                    'type': 'top_value',
+                    'risk': 'medium',
                     'risk_level': 'medium',
-                    'reason':     f"Top 5 highest transaction (${amount:,.2f})",
+                    'reason': f"Top 5 highest transaction (${amount:,.2f})",
                 })
 
     except Exception as e:

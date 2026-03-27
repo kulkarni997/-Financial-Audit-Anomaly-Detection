@@ -312,5 +312,75 @@
       "medium": 2,
       "count": 11
     }
+  },
+  {
+    "id": "audit_f755c030646b47c79b0a727c45b9c676",
+    "timestamp": "2026-03-27T20:06:37.745787",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed file: jan_first_half.csv",
+    "details": {
+      "anomalies_detected": 141,
+      "critical": 77,
+      "high": 17,
+      "medium": 22,
+      "count": 141
+    }
+  },
+  {
+    "id": "audit_eabe52e2f9024a069bc1c34506632ec7",
+    "timestamp": "2026-03-27T20:22:30.157268",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed file: jan_first_half.csv",
+    "details": {
+      "anomalies_detected": 141,
+      "critical": 77,
+      "high": 17,
+      "medium": 22,
+      "count": 141
+    }
+  },
+  {
+    "id": "audit_e938bc8ae0dc4099aa0b4d8d129c28d7",
+    "timestamp": "2026-03-27T20:23:29.609642",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed file: april_first_half.csv",
+    "details": {
+      "anomalies_detected": 152,
+      "critical": 74,
+      "high": 20,
+      "medium": 21,
+      "count": 152
+    }
+  },
+  {
+    "id": "audit_2376ed6eb06841f8bd7e2e8fe3dbdf93",
+    "timestamp": "2026-03-27T20:32:41.469721",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed file: test.csv",
+    "details": {
+      "anomalies_detected": 1,
+      "critical": 0,
+      "high": 0,
+      "medium": 1,
+      "count": 1
+    }
+  },
+  {
+    "id": "audit_4d292c8770a84e43bb9cfe87ca2cc226",
+    "timestamp": "2026-03-27T20:41:17.036847",
+    "event_type": "detection",
+    "title": "Anomaly Detection Completed",
+    "description": "Analyzed file: feb_first_half.csv",
+    "details": {
+      "anomalies_detected": 166,
+      "critical": 75,
+      "high": 22,
+      "medium": 27,
+      "count": 166
+    }
   }
 ]
