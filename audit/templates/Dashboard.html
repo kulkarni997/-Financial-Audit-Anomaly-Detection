@@ -7,28 +7,61 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}" />
+<style>
+  :root {
+    --risk-low: #2ecc71;
+    --risk-medium: #f1c40f;
+    --risk-high: #e67e22;
+    --risk-critical: #e74c3c;
+    --text-main: #2d3436;
+    --text-muted: #636e72;
+    --accent-soft: rgba(72, 52, 212, 0.08);
+  }
+  
+  .kpi-value { color: var(--text-main); font-weight: 800; letter-spacing: -1px; font-size: 1.8rem; }
+  .kpi-label { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; }
+  .chart-title { color: var(--text-main); font-weight: 700; font-size: 0.95rem; }
+  
+  /* Icon Containers */
+  .kpi-icon { 
+    display: flex; align-items: center; justify-content: center; 
+    width: 38px; height: 38px; border-radius: 10px; margin-bottom: 12px;
+  }
+  .kpi-icon svg { width: 20px; height: 20px; stroke-width: 2; }
+  
+  .blue { background: var(--accent-soft); color: #4834d4; }
+  .amber { background: rgba(241, 196, 15, 0.1); color: #f1c40f; }
+  .red { background: rgba(231, 76, 60, 0.1); color: #e74c3c; }
+  .green { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
+
+  .vendor-item, .feed-list li { 
+    color: var(--text-main); border-bottom: 1px solid #f1f2f6; 
+    padding: 10px 0; font-size: 0.9rem; 
+  }
+  
+  .donut-center-text { pointer-events: none; }
+  .chart-card { border: 1px solid #f1f2f6; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border-radius: 16px; }
+</style>
 {% endblock %}
 
 {% block content %}
 
-<!-- ── PAGE HEADER ─────────────────────────────────────────── -->
 <div class="page-header fade-up">
   <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px;">
     <div>
-      <h1>Audit Dashboard</h1>
-      <p>Q4 2024 · Nov 1 – Nov 30 · 4,821 transactions analysed</p>
+      <h1 style="color:var(--text-main); margin-bottom:4px; font-weight:800;">Audit Dashboard</h1>
+      <p style="color:var(--text-muted); font-weight:500;">{{ total_transactions }} transactions analysed</p>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <span class="live-dot">Live</span>
+    <div style="display:flex;gap:12px;align-items:center;">
+      <span class="live-dot" style="font-weight:700; letter-spacing: 0.5px; background: rgba(231, 76, 60, 0.1); color: #e74c3c; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem;">● LIVE</span>
       <a href="/upload/"
-         style="display:inline-flex;align-items:center;gap:6px;background:var(--accent);
-                color:white;font-size:.82rem;font-weight:600;padding:8px 16px;
-                border-radius:var(--r-md);text-decoration:none;border:none;cursor:pointer;
-                transition:background var(--dur);"
-         onmouseover="this.style.background='var(--accent-hover)'"
-         onmouseout="this.style.background='var(--accent)'">
-        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+         style="display:inline-flex;align-items:center;gap:8px;background:#4834d4;
+                color:white;font-size:.85rem;font-weight:600;padding:10px 22px;
+                border-radius:12px;text-decoration:none;transition:all 0.3s ease; box-shadow: 0 4px 12px rgba(72, 52, 212, 0.2);"
+         onmouseover="this.style.transform='translateY(-2px)';"
+         onmouseout="this.style.transform='translateY(0)';">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
         </svg>
         New Upload
       </a>
@@ -36,216 +69,162 @@
   </div>
 </div>
 
-<!-- ── KPI CARDS ──────────────────────────────────────────── -->
 <div class="kpi-grid">
-
-  <!-- Total Transactions -->
   <div class="kpi-card kpi-total fade-up fade-up-1">
-    <div class="kpi-top">
-      <div class="kpi-icon blue">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5
-               0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25
-               m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5
-               m0 0l-.5 1.5"/>
-        </svg>
-      </div>
-      <span class="kpi-delta up">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l8 8H4z"/></svg>
-        +8.2%
-      </span>
-    </div>
-    <div class="kpi-value" id="kpi-total">—</div>
-    <div class="kpi-label">Total Transactions</div>
-    <div class="kpi-sparkline" style="height:32px">
-      <canvas id="spark-total"></canvas>
-    </div>
+    <div class="kpi-top"><div class="kpi-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 21H3V3m18 8H7m14-4H7m14 8H7m14 4H7"/></svg></div></div>
+    <div class="kpi-value">{{ total_transactions }}</div>
+    <div class="kpi-label">Total Volume</div>
+    <div class="kpi-sparkline"><canvas id="spark-total"></canvas></div>
   </div>
 
-  <!-- Flagged -->
   <div class="kpi-card kpi-flagged fade-up fade-up-2">
-    <div class="kpi-top">
-      <div class="kpi-icon amber">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71
-               c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5
-               -3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-        </svg>
-      </div>
-      <span class="kpi-delta up">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l8 8H4z"/></svg>
-        +3
-      </span>
-    </div>
-    <div class="kpi-value" id="kpi-flagged">—</div>
-    <div class="kpi-label">Flagged Anomalies</div>
-    <div class="kpi-sparkline" style="height:32px">
-      <canvas id="spark-flagged"></canvas>
-    </div>
+    <div class="kpi-top"><div class="kpi-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div></div>
+    <div class="kpi-value">{{ flagged_count }}</div>
+    <div class="kpi-label">Anomalies</div>
+    <div class="kpi-sparkline"><canvas id="spark-flagged"></canvas></div>
   </div>
 
-  <!-- Critical -->
   <div class="kpi-card kpi-critical fade-up fade-up-3">
-    <div class="kpi-top">
-      <div class="kpi-icon red">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
-        </svg>
-      </div>
-      <span class="kpi-delta up">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l8 8H4z"/></svg>
-        +2
-      </span>
-    </div>
-    <div class="kpi-value" id="kpi-critical">—</div>
+    <div class="kpi-top"><div class="kpi-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div></div>
+    <div class="kpi-value">{{ critical_count }}</div>
     <div class="kpi-label">Critical Alerts</div>
-    <div class="kpi-sparkline" style="height:32px">
-      <canvas id="spark-critical"></canvas>
-    </div>
+    <div class="kpi-sparkline"><canvas id="spark-critical"></canvas></div>
   </div>
 
-  <!-- Avg Risk Score -->
   <div class="kpi-card kpi-score fade-up fade-up-4">
-    <div class="kpi-top">
-      <div class="kpi-icon green">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9
-               M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6
-               A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"/>
-        </svg>
-      </div>
-      <span class="kpi-delta down">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20l-8-8h16z"/></svg>
-        −1.3
-      </span>
-    </div>
-    <div class="kpi-value" id="kpi-score">—</div>
-    <div class="kpi-label">Avg Risk Score</div>
-    <div class="kpi-sparkline" style="height:32px">
-      <canvas id="spark-score"></canvas>
-    </div>
+    <div class="kpi-top"><div class="kpi-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div></div>
+    <div class="kpi-value">{{ avg_risk_score }}</div>
+    <div class="kpi-label">Risk Index</div>
+    <div class="kpi-sparkline"><canvas id="spark-score"></canvas></div>
   </div>
-
 </div>
-<!-- END KPI GRID -->
 
-
-<!-- ── ROW 1: TREND LINE + DOUGHNUT ───────────────────────── -->
 <div class="charts-row two-col fade-up fade-up-3">
-
-  <!-- Trend Line Chart -->
   <div class="chart-card">
-    <div class="chart-header">
-      <div>
-        <div class="chart-title">Anomaly Trend</div>
-        <div class="chart-subtitle">Daily flagged vs total transactions</div>
-      </div>
-      <div class="chart-controls">
-        <button class="chart-pill active" data-days="30">30d</button>
-        <button class="chart-pill" data-days="14">14d</button>
-        <button class="chart-pill" data-days="7">7d</button>
-      </div>
-    </div>
-    <div class="chart-wrap" style="height:220px">
-      <canvas id="trend-chart"></canvas>
-    </div>
+    <div class="chart-header" style="padding: 20px 20px 0;"><div class="chart-title">Anomaly Trend</div></div>
+    <div class="chart-wrap" style="padding: 20px;"><canvas id="trend-chart"></canvas></div>
   </div>
 
-  <!-- Risk Doughnut -->
   <div class="chart-card">
-    <div class="chart-header">
-      <div>
-        <div class="chart-title">Risk Breakdown</div>
-        <div class="chart-subtitle">By severity level</div>
-      </div>
-    </div>
+    <div class="chart-header" style="padding: 20px 20px 0;"><div class="chart-title">Risk Breakdown</div></div>
     <div class="donut-wrap">
-      <div style="position:relative;width:160px;height:160px;margin:0 auto;">
-        <canvas id="donut-chart" width="160" height="160"></canvas>
-        <div class="donut-center-text">
-          <div class="big" id="donut-total">—</div>
-          <div class="lbl">flagged</div>
+      <div style="position:relative;width:180px;height:180px;margin:10px auto;">
+        <canvas id="donut-chart"></canvas>
+        <div class="donut-center-text" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;">
+          <div class="big" style="font-size: 1.6rem;">{{ flagged_count }}</div>
+          <div class="lbl" style="font-size: 0.65rem; color: var(--text-muted); letter-spacing: 1px;">TOTAL</div>
         </div>
       </div>
-      <div class="donut-legend">
-        <div class="legend-item">
-          <div class="legend-dot" style="background:var(--risk-low)"></div>
-          <span class="legend-item-label">Low</span>
-          <span class="legend-item-val" id="legend-low">—</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background:var(--risk-medium)"></div>
-          <span class="legend-item-label">Medium</span>
-          <span class="legend-item-val" id="legend-medium">—</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background:var(--risk-high)"></div>
-          <span class="legend-item-label">High</span>
-          <span class="legend-item-val" id="legend-high">—</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background:var(--risk-critical)"></div>
-          <span class="legend-item-label">Critical</span>
-          <span class="legend-item-val" id="legend-critical">—</span>
-        </div>
+      <div class="donut-legend" style="padding: 0 20px 20px;">
+        <div class="legend-item"><span style="color:var(--risk-low)">● Low</span><b>{{ low }}</b></div>
+        <div class="legend-item"><span style="color:var(--risk-medium)">● Med</span><b>{{ medium }}</b></div>
+        <div class="legend-item"><span style="color:var(--risk-high)">● High</span><b>{{ high }}</b></div>
+        <div class="legend-item"><span style="color:var(--risk-critical)">● Crit</span><b>{{ critical }}</b></div>
       </div>
     </div>
   </div>
-
 </div>
-<!-- END ROW 1 -->
 
-
-<!-- ── ROW 2: HEATMAP ─────────────────────────────────────── -->
-
-<!-- ── ROW 3: TOP VENDORS + LIVE FEED ─────────────────────── -->
 <div class="bottom-row fade-up fade-up-5">
-
-  <!-- Top Vendors by Risk -->
   <div class="chart-card">
-    <div class="chart-header">
-      <div>
-        <div class="chart-title">Top Vendors by Risk</div>
-        <div class="chart-subtitle">Highest avg risk score this period</div>
-      </div>
-      <a href="/anomalies/?sort=vendor" class="card-action" style="font-size:.75rem;color:var(--accent);text-decoration:none;">
-        View all →
-      </a>
-    </div>
-    <div class="vendor-list" id="vendor-list">
-      <!-- Rendered by dashboard.js -->
+    <div class="chart-header" style="padding: 20px 20px 0;"><div class="chart-title">Top Vendors by Risk</div></div>
+    <div class="vendor-list" style="padding: 15px 20px;">
+      {% for vendor in vendor_list %}
+        <div class="vendor-item">
+            <span style="font-weight:600;">{{ vendor.label }}</span> 
+            <span style="float:right; background:var(--accent-soft); color:#4834d4; padding:2px 10px; border-radius:8px; font-size:0.75rem; font-weight:700;">{{ vendor.score }}</span>
+        </div>
+      {% endfor %}
     </div>
   </div>
 
-  <!-- Live Anomaly Feed (spans 2 columns) -->
   <div class="chart-card" style="grid-column: span 2;">
-    <div class="chart-header">
-      <div>
-        <div class="chart-title">
-          Live Anomaly Feed
-          &nbsp;<span class="live-dot" style="font-size:.7rem;">Updated</span>
-        </div>
-        <div class="chart-subtitle">Most recent flagged transactions</div>
-      </div>
-      <a href="/anomalies/" class="card-action" style="font-size:.75rem;color:var(--accent);text-decoration:none;">
-        View all →
-      </a>
-    </div>
-    <ul class="feed-list" id="feed-list">
-      <!-- Rendered by dashboard.js -->
+    <div class="chart-header" style="padding: 20px 20px 0;"><div class="chart-title">Live Anomaly Feed</div></div>
+    <ul class="feed-list" style="list-style:none; padding:15px 20px;">
+      {% for anomaly in feed_list %}
+        <li style="display:flex; justify-content:space-between;">
+            <span>{{ anomaly.label }}</span>
+            <span style="color:var(--risk-critical); font-weight:700;">{{ anomaly.score }}</span>
+        </li>
+      {% endfor %}
     </ul>
   </div>
-
 </div>
-<!-- END ROW 3 -->
 
 {% endblock %}
 
-
 {% block extra_js %}
-<script src="{% static 'js/dashboard.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  Chart.defaults.font.family = "'Plus Jakarta Sans', 'Inter', sans-serif";
+  Chart.defaults.color = '#94a3b8';
+
+  // --- TREND CHART ---
+  const trendCtx = document.getElementById('trend-chart').getContext('2d');
+  const trendGradient = trendCtx.createLinearGradient(0, 0, 0, 300);
+  trendGradient.addColorStop(0, 'rgba(72, 52, 212, 0.15)');
+  trendGradient.addColorStop(1, 'rgba(72, 52, 212, 0)');
+
+  new Chart(trendCtx, {
+    type: 'line',
+    data: {
+      labels: {{ trend_labels|safe }},
+      datasets: [{
+        data: {{ trend_scores|safe }},
+        borderColor: '#4834d4',
+        backgroundColor: trendGradient,
+        fill: true,
+        tension: 0.4,
+        borderWidth: 3,
+        pointRadius: 0,
+        pointHoverRadius: 6,
+        pointHoverBackgroundColor: '#4834d4',
+        pointHoverBorderColor: '#fff',
+        pointHoverBorderWidth: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: { 
+        legend: { display: false },
+        tooltip: {
+            backgroundColor: '#1e293b',
+            padding: 12,
+            displayColors: false,
+            cornerRadius: 10
+        }
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: { 
+            beginAtZero: true, 
+            grid: { color: '#f1f5f9', drawBorder: false },
+            ticks: { maxTicksLimit: 5 }
+        }
+      }
+    }
+  });
+
+  // --- DONUT CHART ---
+  const donutCtx = document.getElementById('donut-chart').getContext('2d');
+  new Chart(donutCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Low','Med','High','Crit'],
+      datasets: [{
+        data: [{{ low }}, {{ medium }}, {{ high }}, {{ critical }}],
+        backgroundColor: ['#2ecc71','#f1c40f','#e67e22','#e74c3c'],
+        borderWidth: 0,
+        hoverOffset: 12,
+        borderRadius: 6
+      }]
+    },
+    options: { 
+        cutout: '80%',
+        plugins: { legend: { display: false } } 
+    }
+  });
+</script>
 {% endblock %}

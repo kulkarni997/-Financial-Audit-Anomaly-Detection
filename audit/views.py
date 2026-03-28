@@ -8,6 +8,8 @@ from pathlib import Path
 from datetime import datetime
 from io import BytesIO
 from dotenv import load_dotenv
+# --- 2. ADVANCED PDF GENERATION ---
+from django.db.models import Avg, Count, Q
 
 # Load the environment variables from .env
 load_dotenv()
@@ -23,6 +25,9 @@ from django.http import JsonResponse, FileResponse
 from django.utils.safestring import mark_safe
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
+# --- 3. AUDIT VIEWS ---
+from .models import Anomaly
 
 # 3. REPORTLAB (PDF GENERATION)
 from reportlab.lib import colors
@@ -122,44 +127,79 @@ def dashboard(request):
     """Simple view to render the main dashboard page."""
     return render(request, "dashboard.html")
 
-# --- 2. ADVANCED PDF GENERATION ---
-def dashboard(request):
-    return render(request, 'Dashboard.html')
 
-# --- 3. AUDIT VIEWS ---
+
+def dashboard(request):
+    anomalies = Anomaly.objects.all()
+    emp_list = anomalies.filter(category="employee")
+
+    stats = {
+        "total_transactions": anomalies.count(),
+        "flagged_count": emp_list.filter(score__lt=0).count(),
+        "critical_count": emp_list.filter(score__lt=-0.1).count(),
+        "avg_risk_score": round(emp_list.aggregate(Avg("score"))["score__avg"] or 0, 2),
+        "low": emp_list.filter(score__gte=0).count(),
+        "medium": emp_list.filter(score__gte=-0.05, score__lt=0).count(),
+        "high": emp_list.filter(score__gte=-0.1, score__lt=-0.05).count(),
+        "critical": emp_list.filter(score__lt=-0.1).count(),
+    }
+
+    context = {
+        **stats,
+        "vendor_list": anomalies.filter(category="department")[:5],
+        "feed_list": anomalies.filter(category="goods").order_by("-created_at")[:10],
+        # Chart.js arrays
+        "trend_labels": mark_safe(json.dumps([a.created_at.strftime("%d-%b") for a in emp_list])),
+        "trend_scores": mark_safe(json.dumps([a.score for a in emp_list])),
+    }
+    return render(request, "dashboard.html", context)
+
+
 def upload_zip(request):
-    """Handles multi-file uploads and routes them to specific ML predictors."""
     if request.method == "POST" and request.FILES.getlist("files"):
         uploaded_files = request.FILES.getlist("files")
-        results = {"employee": [], "department": [], "goods": []}
         
         for file in uploaded_files:
             try:
-                # Use context manager for auto-cleanup of temp files
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as temp:
                     for chunk in file.chunks():
                         temp.write(chunk)
                     temp_path = temp.name
 
                 file_name = file.name.lower()
-                if any(x in file_name for x in ["employee", "emp"]):
+                if "employee" in file_name:
                     res = process_employee_audit(temp_path, pd.DataFrame())
-                    results["employee"].extend(res.to_dict("records"))
-                elif any(x in file_name for x in ["department", "dept"]):
+                    for r in res.to_dict("records"):
+                        Anomaly.objects.create(
+                            category="employee",
+                            label=r.get("emp_id_original"),
+                            score=float(r.get("risk_score", 0))
+                        )
+                elif "department" in file_name:
                     res = process_department_audit(temp_path)
-                    results["department"].extend(res.to_dict("records"))
-                elif any(x in file_name for x in ["goods", "good"]):
+                    for r in res.to_dict("records"):
+                        Anomaly.objects.create(
+                            category="department",
+                            label=r.get("department_original"),
+                            score=float(r.get("anomaly_score", 0))
+                        )
+                elif "goods" in file_name:
                     res = process_goods_audit(temp_path)
-                    results["goods"].extend(res.to_dict("records"))
-                
-                os.unlink(temp_path) # Cleanup
+                    for r in res.to_dict("records"):
+                        Anomaly.objects.create(
+                            category="goods",
+                            label=r.get("product_name"),
+                            score=float(r.get("raw_score", 0))
+                        )
+
+                os.unlink(temp_path)
             except Exception as e:
                 logger.error(f"File processing error: {file.name} - {e}")
 
-        request.session["results"] = results
-        return redirect("anomalies")
-    
+        return redirect("dashboard")
+
     return render(request, "upload.html")
+
 
 def anomalies(request):
     """Dashboard view providing both tables and Chart.js graphs."""

@@ -129,8 +129,8 @@
                     {% for row in results.department %}
                     <tr>
                         <td><b>{{ row.department_original }}</b></td>
-                        <td>${{ row.monthly_budget }}</td>
-                        <td>${{ row.expense_limit }}</td>
+                        <td>₹{{ row.monthly_budget }}</td>
+                        <td>₹{{ row.expense_limit }}</td>
                         <td><span class="risk-badge" style="color:var(--warning); background: rgba(245, 158, 11, 0.1)">{{ row.anomaly_score }}</span></td>
                     </tr>
                     {% endfor %}
@@ -150,7 +150,7 @@
                     <tr>
                         <td><b>{{ row.product_name }}</b></td>
                         <td>{{ row.vendor }}</td>
-                        <td>${{ row.total_price }}</td>
+                        <td>₹{{ row.total_price }}</td>
                         <td><span class="risk-badge" style="color:var(--secondary); background: rgba(30, 41, 59, 0.1)">{{ row.raw_score }}</span></td>
                     </tr>
                     {% endfor %}
