@@ -281,6 +281,15 @@
   </div>
 </div>
 
+<li>
+    <a href="/invoice-upload">Upload Invoice</a>
+</li>
+
+<input type="file" id="fileInput" />
+<button onclick="uploadInvoice()">Upload Invoice</button>
+
+<div id="result"></div>
+
 <script>
 const uploadZone = document.getElementById('uploadZone');
 const fileInput = document.getElementById('file-input');
@@ -293,6 +302,39 @@ const uploadedFilesList = document.getElementById('uploadedFilesList');
 const noUploads = document.getElementById('noUploads');
 
 let selectedFiles = new Map();
+
+async function uploadInvoice() {
+    const fileInput = document.getElementById("fileInput");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Select a file first");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/api/invoice/upload/", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        document.getElementById("result").innerHTML = `
+            <h3>Result</h3>
+            <p><b>Amount:</b> ${data.amount}</p>
+            <p><b>Risk:</b> ${data.risk}</p>
+            <p><b>Mismatch:</b> ${data.mismatch}</p>
+            <p><b>Text:</b> ${data.text}</p>
+        `;
+    } catch (error) {
+        console.error(error);
+        alert("Upload failed");
+    }
+}
 
 // Get CSRF token from meta tag or cookie
 function getCSRFToken() {

@@ -199,6 +199,28 @@
 </div>
 <!-- END ROW 1 -->
 
+<div class="chart-card" style="margin-top:20px;">
+    <div class="chart-header">
+        <div>
+            <div class="chart-title">📄 Invoice OCR</div>
+            <div class="chart-subtitle">Upload invoice image and detect anomalies</div>
+        </div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:16px;">
+        <input type="file" id="ocrFile" style="flex:1;min-width:220px;" />
+        <button id="ocrUploadBtn" type="button" class="chart-pill" style="padding:10px 18px;border-radius:8px;">Upload & Analyze</button>
+    </div>
+
+    <div id="ocrResult" style="display:none; margin-top:15px; background: var(--bg-surface); border:1px solid var(--border); border-radius: var(--r-lg); padding: 16px;">
+        <p><strong>Amount:</strong> ₹<span id="ocrAmount"></span></p>
+        <p><strong>Risk:</strong> <span id="ocrRisk"></span></p>
+        <p><strong>Mismatch:</strong> <span id="ocrMismatch"></span></p>
+        <h4>Extracted Text:</h4>
+        <pre id="ocrText" style="white-space: pre-wrap; word-break: break-word;"></pre>
+    </div>
+</div>
+
 
 <!-- ── ROW 2: HEATMAP ─────────────────────────────────────── -->
 

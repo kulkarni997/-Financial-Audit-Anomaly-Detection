@@ -26,7 +26,7 @@ urlpatterns = [
     # API - Audit History
     path('api/audit-history/', views.api_audit_history, name='api_audit_history'),
     path('api/audit-stats/', views.api_audit_stats, name='api_audit_stats'),
-    path('api/invoice/upload/', views.upload_invoice),
+    
     # API - Auth
     path('api/auth/logout/', views.api_logout, name='api_logout'),
     path('api/dashboard/trends/', views.trends_view, name='trends'),
