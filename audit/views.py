@@ -8,6 +8,15 @@ from pathlib import Path
 from datetime import datetime
 from io import BytesIO
 from dotenv import load_dotenv
+import numpy as np
+
+
+# audit/views.py
+
+import joblib
+from django.shortcuts import render
+from .forms import ProjectAuditForm
+
 # --- 2. ADVANCED PDF GENERATION ---
 from django.db.models import Avg, Count, Q
 
@@ -41,38 +50,35 @@ from reportlab.platypus import (
 
 # 4. EXTERNAL LIBS
 import qrcode
-import google.generativeai as genai
+from google.genai import Client   # ✅ new import
 
 # 5. LOCAL ML BUSINESS LOGIC
 from fraud_detection.emp_fraud_predictor import process_employee_audit
 from fraud_detection.dept_fraud_predictor import process_department_audit
 from fraud_detection.goods_fraud_predictor import process_goods_audit
 
-
 # --- CONFIGURATION ---
 logger = logging.getLogger(__name__)
 api_key = os.getenv("GENAI_API_KEY")
-genai.configure(api_key=api_key)
+client = Client(api_key=api_key)   # ✅ new client object
 
 def generate_all_summaries(results: dict) -> dict:
     """
     Final optimized AI summary generator for 2026.
-    Fixes NameError, 404 model errors, and improves JSON parsing.
+    Uses google-genai Client instead of deprecated configure().
     """
-    
-    # Updated stable model strings for 2026
-    models_to_try = [
-    "models/gemini-2.5-flash", 
-    "models/gemini-2.5-pro-latest"
-]
 
-    # Counts for the prompt
+    models_to_try = [
+        "models/gemini-2.5-flash", 
+        "models/gemini-2.5-pro-latest"
+    ]
+
     emp_count = len(results.get('employee', []))
     dept_count = len(results.get('department', []))
     goods_count = len(results.get('goods', []))
 
     prompt = (
-        "You are a Senior  Auditor. Analyze these anomaly counts and provide "
+        "You are a Senior Auditor. Analyze these anomaly counts and provide "
         "a professional, informative narrative summary (3-4 sentences each) regarding "
         "potential financial risk and recommended audit actions.\n\n"
         f"Employee Anomalies: {emp_count}\n"
@@ -84,28 +90,26 @@ def generate_all_summaries(results: dict) -> dict:
 
     for model_name in models_to_try:
         try:
-            model = genai.GenerativeModel(model_name=model_name)
-            # Use generation_config to force JSON if the SDK version supports it
-            response = model.generate_content(
-                prompt, 
-                generation_config={"response_mime_type": "application/json"}
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config={"response_mime_type": "application/json"}  # ✅ updated config
             )
 
             if response and response.text:
-                # Remove markdown formatting if the AI ignores the 'JSON only' instruction
                 clean_json = response.text.strip().removeprefix("```json").removesuffix("```").strip()
                 parsed = json.loads(clean_json)
-                
+
                 return {
                     "employee_summary": parsed.get("employee_summary", "Detailed report pending."),
                     "department_summary": parsed.get("department_summary", "Detailed report pending."),
                     "goods_summary": parsed.get("goods_summary", "Detailed report pending.")
                 }
-                
+
         except Exception as e:
             logger.warning(f"Model {model_name} failed or returned invalid JSON: {e}")
 
-    # Fallback Hard-coded Summaries (if all AI attempts fail)
+    # Fallback summaries
     return {
         "employee_summary": (
             f"Employee Alert: {emp_count} employee-level anomalies detected. "
@@ -123,6 +127,7 @@ def generate_all_summaries(results: dict) -> dict:
             "Recommendation: Reconcile physical inventory counts with digital ledgers."
         )
     }
+
 def dashboard(request):
     """Simple view to render the main dashboard page."""
     return render(request, "dashboard.html")
@@ -441,3 +446,100 @@ def download_report(request):
     if os.path.exists(path):
         return FileResponse(open(path, 'rb'), as_attachment=True, filename='Audit.pdf')
     return JsonResponse({"error": "Report not found. Please run analysis first."}, status=404)
+
+
+def pro_dashboard(request):
+    return render(request, "pro_dashboard.html")
+
+def reimbursement_audit(request):
+    return render(request, "reimbursement.html")
+
+def approval_system(request):
+    return render(request, "approval.html")
+
+# Load model once
+MODEL_PATH = r"C:\Users\HP\OneDrive\Desktop\EDUNET\-Financial-Audit-Anomaly-Detection\audit\ml_assets\project_Models\advanced_audit_pipeline.pkl"
+model = joblib.load(MODEL_PATH)
+
+def project_audit(request):
+    if request.method == "POST":
+        form = ProjectAuditForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            user_input = form.cleaned_data
+            csv_file = request.FILES["file"]
+
+            try:
+                df = pd.read_csv(csv_file)
+            except Exception as e:
+                return render(request, "project_upload.html", {"form": form, "error": f"CSV Read Error: {str(e)}"})
+
+            # 🧹 1. CLEANING
+            df.columns = df.columns.str.lower().str.strip()
+            df['transaction_date'] = pd.to_datetime(df['transaction_date'], errors='coerce')
+            df['month'] = df['transaction_date'].dt.month.fillna(0)
+            df['day_name'] = df['transaction_date'].dt.day_name()
+
+            # 🧩 2. METADATA
+            df['project_type'] = user_input['project_type']
+            df['department'] = user_input['department']
+            for col in ['vendor', 'service_type', 'approval_status']:
+                if col not in df.columns: df[col] = "Unknown"
+
+            # 📊 3. FEATURE ENGINEERING
+            total_planned = float(user_input['total_planned_budget'])
+            if 'planned_budget' not in df.columns:
+                df['planned_budget'] = total_planned / max(len(df), 1)
+
+            df['overrun_ratio'] = df['actual_spend'] / (df['planned_budget'] + 1)
+            df['budget_gap'] = df['actual_spend'] - df['planned_budget']
+            df['log_actual'] = np.log1p(df['actual_spend'])
+            df['log_budget'] = np.log1p(df['planned_budget'])
+
+            # 🤖 4. AI MODEL
+            try:
+                df['is_anomaly_raw'] = model.predict(df)
+                df['anomaly_score'] = model.decision_function(df)
+            except Exception as e:
+                df['is_anomaly_raw'] = np.where(df['overrun_ratio'] > 2.0, -1, 1)
+                df['anomaly_score'] = 0
+
+            # ⚠️ 5. RISK LOGIC
+            flex_map = {"Strict": 1.1, "Moderate": 1.5, "Flexible": 2.0}
+            limit = flex_map.get(user_input['budget_flexibility'], 1.5)
+            top_95th = df['actual_spend'].quantile(0.95)
+            df['risk_level'] = 'Low Risk'
+            df.loc[((df['is_anomaly_raw'] == -1) & (df['overrun_ratio'] > limit)) | 
+                   (df['overrun_ratio'] > 5.0) | (df['actual_spend'] >= top_95th), 'risk_level'] = 'HIGH RISK'
+
+            # 📊 6. DATA AGGREGATION FOR 6 GRAPHS
+            hr_df = df[df['risk_level'] == 'HIGH RISK'].copy()
+            day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+            
+            summary = {
+                "meta": user_input,
+                "total_records": int(len(df)),
+                "high_risk_count": int(len(hr_df)),
+                "confidence": round(100 - (len(hr_df) / max(len(df), 1) * 100), 2),
+                "total_spent": float(df['actual_spend'].sum()),
+                "leakage": float(hr_df['actual_spend'].sum()),
+                "over_budget_x": round(df['actual_spend'].sum() / total_planned, 1) if total_planned > 0 else 0,
+                "all_high_risks": hr_df.sort_values('actual_spend', ascending=False).to_dict(orient="records"),
+                
+                # GRAPH DATA
+                "g1_burn_labels": df.groupby('month')['actual_spend'].sum().cumsum().index.tolist(),
+                "g1_burn_data": df.groupby('month')['actual_spend'].sum().cumsum().values.tolist(),
+                "g2_vendor_labels": hr_df['vendor'].value_counts().head(5).index.tolist(),
+                "g2_vendor_data": hr_df['vendor'].value_counts().head(5).values.tolist(),
+                "g3_cat_labels": df.groupby('service_type')['overrun_ratio'].mean().nlargest(5).index.tolist(),
+                "g3_cat_data": df.groupby('service_type')['overrun_ratio'].mean().nlargest(5).values.tolist(),
+                "g4_app_labels": list(df['approval_status'].unique()),
+                "g4_app_risk": df[df['risk_level']=='HIGH RISK']['approval_status'].value_counts().tolist(),
+                "g5_temp_labels": day_order,
+                "g5_temp_data": df.groupby('day_name')['actual_spend'].mean().reindex(day_order).fillna(0).tolist(),
+                "g6_scatter": df[['actual_spend', 'anomaly_score', 'risk_level']].head(150).to_dict(orient="records")
+            }
+            return render(request, "project_results.html", {"summary": summary})
+    else:
+        form = ProjectAuditForm()
+    return render(request, "project_upload.html", {"form": form})

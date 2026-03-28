@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { 
+            --bg: #f8fafc; 
+            --card: #ffffff; 
+            --accent: #7c3aed; 
+            --risk: #dc2626; 
+            --text-main: #0f172a; 
+            --text-dim: #64748b; 
+            --border: #e2e8f0; 
+        }
+
+        * { box-sizing: border-box; } /* Ensures padding doesn't break width */
+
+        body { 
+            background: var(--bg); 
+            color: var(--text-main); 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Container to keep everything centered and constrained */
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+        }
+        
+        .header { 
+            border-bottom: 2px solid var(--border); 
+            padding-bottom: 20px; 
+            margin-bottom: 35px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header h1 { 
+            color: var(--text-main); 
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            font-size: 1.3rem; 
+            font-weight: 800;
+            margin: 0; 
+        }
+
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 40px; 
+        }
+
+        .stat-card { 
+            background: var(--card); 
+            padding: 24px; 
+            border-radius: 12px; 
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-card small { 
+            color: var(--text-dim); 
+            text-transform: uppercase; 
+            font-size: 0.7rem; 
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card div { 
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem; 
+            font-weight: 700; 
+            margin-top: 5px; 
+            color: var(--text-main);
+            word-break: break-all;
+        }
+
+        .charts-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); 
+            gap: 25px; 
+        }
+
+        /* Responsive fix for small mobile screens */
+        @media (max-width: 500px) {
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+
+        .chart-box { 
+            background: var(--card); 
+            padding: 20px; 
+            border-radius: 16px; 
+            height: 380px; /* Increased height for better graph visibility */
+            border: 1px solid var(--border); 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            position: relative; /* Required for Chart.js responsive sizing */
+        }
+
+        .chart-box h3 { 
+            font-size: 0.8rem; 
+            color: var(--text-dim); 
+            text-transform: uppercase; 
+            margin: 0 0 15px 0; 
+            font-weight: 700;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        /* Ensures the canvas actually stays inside the box */
+        .chart-container {
+            position: relative;
+            height: 280px;
+            width: 100%;
+        }
+
+        .risk-table-wrap { 
+            margin-top: 40px; 
+            background: var(--card); 
+            padding: 20px; 
+            border-radius: 16px; 
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            overflow-x: auto; /* Table scroll for mobile */
+        }
+
+        .table-title { 
+            color: var(--accent); 
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem; 
+            font-weight: 800;
+            margin-bottom: 20px; 
+        }
+
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+
+        th { 
+            text-align: left; 
+            color: var(--text-dim); 
+            text-transform: uppercase; 
+            font-size: 0.75rem; 
+            padding: 15px; 
+            border-bottom: 2px solid var(--border); 
+        }
+
+        td { 
+            padding: 18px 15px; 
+            border-bottom: 1px solid var(--border); 
+            font-size: 0.9rem; 
+            color: var(--text-main);
+        }
+
+        tr:hover { background-color: #f1f5f9; }
+
+        .accent-text { color: var(--accent); font-weight: 700; }
+        .risk-text { color: var(--risk); font-weight: 700; }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="header">
+        <h1>FINANCE FORENSICS | {{ summary.meta.project_name }}</h1>
+        <div style="font-size: 0.85rem; font-weight: 700;">STATUS: <span style="color: var(--accent);">AUDIT VERIFIED</span></div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <small>Total Spend</small>
+            <div>₹{{ summary.total_spent|floatformat:0 }}</div>
+        </div>
+        <div class="stat-card" style="border-top: 4px solid var(--risk);">
+            <small>Identified Leakage</small>
+            <div style="color: var(--risk);">₹{{ summary.leakage|floatformat:0 }}</div>
+        </div>
+        <div class="stat-card">
+            <small>Risk Instances</small>
+            <div>{{ summary.high_risk_count }}</div>
+        </div>
+        <div class="stat-card" style="border-top: 4px solid var(--accent);">
+            <small>Audit Confidence</small>
+            <div style="color: var(--accent);">{{ summary.confidence }}%</div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-box"><h3>1. Project Burn Velocity</h3><div class="chart-container"><canvas id="c1"></canvas></div></div>
+        <div class="chart-box"><h3>2. Vendor Risk Weight</h3><div class="chart-container"><canvas id="c2"></canvas></div></div>
+        <div class="chart-box"><h3>3. Category Volatility</h3><div class="chart-container"><canvas id="c3"></canvas></div></div>
+        <div class="chart-box"><h3>4. Approval Integrity Gap</h3><div class="chart-container"><canvas id="c4"></canvas></div></div>
+        <div class="chart-box"><h3>5. Temporal Forensic (Weekly)</h3><div class="chart-container"><canvas id="c5"></canvas></div></div>
+        <div class="chart-box"><h3>6. Risk Cluster (AI Scoring)</h3><div class="chart-container"><canvas id="c6"></canvas></div></div>
+    </div>
+
+    <div class="risk-table-wrap">
+        <h3 class="table-title">🔎 PRIMARY INVESTIGATION TARGETS</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Vendor</th>
+                    <th>Actual Spend</th>
+                    <th>Overrun Ratio</th>
+                    <th>Status</th>
+                    <th>Anomaly Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in summary.all_high_risks %}
+                <tr>
+                    <td style="font-weight: 600;">{{ log.vendor }}</td>
+                    <td class="accent-text">₹{{ log.actual_spend|floatformat:2 }}</td>
+                    <td>{{ log.overrun_ratio|floatformat:2 }}x</td>
+                    <td>{{ log.approval_status }}</td>
+                    <td class="risk-text">{{ log.anomaly_score|floatformat:4 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    Chart.defaults.color = '#64748b';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+
+    const chartConf = (id, type, labels, data, color) => {
+        new Chart(document.getElementById(id), {
+            type: type,
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data, 
+                    backgroundColor: type === 'pie' ? ['#7c3aed', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe'] : color, 
+                    borderColor: color,
+                    borderWidth: 2, 
+                    tension: 0.3, 
+                    fill: type==='line' ? {target: 'origin', above: 'rgba(124, 58, 237, 0.05)'} : false
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: type === 'pie', position: 'bottom' } },
+                scales: type === 'pie' ? {} : {
+                    y: { grid: { color: '#f1f5f9' }, border: { display: false } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    };
+
+    chartConf('c1', 'line', {{ summary.g1_burn_labels|safe }}, {{ summary.g1_burn_data|safe }}, '#7c3aed');
+    chartConf('c2', 'pie', {{ summary.g2_vendor_labels|safe }}, {{ summary.g2_vendor_data|safe }}, '#7c3aed');
+    chartConf('c3', 'bar', {{ summary.g3_cat_labels|safe }}, {{ summary.g3_cat_data|safe }}, '#7c3aed');
+    chartConf('c4', 'bar', {{ summary.g4_app_labels|safe }}, {{ summary.g4_app_risk|safe }}, '#dc2626');
+    chartConf('c5', 'line', {{ summary.g5_temp_labels|safe }}, {{ summary.g5_temp_data|safe }}, '#7c3aed');
+
+    new Chart(document.getElementById('c6'), {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Risk Clusters',
+                data: {{ summary.g6_scatter|safe }}.map(p => ({ x: p.actual_spend, y: p.anomaly_score })),
+                backgroundColor: '#7c3aed'
+            }]
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            scales: {
+                y: { title: { display: true, text: 'Anomaly Score' }, grid: { color: '#f1f5f9' } },
+                x: { title: { display: true, text: 'Spend Amount' }, grid: { color: '#f1f5f9' } }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

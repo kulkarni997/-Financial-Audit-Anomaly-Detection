@@ -1,0 +1,192 @@
+{% extends "pro_base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --primary-purple: #7c3aed;
+        --primary-hover: #6d28d9;
+        --bg-light: #f8fafc;
+        --text-dark: #0f172a;
+        --border-color: #e2e8f0;
+    }
+
+    body {
+        background-color: var(--bg-light);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .audit-container {
+        max-width: 700px;
+        margin: 50px auto;
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 15px 35px rgba(124, 58, 237, 0.08);
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .form-header h2 {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 800;
+        color: var(--text-dark);
+        letter-spacing: -0.5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .form-header p {
+        color: #64748b;
+        font-size: 0.95rem;
+        margin-top: 8px;
+    }
+
+    /* Styling Django Form Fields */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-group input, 
+    .form-group select, 
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        background: #fdfdfd;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--primary-purple);
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        background: #fff;
+    }
+
+    /* Custom File Upload Styling */
+    input[type="file"] {
+        padding: 10px;
+        background: #f1f5f9;
+        border: 2px dashed #cbd5e1;
+        cursor: pointer;
+    }
+
+    .btn-audit {
+        width: 100%;
+        padding: 16px;
+        background: var(--primary-purple);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-audit:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
+    }
+
+    .btn-audit:active {
+        transform: translateY(0);
+    }
+
+    /* Helper text / Errors */
+    .help-text {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        margin-top: 5px;
+    }
+</style>
+
+<div class="container">
+    <div class="audit-container">
+        <div class="form-header">
+            <h2><span style="color: var(--primary-purple);">🛡️</span> Project Audit Intelligence</h2>
+            <p>Upload your financial data for forensic anomaly detection.</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>{{ form.project_name.label }}</label>
+                {{ form.project_name }}
+            </div>
+
+            <div class="row" style="display: flex; gap: 15px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>{{ form.project_type.label }}</label>
+                    {{ form.project_type }}
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>{{ form.department.label }}</label>
+                    {{ form.department }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>{{ form.budget_cycle.label }}</label>
+                {{ form.budget_cycle }}
+            </div>
+
+            <div class="row" style="display: flex; gap: 15px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>{{ form.total_planned_budget.label }}</label>
+                    {{ form.total_planned_budget }}
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>{{ form.budget_flexibility.label }}</label>
+                    {{ form.budget_flexibility }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Forensic Data Source (Excel/CSV)</label>
+                {{ form.file }}
+                <div class="help-text">Please ensure the file contains ledger transactions.</div>
+            </div>
+
+            <button type="submit" class="btn-audit">
+                🚀 INITIATE FORENSIC AUDIT
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Injects Bootstrap classes into Django's generated inputs for safety, 
+    // though our custom CSS handles most of the heavy lifting.
+    document.querySelectorAll('input, select').forEach(el => {
+        el.classList.add('form-control');
+    });
+</script>
+
+{% endblock %}

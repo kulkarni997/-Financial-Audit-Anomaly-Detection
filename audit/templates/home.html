@@ -341,18 +341,22 @@
             </div>
 
             <div class="pricing-card" style="border-color: var(--primary); transform: scale(1.05); box-shadow: 0 10px 30px rgba(109, 40, 217, 0.15);">
-                <span class="step-num">Most Popular</span>
-                <h3>Pro</h3>
-                <div class="price">₹2,999<span>/month</span></div>
-                <ul class="pricing-features">
-                    <li>Full ML Anomaly Detection</li>
-                    <li>OCR Scan (1,000 Invoices/mo)</li>
-                    <li>Pattern & Trend Identification</li>
-                    <li>Risk Scoring System</li>
-                    <li>Detailed PDF Reports</li>
-                </ul>
-                <a href="/login/" class="cta-button" style="width: 100%; text-align: center;">Upgrade to Pro</a>
-            </div>
+    <span class="step-num">Most Popular</span>
+    <h3>Pro</h3>
+    <div class="price">₹2,999<span>/month</span></div>
+    <ul class="pricing-features">
+        <li>Full ML Anomaly Detection</li>
+        <li>OCR Scan (1,000 Invoices/mo)</li>
+        <li>Pattern & Trend Identification</li>
+        <li>Risk Scoring System</li>
+        <li>Detailed PDF Reports</li>
+    </ul>
+    <!-- Change href to your Django URL name -->
+    <a href="{% url 'pro_dashboard' %}" class="cta-button" style="width: 100%; text-align: center;">
+        Go to Pro Dashboard
+    </a>
+</div>
+
 
             <div class="pricing-card">
                 <span class="step-num" style="color: var(--danger);">Enterprise</span>

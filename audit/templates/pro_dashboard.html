@@ -1,0 +1,190 @@
+{% extends "pro_base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --primary-purple: #7c3aed;
+        --primary-hover: #6d28d9;
+        --bg-light: #f8fafc;
+        --text-dark: #0f172a;
+        --text-dim: #64748b;
+        --border-color: #e2e8f0;
+    }
+
+    body {
+        background-color: var(--bg-light);
+        font-family: 'Inter', sans-serif;
+    }
+
+    .welcome-section {
+        margin: 40px 0;
+        border-left: 4px solid var(--primary-purple);
+        padding-left: 20px;
+    }
+
+    .welcome-section h2 {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 800;
+        color: var(--text-dark);
+        font-size: 1.8rem;
+        margin: 0;
+    }
+
+    .welcome-section p {
+        color: var(--text-dim);
+        font-size: 1rem;
+        margin-top: 5px;
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
+        margin-top: 30px;
+    }
+
+    .audit-card {
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 32px;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .audit-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(124, 58, 237, 0.08);
+        border-color: var(--primary-purple);
+    }
+
+    /* Professional Icons (CSS Based) */
+    .icon-wrapper {
+        width: 48px;
+        height: 48px;
+        background: #f5f3ff;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 24px;
+        color: var(--primary-purple);
+    }
+
+    .card-title {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        color: var(--text-dark);
+        font-size: 1.25rem;
+        margin-bottom: 12px;
+    }
+
+    .card-info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 24px 0;
+    }
+
+    .card-info-list li {
+        font-size: 0.85rem;
+        color: var(--text-dim);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .card-info-list li::before {
+        content: "→";
+        color: var(--primary-purple);
+        font-weight: bold;
+    }
+
+    .btn-primary-custom {
+        background: var(--primary-purple);
+        color: white;
+        text-decoration: none;
+        padding: 14px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-family: 'Outfit', sans-serif;
+        text-align: center;
+        transition: background 0.2s;
+        margin-top: auto;
+    }
+
+    .btn-primary-custom:hover {
+        background: var(--primary-hover);
+        color: white;
+    }
+
+    /* Background Accent for the card */
+    .card-accent {
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        width: 80px;
+        height: 80px;
+        background: rgba(124, 58, 237, 0.03);
+        border-radius: 50%;
+    }
+</style>
+
+<div class="container">
+    <div class="welcome-section">
+        <h2>Financial Audit System</h2>
+        <p>Select a specialized module to begin data verification and analysis.</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="audit-card">
+            <div class="card-accent"></div>
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+            </div>
+            <h5 class="card-title">Project Budget Analysis</h5>
+            <ul class="card-info-list">
+                <li>Compare planned vs. actual expenditure</li>
+                <li>Identify budget overrun ratios</li>
+                <li>Track project burn velocity</li>
+            </ul>
+            <a href="{% url 'project_audit' %}" class="btn-primary-custom">Access Module</a>
+        </div>
+
+        <div class="audit-card">
+            <div class="card-accent"></div>
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+            </div>
+            <h5 class="card-title">Expense Verification</h5>
+            <ul class="card-info-list">
+                <li>Validate travel & operational claims</li>
+                <li>Verify policy compliance</li>
+                <li>Cross-reference receipt integrity</li>
+            </ul>
+            <a href="{% url 'reimbursement_audit' %}" class="btn-primary-custom">Verify Expenses</a>
+        </div>
+
+        <div class="audit-card">
+            <div class="card-accent"></div>
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <h5 class="card-title">Governance & Compliance</h5>
+            <ul class="card-info-list">
+                <li>Review approval hierarchies</li>
+                <li>Manage internal audit feedback</li>
+                <li>Monitor compliance workflows</li>
+            </ul>
+            <a href="{% url 'approval_system' %}" class="btn-primary-custom">Review Workflow</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
