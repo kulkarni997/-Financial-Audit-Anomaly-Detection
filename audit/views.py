@@ -209,7 +209,6 @@ def anomalies(request):
     dept_list = results.get("department", [])
     goods_list = results.get("goods", [])
 
-    # Optional: basic stats for cards
     stats = {
         "total": len(emp_list) + len(dept_list) + len(goods_list),
         "critical": sum(1 for r in emp_list if float(r.get("risk_score", 0)) < -0.1),
@@ -218,12 +217,9 @@ def anomalies(request):
         "low": sum(1 for r in emp_list if float(r.get("risk_score", 0)) >= 0),
     }
 
-    # Context for template: tables and chart.js
     context = {
         **stats,
-        "results": results,  # this provides tables: results.employee, results.department, results.goods
-
-        # Chart.js variables (match template)
+        "results": results,
         "employee_labels": mark_safe(json.dumps([r.get("emp_id_original") for r in emp_list])),
         "employee_scores": mark_safe(json.dumps([float(r.get("risk_score", 0)) for r in emp_list])),
         "department_labels": mark_safe(json.dumps([r.get("department_original") for r in dept_list])),
@@ -231,6 +227,10 @@ def anomalies(request):
         "goods_labels": mark_safe(json.dumps([r.get("product_name") for r in goods_list])),
         "goods_scores": mark_safe(json.dumps([float(r.get("raw_score", 0)) for r in goods_list])),
     }
+
+    # ✅ Instead of staying on anomalies, redirect back to dashboard after showing once
+    if request.GET.get("redirect") == "true":
+        return redirect("dashboard")
 
     return render(request, "anomalies.html", context)
 
