@@ -1,40 +1,48 @@
 import os
+import io
 import json
 import logging
 import tempfile
 import pandas as pd
 from pathlib import Path
+from datetime import datetime
+from io import BytesIO
 
-# Django & REST Framework
+# 1. MATPLOTLIB CONFIGURATION (Must be in this order)
+import matplotlib 
+matplotlib.use('Agg')  # Required for Django/Server environments
+import matplotlib.pyplot as plt
+
+# 2. DJANGO & REST FRAMEWORK
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, FileResponse
 from django.utils.safestring import mark_safe
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
+# 3. REPORTLAB (PDF GENERATION)
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.platypus import (
+    SimpleDocTemplate, Paragraph, Spacer, Table, 
+    TableStyle, PageBreak, Image
+)
 
-
-# AI & PDF Generation
+# 4. EXTERNAL LIBS
+import qrcode
 import google.generativeai as genai
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.pagesizes import A4
 
-# Local ML Business Logic
+# 5. LOCAL ML BUSINESS LOGIC
 from fraud_detection.emp_fraud_predictor import process_employee_audit
 from fraud_detection.dept_fraud_predictor import process_department_audit
 from fraud_detection.goods_fraud_predictor import process_goods_audit
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib import colors
+
 
 # --- CONFIGURATION ---
 logger = logging.getLogger(__name__)
-genai.configure(api_key="AIzaSyCufq3I7g_NrGxvLx76Y1AgBN5nfSG_zt0")
+genai.configure(api_key="AIzaSyDQxucn18wt8IO1-pSRAXitBzVi0_3KZkE")
 
 def generate_all_summaries(results: dict) -> dict:
     """
@@ -113,89 +121,6 @@ def dashboard(request):
 def dashboard(request):
     return render(request, 'Dashboard.html')
 
-def draw_page_border(canvas, doc):
-    canvas.saveState()
-    canvas.setStrokeColor(colors.HexColor("#1A237E")) # Navy Border
-    canvas.setLineWidth(1.5)
-    canvas.rect(25, 25, A4[0]-50, A4[1]-50)
-    # Branding Accent
-    canvas.setFillColor(colors.HexColor("#FF6D00")) # Orange Accent
-    canvas.rect(25, A4[1]-40, 120, 15, fill=1, stroke=0)
-    canvas.restoreState()
-
-def generate_pdf_report(results, summaries):
-    os.makedirs("media", exist_ok=True)
-    pdf_path = "media/AuditAI_Internal_Report.pdf"
-    
-    doc = SimpleDocTemplate(pdf_path, pagesize=A4, rightMargin=45, leftMargin=45, topMargin=55, bottomMargin=45)
-    styles = getSampleStyleSheet()
-
-    # --- TYPEWRITER & PRO STYLES ---
-    typewriter = ParagraphStyle('Type', fontName='Courier-Bold', fontSize=10, textColor=colors.HexColor("#455A64"))
-    title_style = ParagraphStyle('Title', fontName='Helvetica-Bold', fontSize=26, textColor=colors.HexColor("#1A237E"), alignment=TA_CENTER)
-    alert_box = ParagraphStyle('Alert', fontName='Courier-Bold', fontSize=11, textColor=colors.white, backColor=colors.HexColor("#FF6D00"), borderPadding=6, alignment=TA_CENTER)
-
-    elements = []
-
-    # Metadata / Cover Page
-    elements.append(Spacer(1, 30))
-    elements.append(Paragraph("AuditAI SYSTEM REPORT", title_style))
-    elements.append(Spacer(1, 20))
-    
-    meta_table = Table([
-        ["GEN_TYPE", "SYSTEM_SURGERY_ANOMALY_DETECTION"],
-        ["VERSION", "v2.0.4-BETA"],
-        ["SECURITY", "ENCRYPTED_INTERNAL"],
-        ["VERIFY", "[ QR_AUTH_PENDING ]"]
-    ], colWidths=[100, 300])
-    
-    meta_table.setStyle(TableStyle([
-        ('FONTNAME', (0,0), (-1,-1), 'Courier-Bold'),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.lightgrey),
-        ('BACKGROUND', (0,0), (0,-1), colors.whitesmoke),
-        ('TEXTCOLOR', (1,3), (1,3), colors.HexColor("#FF6D00")),
-    ]))
-    
-    elements.append(meta_table)
-    elements.append(Spacer(1, 40))
-    elements.append(Paragraph("CRITICAL ANALYSIS SUMMARY", alert_box))
-    elements.append(Spacer(1, 10))
-    elements.append(Paragraph(summaries.get('global', 'No global summary provided.'), typewriter))
-    
-    elements.append(PageBreak())
-
-    # --- DATA TABLES ---
-    for title, key, cols, headers in [("USER ANOMALIES", "employee", ["emp_id_original", "risk_score"], ["ID", "RISK"])]:
-        elements.append(Paragraph(f"// ACCESSING DATA NODE: {title}", typewriter))
-        elements.append(Spacer(1, 10))
-        
-        data = [headers]
-        for item in results.get(key, []):
-            data.append([str(item.get(c, "")) for c in cols])
-        
-        if len(data) > 1:
-            t = Table(data, hAlign='LEFT', colWidths=[300, 120])
-            t_style = [
-                ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1A237E")),
-                ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-                ('FONTNAME', (0,0), (-1,-1), 'Courier-Bold'),
-                ('GRID', (0,0), (-1,-1), 1, colors.black),
-            ]
-            
-            # ORANGE HIGHLIGHT LOGIC
-            for i in range(1, len(data)):
-                try:
-                    if float(data[i][1]) > 0.5: # Threshold
-                        t_style.append(('BACKGROUND', (0,i), (-1,i), colors.HexColor("#FF6D00")))
-                        t_style.append(('TEXTCOLOR', (0,i), (-1,i), colors.white))
-                except: pass
-                
-            t.setStyle(TableStyle(t_style))
-            elements.append(t)
-
-    doc.build(elements, onFirstPage=draw_page_border, onLaterPages=draw_page_border)
-    return pdf_path
-
 # --- 3. AUDIT VIEWS ---
 def upload_zip(request):
     """Handles multi-file uploads and routes them to specific ML predictors."""
@@ -264,32 +189,6 @@ def anomalies(request):
 
     return render(request, "anomalies.html", context)
 
-def show_report(request):
-    results = request.session.get("results", {})
-    summaries = generate_all_summaries(results)
-    
-    # Ensure the PDF is updated with the latest data
-    generate_pdf_report(results, summaries)
-
-    context = {
-        "results": results,
-        "employee_summary": summaries.get("employee_summary"),
-        "department_summary": summaries.get("department_summary"),
-        "goods_summary": summaries.get("goods_summary"),
-        # Add these for the charts in the HTML
-        "employee_json": mark_safe(json.dumps([r.get("emp_id_original") for r in results.get("employee", [])])),
-        "emp_scores_json": mark_safe(json.dumps([r.get("risk_score") for r in results.get("employee", [])])),
-        "dept_json": mark_safe(json.dumps([r.get("department_original") for r in results.get("department", [])])),
-        "dept_scores_json": mark_safe(json.dumps([r.get("anomaly_score") for r in results.get("department", [])])),
-    }
-    return render(request, "audit_report.html", context)
-
-def download_report(request):
-    """Secure file response for the generated PDF."""
-    path = "media/audit_report.pdf"
-    if os.path.exists(path):
-        return FileResponse(open(path, 'rb'), as_attachment=True, filename='Audit.pdf')
-    return JsonResponse({"error": "Report not found. Please run analysis first."}, status=404)
 
 def api_get_uploads(request):
     """Fetches a list of previously uploaded files from the media directory."""
@@ -322,3 +221,178 @@ def dashboard_summary(request):
         "avg_risk_score": 35,
     }
     return Response(data)
+
+
+# --- HELPER: GENERATE MATPLOTLIB GRAPHS ---
+def generate_category_graph(data, labels, title, chart_type="bar"):
+    # Clear any previous plots to prevent data bleeding between requests
+    plt.clf() 
+    
+    plt.figure(figsize=(6, 3))
+    plt.title(title, fontsize=10, fontweight='bold', color='#1A237E')
+    
+    # Ensure data isn't empty to avoid plotting errors
+    if not data:
+        plt.text(0.5, 0.5, "No Data Available", ha='center')
+    else:
+        if chart_type == "bar":
+            # Normalize scores for the colormap (0-100)
+            norm_data = [x / 100.0 for x in data]
+            colors_list = plt.cm.get_cmap('RdYlGn_r')(norm_data) 
+            plt.barh(labels[:10], data[:10], color=colors_list)
+            plt.xlabel("Risk Score")
+            
+        elif chart_type == "pie":
+            plt.pie(data, labels=labels, autopct='%1.1f%%', startangle=140)
+            
+        elif chart_type == "line":
+            plt.plot(labels, data, marker='o', linestyle='-', color='#FF6D00')
+            plt.fill_between(labels, data, color='#FFE0B2', alpha=0.3)
+            plt.xticks(rotation=45)
+
+    plt.tight_layout()
+    
+    img_buffer = io.BytesIO()
+    plt.savefig(img_buffer, format='png', dpi=150)
+    img_buffer.seek(0)
+    plt.close('all') # Essential: Free up memory
+    return img_buffer
+
+def draw_page_border(canvas, doc):
+    canvas.saveState()
+    canvas.setStrokeColor(colors.HexColor("#1A237E"))
+    canvas.setLineWidth(2)
+    canvas.rect(20, 20, A4[0]-40, A4[1]-40)
+    canvas.restoreState()
+
+# --- MAIN PDF GENERATOR (Updated with correct Goods keys) ---
+def generate_pdf_report(results, summaries):
+    os.makedirs("media", exist_ok=True)
+    pdf_path = "media/audit_report.pdf"
+    doc = SimpleDocTemplate(pdf_path, pagesize=A4, rightMargin=45, leftMargin=45, topMargin=55, bottomMargin=45)
+    styles = getSampleStyleSheet()
+
+    # Custom Styles
+    typewriter = ParagraphStyle('Type', fontName='Courier', fontSize=9, leading=12)
+    title_style = ParagraphStyle('Title', fontName='Helvetica-Bold', fontSize=24, textColor=colors.HexColor("#1A237E"), alignment=TA_CENTER)
+    section_style = ParagraphStyle('Section', fontName='Helvetica-Bold', fontSize=14, textColor=colors.HexColor("#1A237E"), spaceAfter=10)
+    alert_box = ParagraphStyle('Alert', fontName='Courier-Bold', fontSize=11, textColor=colors.white, backColor=colors.HexColor("#1A237E"), borderPadding=6, alignment=TA_CENTER)
+
+    elements = []
+
+    # --- COVER PAGE ---
+    elements.append(Spacer(1, 30))
+    elements.append(Paragraph("AuditAI SYSTEM REPORT", title_style))
+    elements.append(Spacer(1, 20))
+    
+    meta_data = [
+        ["REPORT DATE", datetime.now().strftime("%d-%b-%Y")],
+        ["VERSION", "v2.1.0-STABLE"],
+        ["ANOMALIES DETECTED", str(sum(len(v) for v in results.values()))],
+        ["SECURITY", "ENCRYPTED_INTERNAL"]
+    ]
+    t = Table(meta_data, colWidths=[150, 250])
+    t.setStyle(TableStyle([('FONTNAME', (0,0), (-1,-1), 'Courier-Bold'), ('GRID', (0,0), (-1,-1), 0.5, colors.grey)]))
+    elements.append(t)
+    elements.append(Spacer(1, 30))
+    elements.append(Paragraph("EXECUTIVE SUMMARY", alert_box))
+    elements.append(Spacer(1, 10))
+    elements.append(Paragraph(summaries.get('global', 'Analysis complete.'), typewriter))
+
+    qr = qrcode.make(f"Audit-Verify-{datetime.now().timestamp()}")
+    qr_buf = BytesIO(); qr.save(qr_buf, format="PNG"); qr_buf.seek(0)
+    elements.append(Spacer(1, 20))
+    elements.append(Image(qr_buf, width=100, height=100, hAlign='CENTER'))
+    elements.append(PageBreak())
+
+    # --- DYNAMIC CATEGORY LOGIC ---
+    categories = [
+        ('employee', 'Employee Risk Analysis', 'bar', ['ID', 'Risk Score']),
+        ('department', 'Departmental Distribution', 'pie', ['Dept Name', 'Anomaly Count']),
+        ('goods', 'Goods & Procurement Audit', 'line', ['Product', 'Deviation']) # Updated Header
+    ]
+
+    for key, title, chart_type, table_headers in categories:
+        data_list = results.get(key, [])
+        if not data_list: continue
+
+        elements.append(Paragraph(title.upper(), section_style))
+        
+        table_data = [table_headers]
+        graph_labels = []
+        graph_values = []
+
+        for item in data_list[:8]: 
+            if key == 'employee':
+                label = str(item.get('emp_id_original'))
+                val = item.get('risk_score', 0)
+                row = [label, f"{val}%"]
+            elif key == 'department':
+                label = str(item.get('department_original'))
+                val = 1 
+                row = [label, "Detected"]
+            else:
+                # UPDATED: Using product_name and raw_score for Goods
+                label = str(item.get('product_name', 'N/A'))
+                val = item.get('raw_score', 0)
+                row = [label, str(val)]
+            
+            graph_labels.append(label)
+            graph_values.append(float(val))
+            table_data.append(row)
+
+        # Generate Graph
+        chart_buf = generate_category_graph(graph_values, graph_labels, f"{title} Visualization", chart_type)
+        elements.append(Image(chart_buf, width=400, height=200))
+        elements.append(Spacer(1, 15))
+
+        # Add Data Table
+        t = Table(table_data, colWidths=[200, 200])
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#EEEEEE")),
+            ('GRID', (0,0), (-1,-1), 0.25, colors.grey),
+            ('FONTNAME', (0,0), (-1,-1), 'Courier'),
+        ]))
+        elements.append(t)
+        elements.append(Spacer(1, 15))
+        elements.append(Paragraph(f"<b>Summary:</b> {summaries.get(f'{key}_summary', 'N/A')}", typewriter))
+        elements.append(PageBreak())
+
+    doc.build(elements, onFirstPage=draw_page_border, onLaterPages=draw_page_border)
+    return pdf_path
+
+# --- VIEW TO SHOW REPORT (Updated with Goods JSON for HTML) ---
+def show_report(request):
+    results = request.session.get("results", {})
+    summaries = generate_all_summaries(results)
+
+    # Re-generate the PDF file so it's fresh for download
+    generate_pdf_report(results, summaries)
+
+    context = {
+        "results": results,
+        "employee_summary": summaries.get("employee_summary"),
+        "department_summary": summaries.get("department_summary"),
+        "goods_summary": summaries.get("goods_summary"),
+        
+        # JSON for Employee Chart
+        "employee_json": mark_safe(json.dumps([r.get("emp_id_original") for r in results.get("employee", [])])),
+        "emp_scores_json": mark_safe(json.dumps([float(r.get("risk_score", 0)) for r in results.get("employee", [])])),
+        
+        # JSON for Department Chart
+        "dept_json": mark_safe(json.dumps([r.get("department_original") for r in results.get("department", [])])),
+        "dept_scores_json": mark_safe(json.dumps([float(r.get("anomaly_score", 0)) for r in results.get("department", [])])),
+        
+        # UPDATED: JSON for Goods Chart (Matches your HTML)
+        "goods_json": mark_safe(json.dumps([r.get("product_name") for r in results.get("goods", [])])),
+        "goods_scores_json": mark_safe(json.dumps([float(r.get("raw_score", 0)) for r in results.get("goods", [])])),
+    }
+    return render(request, "audit_report.html", context)
+
+
+# --- DOWNLOAD REPORT ---
+def download_report(request):
+    path = "media/audit_report.pdf"
+    if os.path.exists(path):
+        return FileResponse(open(path, 'rb'), as_attachment=True, filename='Audit.pdf')
+    return JsonResponse({"error": "Report not found. Please run analysis first."}, status=404)
