@@ -7,6 +7,10 @@ import pandas as pd
 from pathlib import Path
 from datetime import datetime
 from io import BytesIO
+from dotenv import load_dotenv
+
+# Load the environment variables from .env
+load_dotenv()
 
 # 1. MATPLOTLIB CONFIGURATION (Must be in this order)
 import matplotlib 
@@ -42,7 +46,8 @@ from fraud_detection.goods_fraud_predictor import process_goods_audit
 
 # --- CONFIGURATION ---
 logger = logging.getLogger(__name__)
-genai.configure(api_key="AIzaSyDQxucn18wt8IO1-pSRAXitBzVi0_3KZkE")
+api_key = os.getenv("GENAI_API_KEY")
+genai.configure(api_key=api_key)
 
 def generate_all_summaries(results: dict) -> dict:
     """
