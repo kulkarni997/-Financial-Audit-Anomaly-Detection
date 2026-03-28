@@ -9,15 +9,15 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg: #030712;
-            --card: #111827;
-            --border: rgba(255, 255, 255, 0.08);
-            --primary: #06b6d4;
-            --secondary: #8b5cf6;
+            --bg: #f8fafc; /* Light BG */
+            --card: #ffffff; /* White Cards */
+            --border: rgba(0, 0, 0, 0.08);
+            --primary: #6d28d9; /* Deep Purple */
+            --secondary: #1e293b; /* Charcoal/Black */
             --warning: #f59e0b;
             --danger: #ef4444;
-            --text: #f3f4f6;
-            --text-muted: #9ca3af;
+            --text: #0f172a; /* Dark Text */
+            --text-muted: #64748b;
         }
 
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -26,7 +26,7 @@
         .dashboard { max-width: 1400px; margin: 0 auto; }
 
         .glass-header {
-            background: rgba(17, 24, 39, 0.7);
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(12px);
             padding: 2rem;
             border-radius: 24px;
@@ -35,9 +35,10 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
-        h1 { font-weight: 800; font-size: 2rem; margin: 0; background: linear-gradient(to right, #fff, #64748b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h1 { font-weight: 800; font-size: 2rem; margin: 0; background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
         .stat-card {
@@ -45,11 +46,11 @@
             padding: 1.5rem;
             border-radius: 20px;
             border-left: 4px solid var(--primary);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
         }
         .stat-card.danger { border-left-color: var(--danger); }
         .stat-label { color: var(--text-muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
-        .stat-value { font-size: 2.25rem; font-weight: 800; display: block; margin-top: 0.5rem; }
+        .stat-value { font-size: 2.25rem; font-weight: 800; display: block; margin-top: 0.5rem; color: var(--secondary); }
 
         .data-group {
             background: var(--card);
@@ -57,35 +58,29 @@
             border: 1px solid var(--border);
             margin-bottom: 3rem;
             overflow: hidden;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
         }
 
         .section-title { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); font-size: 1.25rem; font-weight: 700; color: var(--primary); }
 
-        /* Modified: Removed max-height to ensure full visibility */
-        .table-wrap { 
-            background: rgba(0,0,0,0.2); 
-            width: 100%;
-        }
-
+        .table-wrap { max-height: 300px; overflow-y: auto; background: rgba(0,0,0,0.02); }
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 1rem 2rem; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; background: #111827; }
+        th { text-align: left; padding: 1rem 2rem; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; position: sticky; top: 0; background: #ffffff; z-index: 10; border-bottom: 1px solid var(--border); }
         td { padding: 1rem 2rem; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
         
         .risk-badge { 
             padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; 
-            background: rgba(6, 182, 212, 0.1); color: var(--primary); 
+            background: rgba(109, 40, 217, 0.1); color: var(--primary); 
         }
 
-        .graph-wrap { padding: 2.5rem; height: 450px; position: relative; border-top: 1px solid var(--border); }
+        .graph-wrap { padding: 2.5rem; height: 450px; position: relative; }
 
         .btn {
-            background: var(--primary); color: #000; border: none; padding: 0.8rem 1.5rem;
+            background: var(--secondary); color: #fff; border: none; padding: 0.8rem 1.5rem;
             border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s;
         }
-        .btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(6, 182, 212, 0.4); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2); }
+
     </style>
 </head>
 <body>
@@ -103,7 +98,7 @@
         <div class="stat-card"><span class="stat-label">Total Flags</span><span class="stat-value">{{ total }}</span></div>
         <div class="stat-card danger"><span class="stat-label">Critical</span><span class="stat-value">{{ critical }}</span></div>
         <div class="stat-card" style="border-left-color: var(--warning)"><span class="stat-label">High Risk</span><span class="stat-value">{{ high }}</span></div>
-        <div class="stat-card" style="border-left-color: var(--secondary)"><span class="stat-label">Medium</span><span class="stat-value">{{ medium }}</span></div>
+        <div class="stat-card" style="border-left-color: var(--primary)"><span class="stat-label">Medium</span><span class="stat-value">{{ medium }}</span></div>
     </div>
 
     <div class="data-group">
@@ -115,7 +110,7 @@
                     {% for row in results.employee %}
                     <tr>
                         <td><b style="color:var(--primary)">#{{ row.emp_id_original }}</b></td>
-                        <td>${{ row.amount }}</td>
+                        <td>₹{{ row.amount }}</td>
                         <td><span class="risk-badge">{{ row.risk_score }}</span></td>
                     </tr>
                     {% endfor %}
@@ -136,7 +131,7 @@
                         <td><b>{{ row.department_original }}</b></td>
                         <td>${{ row.monthly_budget }}</td>
                         <td>${{ row.expense_limit }}</td>
-                        <td><span class="risk-badge" style="color:var(--warning)">{{ row.anomaly_score }}</span></td>
+                        <td><span class="risk-badge" style="color:var(--warning); background: rgba(245, 158, 11, 0.1)">{{ row.anomaly_score }}</span></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -156,7 +151,7 @@
                         <td><b>{{ row.product_name }}</b></td>
                         <td>{{ row.vendor }}</td>
                         <td>${{ row.total_price }}</td>
-                        <td><span class="risk-badge" style="color:var(--secondary)">{{ row.raw_score }}</span></td>
+                        <td><span class="risk-badge" style="color:var(--secondary); background: rgba(30, 41, 59, 0.1)">{{ row.raw_score }}</span></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -167,11 +162,17 @@
 </div>
 
 <script>
-    Chart.defaults.color = '#9ca3af';
+    // Universal Graph Settings for Light Theme
+    Chart.defaults.color = '#64748b';
     Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+    Chart.defaults.borderColor = 'rgba(0,0,0,0.05)';
 
-    // 1. Employee Bar Chart
+    // 1. Employee Bar Chart (Purple Gradient)
     const ctxEmp = document.getElementById('employeeGraph').getContext('2d');
+    const empGradient = ctxEmp.createLinearGradient(0, 0, 0, 400);
+    empGradient.addColorStop(0, '#6d28d9');
+    empGradient.addColorStop(1, 'rgba(109, 40, 217, 0.1)');
+
     new Chart(ctxEmp, {
         type: 'bar',
         data: {
@@ -179,16 +180,34 @@
             datasets: [{
                 label: 'Risk Level',
                 data: {{ employee_scores|safe }},
-                backgroundColor: '#06b6d4',
+                backgroundColor: empGradient,
+                borderColor: '#6d28d9',
+                borderWidth: 1,
                 borderRadius: 8,
+                barThickness: 'flex',
                 maxBarThickness: 40
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { 
+                y: { 
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                x: { grid: { display: false } }
+            }
+        }
     });
 
     // 2. Department Area Chart
     const ctxDept = document.getElementById('deptGraph').getContext('2d');
+    const deptGrad = ctxDept.createLinearGradient(0, 0, 0, 400);
+    deptGrad.addColorStop(0, 'rgba(245, 158, 11, 0.3)');
+    deptGrad.addColorStop(1, 'rgba(245, 158, 11, 0)');
+
     new Chart(ctxDept, {
         type: 'line',
         data: {
@@ -197,15 +216,30 @@
                 label: 'Variance Score',
                 data: {{ department_scores|safe }},
                 borderColor: '#f59e0b',
+                borderWidth: 3,
                 fill: true,
-                backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                tension: 0.4
+                backgroundColor: deptGrad,
+                tension: 0.4,
+                pointBackgroundColor: '#f59e0b',
+                pointRadius: 4,
+                pointHoverRadius: 8
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { 
+                y: { 
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                x: { grid: { display: false } }
+            }
+        }
     });
 
-    // 3. Goods Radar Chart
+    // 3. Goods RADAR Chart (Black/Purple Theme)
     new Chart(document.getElementById('goodsRadarGraph'), {
         type: 'radar',
         data: {
@@ -213,15 +247,33 @@
             datasets: [{
                 label: 'Anomaly Magnitude',
                 data: {{ goods_scores|safe }},
-                borderColor: '#8b5cf6',
-                backgroundColor: 'rgba(139, 92, 246, 0.25)',
+                borderColor: '#1e293b',
+                backgroundColor: 'rgba(109, 40, 217, 0.2)',
+                pointBackgroundColor: '#6d28d9',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#1e293b',
                 borderWidth: 2
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: { r: { ticks: { display: false }, suggestedMin: 0 } }
+            scales: {
+                r: {
+                    angleLines: { color: 'rgba(0,0,0,0.1)' },
+                    grid: { color: 'rgba(0,0,0,0.1)' },
+                    pointLabels: { 
+                        color: '#64748b',
+                        font: { size: 11, weight: '600' }
+                    },
+                    ticks: { display: false },
+                    suggestedMin: 0
+                }
+            },
+            plugins: {
+                legend: { labels: { color: '#0f172a', font: { weight: 'bold' } } }
+            }
         }
     });
 </script>

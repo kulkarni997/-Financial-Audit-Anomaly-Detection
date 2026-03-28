@@ -6,252 +6,205 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}AuditAI{% endblock %} — Financial Audit System</title>
 
-  <!-- Fonts (Google Fonts CDN) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
-
-  <!-- Font Awesome 6 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
 
-  <!-- Our global styles -->
   <link rel="stylesheet" href="{% static 'css/main.css' %}" />
 
-  <!-- Dropdown Styles -->
   <style>
-    .user-menu-dropdown {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: var(--r-md);
-      min-width: 180px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
+    :root {
+      /* Theme: White, Purple Text, Black Accents */
+      --bg-app: #ffffff;
+      --bg-sidebar: #0a0a0a; 
+      --bg-surface: #f9fafb;
+      
+      --text-main: #111827;
+      --text-purple: #7c3aed; /* Used strictly for highlights/text */
+      --text-muted: #6b7280;
+      
+      --border-color: #e5e7eb;
+      --accent-subtle: #f5f3ff; 
+      
+      --risk-critical: #ef4444;
+      --r-md: 12px;
+      --r-sm: 8px;
+      --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .user-menu-item {
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      margin: 0;
+    }
+
+    /* ════════════════ SIDEBAR (Black) ════════════════ */
+    .sidebar {
+      width: 260px;
+      background-color: var(--bg-sidebar);
+      height: 100vh;
+      position: fixed;
+      display: flex;
+      flex-direction: column;
+      color: white;
+      z-index: 1001;
+    }
+
+    .sidebar-logo {
+      padding: 24px;
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px 16px;
-      color: var(--text-primary);
       text-decoration: none;
-      font-size: 0.95rem;
-      transition: all var(--dur) var(--ease);
-      border-bottom: 1px solid var(--border);
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-      cursor: pointer;
-    }
-
-    .user-menu-item:last-child {
-      border-bottom: none;
-    }
-
-    .user-menu-item:hover {
-      background: var(--accent-subtle);
-      color: var(--accent);
-    }
-
-    .user-menu-item:hover svg {
-      color: var(--accent);
-    }
-
-    .user-menu-item svg {
-      transition: color var(--dur) var(--ease);
-    }
-
-    /* Audit Selector Dropdown */
-    .audit-selector-container {
-      position: relative;
-      display: inline-block;
-    }
-
-    .audit-selector {
-      background: none;
-      border: none;
-      color: var(--text-primary);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: var(--r-sm);
-      transition: all var(--dur) var(--ease);
-      font-size: 0.95rem;
-      font-weight: 500;
-    }
-
-    .audit-selector:hover {
-      background: var(--bg-elevated);
-    }
-
-    .audit-selector svg {
-      color: var(--accent);
-    }
-
-    .audit-selector .dropdown-arrow {
-      transition: transform var(--dur) var(--ease);
-    }
-
-    .audit-selector-container.active .audit-selector .dropdown-arrow {
-      transform: rotate(180deg);
-    }
-
-    .audit-menu-dropdown {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      margin-top: 8px;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: var(--r-md);
-      min-width: 220px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
-    }
-
-    .audit-menu-item {
-      display: block;
-      width: 100%;
-      background: none;
-      border: none;
-      padding: 12px 16px;
-      color: var(--text-primary);
-      text-align: left;
-      cursor: pointer;
-      font-size: 0.95rem;
-      transition: all var(--dur) var(--ease);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .audit-menu-item:last-child {
-      border-bottom: none;
-    }
-
-    .audit-menu-item:hover,
-    .audit-menu-item.active {
-      background: var(--accent);
       color: white;
     }
 
-    /* Notifications Dropdown */
-    .notifications-container {
-      position: relative;
-      display: inline-block;
+    .logo-icon { color: var(--text-purple); width: 28px; height: 28px; }
+
+    .logo-text { font-weight: 700; font-size: 1.25rem; line-height: 1.2; }
+    .logo-text span { display: block; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    .sidebar-nav { flex: 1; padding: 0 16px; overflow-y: auto; }
+
+    .nav-label {
+      color: #4b5563;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin: 24px 0 8px 12px;
     }
 
-    .notifications-dropdown {
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      color: #9ca3af;
+      text-decoration: none;
+      border-radius: var(--r-sm);
+      transition: var(--transition);
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+    }
+
+    .nav-item:hover { background: rgba(255, 255, 255, 0.05); color: white; }
+
+    .nav-item.active {
+      background: rgba(124, 58, 237, 0.1);
+      color: var(--text-purple);
+      font-weight: 600;
+    }
+
+    .nav-icon { width: 20px; height: 20px; flex-shrink: 0; }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--text-purple);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    /* ════════════════ MAIN CONTENT (White) ════════════════ */
+    .main-wrapper { margin-left: 260px; min-height: 100vh; display: flex; flex-direction: column; }
+
+    .top-header {
+      height: 72px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      background: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .breadcrumb-area { font-size: 0.9rem; color: var(--text-muted); display: flex; gap: 8px; }
+    .breadcrumb-area strong { color: var(--text-main); font-weight: 600; }
+
+    .header-actions { display: flex; align-items: center; gap: 16px; }
+
+    /* Button Styling */
+    .btn-action {
+      border: 1px solid var(--border-color);
+      background: white;
+      padding: 8px 14px;
+      border-radius: var(--r-sm);
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--text-main);
+    }
+
+    .btn-action:hover { border-color: var(--text-purple); color: var(--text-purple); }
+    .btn-action i, .btn-action svg { color: var(--text-purple); }
+
+    .icon-trigger {
+      background: var(--bg-surface);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      cursor: pointer;
+      position: relative;
+      transition: var(--transition);
+    }
+
+    .icon-trigger:hover { color: var(--text-purple); background: var(--accent-subtle); }
+
+    /* Dropdowns */
+    .ui-dropdown {
       position: absolute;
       top: 100%;
       right: 0;
-      margin-top: 8px;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
+      margin-top: 12px;
+      background: white;
+      border: 1px solid var(--border-color);
       border-radius: var(--r-md);
-      min-width: 380px;
-      max-height: 500px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
-      overflow-y: auto;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+      min-width: 220px;
+      display: none;
+      overflow: hidden;
+      animation: slideIn 0.2s ease-out;
     }
 
-    .notifications-header {
-      padding: 16px;
-      border-bottom: 1px solid var(--border);
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .drop-item {
+      padding: 12px 16px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-    }
-
-    .notifications-header h3 {
-      margin: 0;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .notifications-clear {
-      background: none;
-      border: none;
-      color: var(--accent);
-      cursor: pointer;
-      font-size: 0.85rem;
-      text-decoration: underline;
-      transition: color var(--dur) var(--ease);
-    }
-
-    .notifications-clear:hover {
-      color: var(--accent-hover);
-    }
-
-    .notifications-list {
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .notification-item {
-      padding: 16px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
       gap: 12px;
-      cursor: pointer;
-      transition: background var(--dur) var(--ease);
-      border-left: 4px solid transparent;
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 0.9rem;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      transition: var(--transition);
     }
 
-    .notification-item:last-child {
-      border-bottom: none;
-    }
+    .drop-item:hover { background: var(--accent-subtle); color: var(--text-purple); }
+    .drop-item i { width: 16px; text-align: center; }
 
-    .notification-item:hover {
-      background: var(--bg-surface);
-    }
-
-    .notification-item.critical {
-      border-left-color: var(--risk-critical);
-    }
-
-    .notification-item.high {
-      border-left-color: var(--risk-high);
-    }
-
-    .notification-item.info {
-      border-left-color: var(--accent);
-    }
-
-    .notification-icon {
-      font-size: 20px;
-      flex-shrink: 0;
-    }
-
-    .notification-content {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .notification-title {
-      color: var(--text-primary);
-      font-weight: 600;
-      font-size: 0.95rem;
-      margin-bottom: 4px;
-    }
-
-    .notification-message {
-      color: var(--text-secondary);
-      font-size: 0.85rem;
-      line-height: 1.4;
-      margin-bottom: 4px;
-    }
-
-    .notification-time {
-      color: var(--text-muted);
-      font-size: 0.8rem;
-    }
+    .page-body { padding: 32px; flex: 1; }
   </style>
 
   {% block extra_css %}{% endblock %}
@@ -260,421 +213,153 @@
 <body>
 <div class="app-shell">
 
-  <!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
-  <aside class="sidebar" id="sidebar">
-
-    <!-- Logo -->
+  <aside class="sidebar">
     <a href="/dashboard/" class="sidebar-logo">
       <div class="logo-icon">
-        <!-- Shield / audit icon -->
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6
-               5.749 5.749 0 0012 21a5.749 5.749 0 008.402-15.036
-               11.96 11.96 0 01-8.402 1.714z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 5.749 5.749 0 0012 21a5.749 5.749 0 008.402-15.036 11.96 11.96 0 01-8.402 1.714z"/>
         </svg>
       </div>
       <div class="logo-text">
-        AuditAI
-        <span>Risk Detection</span>
+        AuditAI <span>Risk Detection</span>
       </div>
     </a>
 
-    <!-- Navigation -->
     <nav class="sidebar-nav">
       <div class="nav-label">Overview</div>
-
-      <a href="/dashboard/" class="nav-item {% block nav_dashboard %}{% endblock %}"
-         data-tooltip="Dashboard">
+      <a href="/dashboard/" class="nav-item {% block nav_dashboard %}{% endblock %}">
         <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25
-               a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6z
-               M13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25
-               A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6z
-               M3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18
-               a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25z
-               M13.5 13.5h7.5M13.5 18h7.5"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6z M13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6z M3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25z M13.5 13.5h7.5M13.5 18h7.5"/>
         </svg>
-        <span class="nav-item-text">Dashboard</span>
+        <span>Dashboard</span>
       </a>
 
-      <div class="nav-label">Audit</div>
-
-      <a href="/upload/" class="nav-item {% block nav_upload %}{% endblock %}"
-         data-tooltip="Upload Data">
+      <div class="nav-label">Audit Control</div>
+      <a href="/upload/" class="nav-item {% block nav_upload %}{% endblock %}">
         <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021
-               18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
         </svg>
-        <span class="nav-item-text">Upload Data</span>
+        <span>Upload Data</span>
       </a>
-
-      <a href="/anomalies/" class="nav-item {% block nav_anomalies %}{% endblock %}"
-         data-tooltip="Anomalies">
+      <a href="/anomalies/" class="nav-item {% block nav_anomalies %}{% endblock %}">
         <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71
-               c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898
-               0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
         </svg>
-        <span class="nav-item-text">Anomalies</span>
-        <span class="nav-badge" id="nav-anomaly-count">12</span>
-      </a>
-
-      <a href="/audits/" class="nav-item {% block nav_audits %}{% endblock %}"
-         data-tooltip="Audit History">
-        <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108
-               c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0
-               c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75
-               24.6 24.6 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15
-               c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08
-               C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504
-               -1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0
-               1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/>
-        </svg>
-        <span class="nav-item-text">Audit History</span>
+        <span>Anomalies</span>
+        <span class="nav-badge">12</span>
       </a>
 
       <div class="nav-label">Outputs</div>
-
-      <a href="{% url 'report' %}" class="nav-item {% block nav_reports %}{% endblock %}"
-   data-tooltip="Reports">
+      <a href="{% url 'report' %}" class="nav-item {% block nav_reports %}{% endblock %}" data-tooltip="Reports">
         <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125
-               1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25
-               m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504
-               1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25
-               a9 9 0 00-9-9z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25 m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25 a9 9 0 00-9-9z"/>
         </svg>
-        <span class="nav-item-text">Reports</span>
+        <span>Reports</span>
       </a>
 
-      <div class="nav-label">Account</div>
-
-      <a href="/settings/" class="nav-item {% block nav_settings %}{% endblock %}"
-         data-tooltip="Settings">
-        <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398
-               1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127
-               .324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49
-               l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24
-               -.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99
-               l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125
-               0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57
-               6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543
-               -.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281
-               c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196
-               -.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49
-               l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24
-               .437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75
-               -.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247
-               a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076
-               -.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869
-               l.214-1.281z"/>
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-        </svg>
-        <span class="nav-item-text">Settings</span>
+      <div class="nav-label">System</div>
+      <a href="/settings/" class="nav-item {% block nav_settings %}{% endblock %}">
+        <i class="fa-solid fa-gear nav-icon"></i>
+        <span>Settings</span>
       </a>
-
-      <button class="nav-item" onclick="confirmLogout()" style="margin-top:auto; color: var(--risk-critical); border: none; background: none; width: 100%; text-align: left; cursor: pointer;">
-        <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0
-               00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0
-               002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
-        </svg>
-        <span class="nav-item-text">Logout</span>
+      
+      <button class="nav-item" onclick="confirmLogout()" style="margin-top: auto; border: none; background: transparent; width: 100%; color: #f87171;">
+        <i class="fa-solid fa-power-off nav-icon"></i>
+        <span>Logout</span>
       </button>
     </nav>
 
-    <!-- User Footer -->
-    <div class="sidebar-footer">
-      <div class="avatar" id="avatar-initials">SA</div>
-      <div class="user-info">
-        <div class="user-name" id="user-display-name">Senior Auditor</div>
-        <div class="user-role">Auditor</div>
+    <div class="sidebar-footer" style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 12px;">
+      <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--text-purple); display: flex; align-items: center; justify-content: center; font-weight: 700;">SA</div>
+      <div style="font-size: 0.85rem;">
+        <div style="font-weight: 600;">Senior Auditor</div>
+        <div style="color: #6b7280; font-size: 0.75rem;">Auditor Mode</div>
       </div>
     </div>
-
   </aside>
-  <!-- END SIDEBAR -->
 
-  <!-- ════════════════════════════ MAIN CONTENT ════════════════════════════ -->
-  <div class="main-content" id="main-content">
-
-    <!-- TOP BAR -->
-    <header class="topbar">
-      <button class="topbar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
-        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
-        </svg>
-      </button>
-
-      <div class="topbar-breadcrumb">
-        <span>AuditAI</span>
-        <span>/</span>
-        <strong>{% block breadcrumb %}Page{% endblock %}</strong>
+  <div class="main-wrapper">
+    <header class="top-header">
+      <div class="breadcrumb-area">
+        AuditAI <span>/</span> <strong>{% block breadcrumb %}Page{% endblock %}</strong>
       </div>
 
-      <div class="topbar-right">
-        <!-- Audit period selector -->
-        <div class="audit-selector-container">
-          <button class="audit-selector" id="audit-selector" onclick="toggleAuditMenu()">
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5
-                   A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25
-                   2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25
-                   0 0121 11.25v7.5"/>
-            </svg>
+      <div class="header-actions">
+        <div style="position: relative;">
+          <button class="btn-action" onclick="toggleDrop('period-drop')">
+            <i class="fa-regular fa-calendar-check"></i>
             <span id="current-audit">Q4 2024 Audit</span>
-            <svg class="dropdown-arrow" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
-            </svg>
+            <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; opacity: 0.5;"></i>
           </button>
-          <div class="audit-menu-dropdown" id="auditMenuDropdown" style="display: none;">
-            <button class="audit-menu-item active" data-period="Q4 2024">Q4 2024 Audit</button>
-            <button class="audit-menu-item" data-period="Q3 2024">Q3 2024 Audit</button>
-            <button class="audit-menu-item" data-period="Q2 2024">Q2 2024 Audit</button>
-            <button class="audit-menu-item" data-period="Q1 2024">Q1 2024 Audit</button>
-            <hr style="margin: 8px 0; border: none; border-top: 1px solid var(--border);">
-            <button class="audit-menu-item" data-period="Custom">Custom Period</button>
+          <div class="ui-dropdown" id="period-drop">
+            <button class="drop-item" onclick="setPeriod('Q4 2024')">Q4 2024 Audit</button>
+            <button class="drop-item" onclick="setPeriod('Q3 2024')">Q3 2024 Audit</button>
+            <hr style="margin: 4px 0; border-color: var(--border-color);">
+            <button class="drop-item">Custom Range</button>
           </div>
         </div>
 
-        <!-- Notifications -->
-        <div class="notifications-container">
-          <button class="topbar-btn" id="notificationBtn" onclick="toggleNotifications()" title="Notifications">
-            <div class="dot" id="notification-dot"></div>
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118
-                   9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64
-                   3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0
-                   a3 3 0 11-5.714 0"/>
-            </svg>
+        <div style="position: relative;">
+          <button class="icon-trigger" onclick="toggleDrop('notif-drop')">
+            <div style="position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: var(--risk-critical); border-radius: 50%; border: 2px solid white;"></div>
+            <i class="fa-regular fa-bell"></i>
           </button>
-          <div class="notifications-dropdown" id="notificationsDropdown" style="display: none;">
-            <div class="notifications-header">
-              <h3>Notifications</h3>
-              <button class="notifications-clear" onclick="clearAllNotifications()">Clear All</button>
-            </div>
-            <div class="notifications-list" id="notificationsList">
-              <div class="notification-item critical">
-                <div class="notification-icon">⚠️</div>
-                <div class="notification-content">
-                  <div class="notification-title">Critical Anomaly Detected</div>
-                  <div class="notification-message">2 critical-level anomalies found in transaction set #3245</div>
-                  <div class="notification-time">5 minutes ago</div>
-                </div>
-              </div>
-              <div class="notification-item high">
-                <div class="notification-icon">🔴</div>
-                <div class="notification-content">
-                  <div class="notification-title">High Risk Transaction</div>
-                  <div class="notification-message">Account ACC-0847 shows unusual activity pattern</div>
-                  <div class="notification-time">23 minutes ago</div>
-                </div>
-              </div>
-              <div class="notification-item info">
-                <div class="notification-icon">ℹ️</div>
-                <div class="notification-content">
-                  <div class="notification-title">Audit Analysis Complete</div>
-                  <div class="notification-message">Background anomaly detection has finished processing 4,821 transactions</div>
-                  <div class="notification-time">2 hours ago</div>
-                </div>
-              </div>
-            </div>
+          <div class="ui-dropdown" id="notif-drop" style="width: 320px;">
+            <div style="padding: 16px; font-weight: 600; border-bottom: 1px solid var(--border-color);">Notifications</div>
+            <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">No unread notifications</div>
           </div>
         </div>
 
-        <!-- User Dropdown -->
-        <div class="user-dropdown" style="position: relative; display: inline-block;">
-          <button class="topbar-btn" id="userMenuBtn" onclick="toggleUserMenu()" title="Account">
-            <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #8b5cf6); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;">
-              SA
-            </div>
+        <div style="position: relative;">
+          <button class="icon-trigger" onclick="toggleDrop('user-drop')" style="background: none;">
+            <div style="width: 34px; height: 34px; border-radius: 50%; background: var(--text-purple); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem;">SA</div>
           </button>
-          <div class="user-menu-dropdown" id="userMenuDropdown" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 8px;">
-            <a href="/settings/" class="user-menu-item">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M9.405 1.566A1.5 1.5 0 0 0 6.595 1.566L6.06 3.01H2a1.5 1.5 0 0 0-1.5 1.5v8A1.5 1.5 0 0 0 2 14h12a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5h-4.06l-.535-1.444zm-3.075 3.444h4.14l.56 1.506H5.69l.64-1.506z"/>
-                <path d="M8 13a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
-              </svg>
-              Settings
-            </a>
-            <button class="user-menu-item" onclick="confirmLogout()" style="border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--risk-high);">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 1h-8A1.5 1.5 0 0 0 0 2.5v9A1.5 1.5 0 0 0 1.5 13h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
-                <path fill-rule="evenodd" d="M15.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L14.293 6H10.5a.5.5 0 0 1 0-1h3.793L12.146 4.146a.5.5 0 0 1 .708-.708l3 3z"/>
-              </svg>
-              Logout
-            </button>
+          <div class="ui-dropdown" id="user-drop">
+            <a href="/settings/" class="drop-item"><i class="fa-regular fa-user"></i> My Profile</a>
+            <button onclick="confirmLogout()" class="drop-item" style="color: var(--risk-critical);"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out</button>
           </div>
         </div>
       </div>
     </header>
-    <!-- END TOP BAR -->
 
-    <!-- PAGE CONTENT -->
     <main class="page-body">
       {% block content %}{% endblock %}
     </main>
-
   </div>
-  <!-- END MAIN CONTENT -->
-
-</div><!-- end app-shell -->
-
-<!-- ══ CDN SCRIPTS ══════════════════════════════════════════ -->
-<!-- Bootstrap 5 JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-  integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-  crossorigin="anonymous"></script>
-
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-
-<!-- D3.js -->
-<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
-
-<!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-
-<!-- Our API client (load first so other scripts can use it) -->
-<script src="{% static 'js/api.js' %}"></script>
+</div>
 
 <script>
-const publicPaths = ["/login/", "/"];
-
-if (!localStorage.getItem("access_token") && !publicPaths.includes(window.location.pathname)) {
-  window.location.href = "/login/";
-}
-
-// Toggle user menu dropdown
-function toggleUserMenu() {
-  const dropdown = document.getElementById('userMenuDropdown');
-  dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-}
-
-// Close dropdown when clicking outside
-document.addEventListener('click', (e) => {
-  const userMenuBtn = document.getElementById('userMenuBtn');
-  const userMenuDropdown = document.getElementById('userMenuDropdown');
-  
-  if (!e.target.closest('.user-dropdown')) {
-    userMenuDropdown.style.display = 'none';
-  }
-});
-
-// Confirm logout and redirect
-function confirmLogout() {
-  if (confirm('Are you sure you want to sign out? You will need to sign in again to access your account.')) {
-    logout();
-  }
-}
-
-// Perform logout
-function logout() {
-  // Clear authentication tokens from localStorage/sessionStorage
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
-  sessionStorage.removeItem('access_token');
-  sessionStorage.removeItem('refresh_token');
-
-  // Optional: Call logout API endpoint if needed
-  fetch('/api/auth/logout/', { method: 'POST' }).catch(() => {
-    // Logout endpoint may not exist, that's OK
-  });
-
-  // Redirect to home page
-  window.location.href = '/';
-}
-
-// Toggle audit menu dropdown
-function toggleAuditMenu() {
-  const container = document.querySelector('.audit-selector-container');
-  const dropdown = document.getElementById('auditMenuDropdown');
-  
-  if (!dropdown) return;
-  
-  const isVisible = dropdown.style.display !== 'none' && dropdown.style.display !== '';
-  dropdown.style.display = isVisible ? 'none' : 'block';
-  container.classList.toggle('active', !isVisible);
-}
-
-// Handle audit period selection
-document.addEventListener('DOMContentLoaded', () => {
-  const auditMenuItems = document.querySelectorAll('.audit-menu-item');
-  auditMenuItems.forEach(item => {
-    item.addEventListener('click', (e) => {
-      const period = e.currentTarget.getAttribute('data-period');
-      
-      // Update active state
-      auditMenuItems.forEach(i => i.classList.remove('active'));
-      e.currentTarget.classList.add('active');
-      
-      // Update display text
-      document.getElementById('current-audit').textContent = period;
-      
-      // Close dropdown
-      toggleAuditMenu();
-      
-      // TODO: Fetch data for selected period
-      // fetchAuditData(period);
+  function toggleDrop(id) {
+    const ids = ['period-drop', 'notif-drop', 'user-drop'];
+    ids.forEach(d => {
+      const el = document.getElementById(d);
+      if (d === id) {
+        el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+      } else {
+        el.style.display = 'none';
+      }
     });
-  });
-});
+  }
 
-// Close audit menu when clicking outside
-document.addEventListener('click', (e) => {
-  const selectorContainer = document.querySelector('.audit-selector-container');
-  if (selectorContainer && !e.target.closest('.audit-selector-container')) {
-    const dropdown = document.getElementById('auditMenuDropdown');
-    if (dropdown) {
-      dropdown.style.display = 'none';
-      selectorContainer.classList.remove('active');
+  function setPeriod(p) {
+    document.getElementById('current-audit').innerText = p + ' Audit';
+    toggleDrop('period-drop');
+  }
+
+  window.onclick = function(e) {
+    if (!e.target.closest('.header-actions')) {
+      document.querySelectorAll('.ui-dropdown').forEach(d => d.style.display = 'none');
     }
   }
-});
 
-// Toggle notifications dropdown
-function toggleNotifications() {
-  const dropdown = document.getElementById('notificationsDropdown');
-  if (!dropdown) return;
-  
-  const isVisible = dropdown.style.display !== 'none' && dropdown.style.display !== '';
-  dropdown.style.display = isVisible ? 'none' : 'block';
-}
-
-// Clear all notifications
-function clearAllNotifications() {
-  const notificationsList = document.getElementById('notificationsList');
-  if (notificationsList) {
-    notificationsList.innerHTML = '<div style="padding: 32px 16px; text-align: center; color: var(--text-muted);">No notifications</div>';
-  }
-}
-
-// Close notifications dropdown when clicking outside
-document.addEventListener('click', (e) => {
-  const notificationsContainer = document.querySelector('.notifications-container');
-  if (notificationsContainer && !e.target.closest('.notifications-container')) {
-    const dropdown = document.getElementById('notificationsDropdown');
-    if (dropdown) {
-      dropdown.style.display = 'none';
+  function confirmLogout() {
+    if (confirm('Are you sure you want to sign out?')) {
+      localStorage.clear();
+      window.location.href = '/';
     }
   }
-});
 </script>
 
 {% block extra_js %}{% endblock %}
-
 </body>
 </html>
