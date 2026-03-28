@@ -44,8 +44,8 @@ def generate_all_summaries(results: dict) -> dict:
     
     # Updated stable model strings for 2026
     models_to_try = [
-    "models/gemini-1.5-flash-latest", 
-    "models/gemini-1.5-pro-latest"
+    "models/gemini-2.5-flash", 
+    "models/gemini-2.5-pro-latest"
 ]
 
     # Counts for the prompt

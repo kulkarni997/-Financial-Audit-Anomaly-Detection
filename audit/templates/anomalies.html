@@ -58,13 +58,20 @@
             margin-bottom: 3rem;
             overflow: hidden;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
         }
 
         .section-title { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); font-size: 1.25rem; font-weight: 700; color: var(--primary); }
 
-        .table-wrap { max-height: 300px; overflow-y: auto; background: rgba(0,0,0,0.2); }
+        /* Modified: Removed max-height to ensure full visibility */
+        .table-wrap { 
+            background: rgba(0,0,0,0.2); 
+            width: 100%;
+        }
+
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 1rem 2rem; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; position: sticky; top: 0; background: #111827; z-index: 10; }
+        th { text-align: left; padding: 1rem 2rem; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; background: #111827; }
         td { padding: 1rem 2rem; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
         
         .risk-badge { 
@@ -72,14 +79,13 @@
             background: rgba(6, 182, 212, 0.1); color: var(--primary); 
         }
 
-        .graph-wrap { padding: 2.5rem; height: 450px; position: relative; }
+        .graph-wrap { padding: 2.5rem; height: 450px; position: relative; border-top: 1px solid var(--border); }
 
         .btn {
             background: var(--primary); color: #000; border: none; padding: 0.8rem 1.5rem;
             border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s;
         }
         .btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(6, 182, 212, 0.4); }
-
     </style>
 </head>
 <body>
@@ -161,17 +167,11 @@
 </div>
 
 <script>
-    // Universal Graph Settings
     Chart.defaults.color = '#9ca3af';
     Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
-    Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
 
-    // 1. Employee Bar Chart (Improved Gradient)
+    // 1. Employee Bar Chart
     const ctxEmp = document.getElementById('employeeGraph').getContext('2d');
-    const empGradient = ctxEmp.createLinearGradient(0, 0, 0, 400);
-    empGradient.addColorStop(0, '#06b6d4');
-    empGradient.addColorStop(1, '#0891b200');
-
     new Chart(ctxEmp, {
         type: 'bar',
         data: {
@@ -179,34 +179,16 @@
             datasets: [{
                 label: 'Risk Level',
                 data: {{ employee_scores|safe }},
-                backgroundColor: empGradient,
-                borderColor: '#06b6d4',
-                borderWidth: 1,
+                backgroundColor: '#06b6d4',
                 borderRadius: 8,
-                barThickness: 'flex',
                 maxBarThickness: 40
             }]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { 
-                y: { 
-                    beginAtZero: true,
-                    grid: { color: 'rgba(255,255,255,0.05)' }
-                },
-                x: { grid: { display: false } }
-            }
-        }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
 
-    // 2. Department Area Chart (Sleek Orange Glow)
+    // 2. Department Area Chart
     const ctxDept = document.getElementById('deptGraph').getContext('2d');
-    const deptGrad = ctxDept.createLinearGradient(0, 0, 0, 400);
-    deptGrad.addColorStop(0, 'rgba(245, 158, 11, 0.5)');
-    deptGrad.addColorStop(1, 'rgba(245, 158, 11, 0)');
-
     new Chart(ctxDept, {
         type: 'line',
         data: {
@@ -215,30 +197,15 @@
                 label: 'Variance Score',
                 data: {{ department_scores|safe }},
                 borderColor: '#f59e0b',
-                borderWidth: 3,
                 fill: true,
-                backgroundColor: deptGrad,
-                tension: 0.4,
-                pointBackgroundColor: '#f59e0b',
-                pointRadius: 4,
-                pointHoverRadius: 8
+                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                tension: 0.4
             }]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { 
-                y: { 
-                    beginAtZero: true,
-                    grid: { color: 'rgba(255,255,255,0.05)' }
-                },
-                x: { grid: { display: false } }
-            }
-        }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
     });
 
-    // 3. Goods RADAR Chart (High Contrast Cluster)
+    // 3. Goods Radar Chart
     new Chart(document.getElementById('goodsRadarGraph'), {
         type: 'radar',
         data: {
@@ -248,31 +215,13 @@
                 data: {{ goods_scores|safe }},
                 borderColor: '#8b5cf6',
                 backgroundColor: 'rgba(139, 92, 246, 0.25)',
-                pointBackgroundColor: '#8b5cf6',
-                pointBorderColor: '#fff',
-                pointHoverBackgroundColor: '#fff',
-                pointHoverBorderColor: '#8b5cf6',
                 borderWidth: 2
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                r: {
-                    angleLines: { color: 'rgba(255,255,255,0.1)' },
-                    grid: { color: 'rgba(255,255,255,0.1)' },
-                    pointLabels: { 
-                        color: '#9ca3af',
-                        font: { size: 11, weight: '600' }
-                    },
-                    ticks: { display: false },
-                    suggestedMin: 0
-                }
-            },
-            plugins: {
-                legend: { labels: { color: '#f3f4f6', font: { weight: 'bold' } } }
-            }
+            scales: { r: { ticks: { display: false }, suggestedMin: 0 } }
         }
     });
 </script>
