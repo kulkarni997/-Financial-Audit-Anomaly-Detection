@@ -1,0 +1,751 @@
+date,product_id,product_name,category,unit_price,quantity,total_price,vendor
+2024-02-01,P003,Office Chair,Office,5614,5,28070,Amazon
+2024-02-01,P002,Printer,Electronics,15641,10,156410,MakeMyTrip
+2024-02-01,P004,Desk,Office,7515,1,7515,Amazon
+2024-02-01,P004,Desk,Office,9365,2,18730,MakeMyTrip
+2024-02-01,P004,Desk,Office,8218,1,8218,Uber
+2024-02-01,P001,Laptop,Electronics,53229,5,266145,Swiggy
+2024-02-01,P008,Food Catering,Food,3147,7,22029,Flipkart
+2024-02-01,P004,Desk,Office,8619,9,77571,Amazon
+2024-02-01,P007,Hotel Booking,Travel,6813,9,61317,MakeMyTrip
+2024-02-01,P008,Food Catering,Food,3228,3,9684,Amazon
+2024-02-01,P003,Office Chair,Office,5603,10,56030,Swiggy
+2024-02-01,P003,Office Chair,Office,5717,9,51453,Flipkart
+2024-02-01,P005,Software License,Software,20709,10,207090,Flipkart
+2024-02-01,P002,Printer,Electronics,15918,9,143262,Amazon
+2024-02-01,P001,Laptop,Electronics,59475,9,535275,Swiggy
+2024-02-01,P001,Laptop,Electronics,51433,10,514330,MakeMyTrip
+2024-02-01,P003,Office Chair,Office,4637,9,41733,Swiggy
+2024-02-01,P003,Office Chair,Office,5266,8,42128,Amazon
+2024-02-01,P003,Office Chair,Office,4584,8,36672,Swiggy
+2024-02-01,P003,Office Chair,Office,4741,2,9482,Amazon
+2024-02-01,P001,Laptop,Electronics,55766,9,501894,MakeMyTrip
+2024-02-01,P008,Food Catering,Food,3588,2,7176,MakeMyTrip
+2024-02-01,P008,Food Catering,Food,3325,7,23275,MakeMyTrip
+2024-02-01,P003,Office Chair,Office,5636,2,11272,MakeMyTrip
+2024-02-01,P002,Printer,Electronics,13926,6,83556,MakeMyTrip
+2024-02-01,P002,Printer,Electronics,16255,10,162550,MakeMyTrip
+2024-02-01,P004,Desk,Office,8300,7,58100,MakeMyTrip
+2024-02-01,P002,Printer,Electronics,17778,3,53334,Uber
+2024-02-01,P004,Desk,Office,8531,6,51186,Uber
+2024-02-01,P005,Software License,Software,19718,4,78872,Uber
+2024-02-01,P002,Printer,Electronics,17538,7,122766,Uber
+2024-02-01,P001,Laptop,Electronics,59501,10,595010,Amazon
+2024-02-01,P001,Laptop,Electronics,46416,6,278496,MakeMyTrip
+2024-02-01,P001,Laptop,Electronics,46998,10,469980,MakeMyTrip
+2024-02-01,P006,Flight Ticket,Travel,7354,4,29416,Flipkart
+2024-02-01,P005,Software License,Software,23177,1,23177,Flipkart
+2024-02-01,P006,Flight Ticket,Travel,8348,6,50088,Uber
+2024-02-01,P006,Flight Ticket,Travel,8049,7,56343,Flipkart
+2024-02-01,P006,Flight Ticket,Travel,7431,9,66879,Flipkart
+2024-02-01,P006,Flight Ticket,Travel,6839,10,68390,MakeMyTrip
+2024-02-01,P001,Laptop,Electronics,47948,2,95896,Uber
+2024-02-01,P006,Flight Ticket,Travel,8291,8,66328,Swiggy
+2024-02-01,P004,Desk,Office,8040,2,16080,Amazon
+2024-02-01,P007,Hotel Booking,Travel,6777,8,54216,Swiggy
+2024-02-01,P007,Hotel Booking,Travel,6993,2,13986,Amazon
+2024-02-01,P001,Laptop,Electronics,55067,3,165201,MakeMyTrip
+2024-02-01,P002,Printer,Electronics,17805,7,124635,Flipkart
+2024-02-01,P001,Laptop,Electronics,50843,8,406744,MakeMyTrip
+2024-02-01,P007,Hotel Booking,Travel,6277,7,43939,Swiggy
+2024-02-01,P006,Flight Ticket,Travel,7951,1,7951,Uber
+2024-02-02,P001,Laptop,Electronics,59768,7,423166,Amazon
+2024-02-02,P002,Printer,Electronics,16255,3,48765,Amazon
+2024-02-02,P002,Printer,Electronics,17723,1,17723,Swiggy
+2024-02-02,P003,Office Chair,Office,5206,4,20824,Uber
+2024-02-02,P003,Office Chair,Office,5541,6,33246,Swiggy
+2024-02-02,P008,Food Catering,Food,3093,5,15465,Amazon
+2024-02-02,P001,Laptop,Electronics,46360,1,46360,Swiggy
+2024-02-02,P001,Laptop,Electronics,55079,6,330474,MakeMyTrip
+2024-02-02,P008,Food Catering,Food,3487,3,10461,Amazon
+2024-02-02,P008,Food Catering,Food,3167,5,15835,Amazon
+2024-02-02,P008,Food Catering,Food,2914,7,20398,Flipkart
+2024-02-02,P007,Hotel Booking,Travel,5793,7,40551,Swiggy
+2024-02-02,P007,Hotel Booking,Travel,5576,7,39032,Amazon
+2024-02-02,P008,Food Catering,Food,3576,3,10728,Uber
+2024-02-02,P002,Printer,Electronics,16332,4,65328,Swiggy
+2024-02-02,P003,Office Chair,Office,5658,8,45264,Amazon
+2024-02-02,P001,Laptop,Electronics,54961,9,494649,Amazon
+2024-02-02,P007,Hotel Booking,Travel,6942,9,62478,Flipkart
+2024-02-02,P007,Hotel Booking,Travel,5599,7,39193,Swiggy
+2024-02-02,P008,Food Catering,Food,2805,8,22440,Amazon
+2024-02-02,P008,Food Catering,Food,2928,8,23424,MakeMyTrip
+2024-02-02,P005,Software License,Software,18208,8,145664,Flipkart
+2024-02-02,P003,Office Chair,Office,5579,9,50211,Swiggy
+2024-02-02,P004,Desk,Office,7898,3,23694,Amazon
+2024-02-02,P006,Flight Ticket,Travel,6699,1,6699,Flipkart
+2024-02-02,P006,Flight Ticket,Travel,7923,3,23769,Flipkart
+2024-02-02,P007,Hotel Booking,Travel,5944,1,5944,Flipkart
+2024-02-02,P001,Laptop,Electronics,58233,2,116466,MakeMyTrip
+2024-02-02,P007,Hotel Booking,Travel,6535,8,52280,Flipkart
+2024-02-02,P006,Flight Ticket,Travel,6469,10,64690,Flipkart
+2024-02-02,P003,Office Chair,Office,5836,3,17508,MakeMyTrip
+2024-02-02,P004,Desk,Office,9554,10,95540,Uber
+2024-02-02,P005,Software License,Software,21821,6,130926,Uber
+2024-02-02,P008,Food Catering,Food,3408,1,3408,Flipkart
+2024-02-02,P001,Laptop,Electronics,46464,3,139392,Amazon
+2024-02-02,P003,Office Chair,Office,5831,5,29155,Amazon
+2024-02-02,P003,Office Chair,Office,5844,6,35064,MakeMyTrip
+2024-02-02,P007,Hotel Booking,Travel,6412,6,38472,Uber
+2024-02-02,P006,Flight Ticket,Travel,6471,2,12942,Amazon
+2024-02-02,P007,Hotel Booking,Travel,6327,3,18981,Uber
+2024-02-02,P002,Printer,Electronics,17666,9,158994,Amazon
+2024-02-02,P005,Software License,Software,23749,3,71247,MakeMyTrip
+2024-02-02,P003,Office Chair,Office,4992,7,34944,MakeMyTrip
+2024-02-02,P002,Printer,Electronics,15459,6,92754,MakeMyTrip
+2024-02-02,P003,Office Chair,Office,4688,9,42192,Amazon
+2024-02-02,P002,Printer,Electronics,17836,8,142688,Swiggy
+2024-02-02,P007,Hotel Booking,Travel,7056,4,28224,Uber
+2024-02-02,P001,Laptop,Electronics,54452,3,163356,Swiggy
+2024-02-02,P005,Software License,Software,19392,7,135744,MakeMyTrip
+2024-02-02,P001,Laptop,Electronics,51233,7,358631,Flipkart
+2024-02-03,P006,Flight Ticket,Travel,6355,10,63550,Swiggy
+2024-02-03,P004,Desk,Office,7993,7,55951,MakeMyTrip
+2024-02-03,P006,Flight Ticket,Travel,7896,2,15792,Uber
+2024-02-03,P005,Software License,Software,19508,5,97540,Swiggy
+2024-02-03,P003,Office Chair,Office,5684,1,5684,Amazon
+2024-02-03,P006,Flight Ticket,Travel,7514,6,45084,Flipkart
+2024-02-03,P001,Laptop,Electronics,50586,3,151758,MakeMyTrip
+2024-02-03,P008,Food Catering,Food,2776,9,24984,MakeMyTrip
+2024-02-03,P006,Flight Ticket,Travel,6817,6,40902,Amazon
+2024-02-03,P007,Hotel Booking,Travel,6787,2,13574,Flipkart
+2024-02-03,P007,Hotel Booking,Travel,6109,7,42763,Uber
+2024-02-03,P006,Flight Ticket,Travel,7157,10,71570,Uber
+2024-02-03,P004,Desk,Office,8772,6,52632,MakeMyTrip
+2024-02-03,P005,Software License,Software,19577,10,195770,Swiggy
+2024-02-03,P005,Software License,Software,18943,1,18943,MakeMyTrip
+2024-02-03,P005,Software License,Software,18781,10,187810,MakeMyTrip
+2024-02-03,P006,Flight Ticket,Travel,7221,2,14442,MakeMyTrip
+2024-02-03,P002,Printer,Electronics,16005,8,128040,Swiggy
+2024-02-03,P005,Software License,Software,18795,2,37590,Swiggy
+2024-02-03,P006,Flight Ticket,Travel,6909,8,55272,Flipkart
+2024-02-03,P007,Hotel Booking,Travel,6190,9,55710,Amazon
+2024-02-03,P003,Office Chair,Office,4730,8,37840,Flipkart
+2024-02-03,P002,Printer,Electronics,15295,7,107065,Uber
+2024-02-03,P004,Desk,Office,7218,3,21654,Swiggy
+2024-02-03,P008,Food Catering,Food,3203,1,5811,Flipkart
+2024-02-03,P003,Office Chair,Office,5749,10,57490,Amazon
+2024-02-03,P002,Printer,Electronics,17203,7,120421,Uber
+2024-02-03,P003,Office Chair,Office,5120,4,20480,Uber
+2024-02-03,P005,Software License,Software,20498,9,184482,Uber
+2024-02-03,P004,Desk,Office,7289,7,51023,Swiggy
+2024-02-03,P003,Office Chair,Office,4715,10,47150,Uber
+2024-02-03,P004,Desk,Office,7217,9,68625,Uber
+2024-02-03,P005,Software License,Software,23708,2,47416,Swiggy
+2024-02-03,P001,Laptop,Electronics,48188,3,144564,Swiggy
+2024-02-03,P002,Printer,Electronics,15994,1,15994,Uber
+2024-02-03,P007,Hotel Booking,Travel,6586,8,52688,Flipkart
+2024-02-03,P001,Laptop,Electronics,56477,6,338862,MakeMyTrip
+2024-02-03,P008,Food Catering,Food,3466,3,10398,Swiggy
+2024-02-03,P004,Desk,Office,8265,4,33060,Swiggy
+2024-02-03,P007,Hotel Booking,Travel,5427,5,27135,Swiggy
+2024-02-03,P002,Printer,Electronics,13656,9,122904,Amazon
+2024-02-03,P003,Office Chair,Office,5853,3,17559,Amazon
+2024-02-03,P001,Laptop,Electronics,45208,8,361664,Uber
+2024-02-03,P004,Desk,Office,7992,4,31968,Flipkart
+2024-02-03,P005,Software License,Software,18535,7,129745,Swiggy
+2024-02-03,P005,Software License,Software,23517,10,235170,Flipkart
+2024-02-03,P002,Printer,Electronics,14804,1,14804,Uber
+2024-02-03,P007,Hotel Booking,Travel,6806,7,47642,Uber
+2024-02-03,P003,Office Chair,Office,5644,9,50796,Flipkart
+2024-02-03,P003,Office Chair,Office,5005,3,15015,Swiggy
+2024-02-04,P005,Software License,Software,23034,3,69102,MakeMyTrip
+2024-02-04,P007,Hotel Booking,Travel,6326,9,60858,Flipkart
+2024-02-04,P004,Desk,Office,9555,3,28665,Amazon
+2024-02-04,P003,Office Chair,Office,5523,9,49707,Flipkart
+2024-02-04,P005,Software License,Software,22812,6,136872,Flipkart
+2024-02-04,P008,Food Catering,Food,3566,9,32094,Amazon
+2024-02-04,P001,Laptop,Electronics,55854,7,390978,MakeMyTrip
+2024-02-04,P008,Food Catering,Food,3154,2,6308,Amazon
+2024-02-04,P004,Desk,Office,7543,5,37715,Amazon
+2024-02-04,P001,Laptop,Electronics,45318,9,407862,Uber
+2024-02-04,P005,Software License,Software,22896,1,22896,Amazon
+2024-02-04,P005,Software License,Software,18697,7,130879,Flipkart
+2024-02-04,P007,Hotel Booking,Travel,6996,5,34980,Swiggy
+2024-02-04,P003,Office Chair,Office,4564,6,27384,MakeMyTrip
+2024-02-04,P001,Laptop,Electronics,49192,4,196768,Uber
+2024-02-04,P004,Desk,Office,9321,9,83889,Uber
+2024-02-04,P008,Food Catering,Food,3193,5,15965,MakeMyTrip
+2024-02-04,P006,Flight Ticket,Travel,7622,3,22866,Swiggy
+2024-02-04,P005,Software License,Software,18139,9,163251,Swiggy
+2024-02-04,P001,Laptop,Electronics,56367,2,112734,Amazon
+2024-02-04,P002,Printer,Electronics,13665,10,136650,Flipkart
+2024-02-04,P005,Software License,Software,21996,10,219960,Swiggy
+2024-02-04,P003,Office Chair,Office,5949,3,17847,Flipkart
+2024-02-04,P007,Hotel Booking,Travel,6968,1,6968,Flipkart
+2024-02-04,P002,Printer,Electronics,17403,6,104418,Uber
+2024-02-04,P005,Software License,Software,20634,7,144438,Flipkart
+2024-02-04,P006,Flight Ticket,Travel,6695,1,6695,Uber
+2024-02-04,P003,Office Chair,Office,4972,2,9944,Uber
+2024-02-04,P006,Flight Ticket,Travel,6334,3,19002,Flipkart
+2024-02-04,P001,Laptop,Electronics,54776,2,109552,Swiggy
+2024-02-04,P003,Office Chair,Office,5554,7,38878,Flipkart
+2024-02-04,P002,Printer,Electronics,14550,4,58200,Swiggy
+2024-02-04,P008,Food Catering,Food,3084,4,12336,Swiggy
+2024-02-04,P004,Desk,Office,8863,8,70904,Amazon
+2024-02-04,P005,Software License,Software,21751,4,87004,Uber
+2024-02-04,P008,Food Catering,Food,2773,2,5546,Uber
+2024-02-04,P008,Food Catering,Food,2936,1,2936,Amazon
+2024-02-04,P008,Food Catering,Food,3334,5,16670,Uber
+2024-02-04,P007,Hotel Booking,Travel,5949,4,23796,Amazon
+2024-02-04,P001,Laptop,Electronics,53814,9,484326,Amazon
+2024-02-04,P002,Printer,Electronics,15514,6,93084,Uber
+2024-02-04,P005,Software License,Software,22224,8,177792,Amazon
+2024-02-04,P001,Laptop,Electronics,57379,10,573790,Uber
+2024-02-04,P007,Hotel Booking,Travel,6994,2,13988,Uber
+2024-02-04,P002,Printer,Electronics,15380,8,123040,Uber
+2024-02-04,P002,Printer,Electronics,14810,2,29620,Uber
+2024-02-04,P007,Hotel Booking,Travel,6728,7,47096,Amazon
+2024-02-04,P005,Software License,Software,21768,4,88741,MakeMyTrip
+2024-02-04,P003,Office Chair,Office,4827,3,14481,Swiggy
+2024-02-04,P007,Hotel Booking,Travel,7026,7,49182,Amazon
+2024-02-05,P003,Office Chair,Office,5119,9,46071,Amazon
+2024-02-05,P002,Printer,Electronics,16232,8,129856,Flipkart
+2024-02-05,P001,Laptop,Electronics,46182,7,323274,Swiggy
+2024-02-05,P002,Printer,Electronics,14306,5,71530,MakeMyTrip
+2024-02-05,P006,Flight Ticket,Travel,7280,10,72800,Flipkart
+2024-02-05,P004,Desk,Office,9149,4,36596,Flipkart
+2024-02-05,P001,Laptop,Electronics,47649,6,285894,Swiggy
+2024-02-05,P007,Hotel Booking,Travel,6954,4,27816,Uber
+2024-02-05,P004,Desk,Office,9391,4,37564,MakeMyTrip
+2024-02-05,P003,Office Chair,Office,4778,5,23890,Uber
+2024-02-05,P005,Software License,Software,19833,8,158664,Amazon
+2024-02-05,P002,Printer,Electronics,15679,8,125432,Swiggy
+2024-02-05,P001,Laptop,Electronics,55871,8,446968,MakeMyTrip
+2024-02-05,P008,Food Catering,Food,3013,5,15065,MakeMyTrip
+2024-02-05,P006,Flight Ticket,Travel,7404,4,29616,MakeMyTrip
+2024-02-05,P001,Laptop,Electronics,52095,1,52095,Swiggy
+2024-02-05,P005,Software License,Software,23143,10,231430,Flipkart
+2024-02-05,P005,Software License,Software,20428,4,81712,Flipkart
+2024-02-05,P008,Food Catering,Food,3353,8,26824,MakeMyTrip
+2024-02-05,P008,Food Catering,Food,3227,2,6454,Flipkart
+2024-02-05,P003,Office Chair,Office,5050,6,30300,Uber
+2024-02-05,P008,Food Catering,Food,3281,10,32810,MakeMyTrip
+2024-02-05,P001,Laptop,Electronics,45687,8,365496,Uber
+2024-02-05,P003,Office Chair,Office,5626,2,11252,Flipkart
+2024-02-05,P007,Hotel Booking,Travel,6951,2,13902,Swiggy
+2024-02-05,P003,Office Chair,Office,4673,8,37384,Flipkart
+2024-02-05,P007,Hotel Booking,Travel,5731,7,40117,Flipkart
+2024-02-05,P004,Desk,Office,7916,1,7916,MakeMyTrip
+2024-02-05,P007,Hotel Booking,Travel,7053,9,63477,Uber
+2024-02-05,P002,Printer,Electronics,13750,7,96250,MakeMyTrip
+2024-02-05,P006,Flight Ticket,Travel,7900,5,39500,Uber
+2024-02-05,P003,Office Chair,Office,5882,3,17646,Swiggy
+2024-02-05,P008,Food Catering,Food,2760,1,2760,Amazon
+2024-02-05,P006,Flight Ticket,Travel,7025,10,70250,Uber
+2024-02-05,P003,Office Chair,Office,5828,9,52452,Uber
+2024-02-05,P004,Desk,Office,7682,7,53774,Amazon
+2024-02-05,P005,Software License,Software,22183,10,221830,Uber
+2024-02-05,P004,Desk,Office,7493,2,14986,Flipkart
+2024-02-05,P002,Printer,Electronics,16178,10,161780,Flipkart
+2024-02-05,P003,Office Chair,Office,5842,7,40894,Amazon
+2024-02-05,P004,Desk,Office,7634,7,53438,MakeMyTrip
+2024-02-05,P004,Desk,Office,7338,8,58704,Uber
+2024-02-05,P007,Hotel Booking,Travel,6560,1,6560,Uber
+2024-02-05,P008,Food Catering,Food,3328,8,30770,MakeMyTrip
+2024-02-05,P004,Desk,Office,8254,9,74286,MakeMyTrip
+2024-02-05,P005,Software License,Software,23115,3,69345,Uber
+2024-02-05,P003,Office Chair,Office,5845,6,35070,Uber
+2024-02-05,P002,Printer,Electronics,17391,6,104346,Swiggy
+2024-02-05,P001,Laptop,Electronics,47151,1,47151,Swiggy
+2024-02-05,P005,Software License,Software,20721,6,124326,Amazon
+2024-02-06,P004,Desk,Office,7987,2,15974,Uber
+2024-02-06,P006,Flight Ticket,Travel,7060,10,70600,Uber
+2024-02-06,P006,Flight Ticket,Travel,7896,4,31584,Amazon
+2024-02-06,P001,Laptop,Electronics,48640,2,99200,MakeMyTrip
+2024-02-06,P006,Flight Ticket,Travel,8225,9,74025,MakeMyTrip
+2024-02-06,P005,Software License,Software,23803,7,166621,MakeMyTrip
+2024-02-06,P008,Food Catering,Food,3483,9,31347,Swiggy
+2024-02-06,P004,Desk,Office,9485,10,94850,Amazon
+2024-02-06,P001,Laptop,Electronics,58689,3,176067,Amazon
+2024-02-06,P007,Hotel Booking,Travel,6118,2,12236,Uber
+2024-02-06,P003,Office Chair,Office,5635,10,56350,Flipkart
+2024-02-06,P002,Printer,Electronics,14358,6,86148,Amazon
+2024-02-06,P002,Printer,Electronics,15902,7,111314,Swiggy
+2024-02-06,P006,Flight Ticket,Travel,7528,2,15056,Swiggy
+2024-02-06,P001,Laptop,Electronics,53146,1,53146,Flipkart
+2024-02-06,P001,Laptop,Electronics,59703,6,358218,Uber
+2024-02-06,P002,Printer,Electronics,17589,3,52767,Uber
+2024-02-06,P005,Software License,Software,19106,6,114636,Amazon
+2024-02-06,P005,Software License,Software,18617,10,186170,Flipkart
+2024-02-06,P003,Office Chair,Office,5642,5,28210,Uber
+2024-02-06,P003,Office Chair,Office,5696,9,51264,MakeMyTrip
+2024-02-06,P002,Printer,Electronics,15035,4,60140,MakeMyTrip
+2024-02-06,P001,Laptop,Electronics,54667,4,218668,Swiggy
+2024-02-06,P006,Flight Ticket,Travel,7526,5,37630,Uber
+2024-02-06,P003,Office Chair,Office,5448,5,27240,MakeMyTrip
+2024-02-06,P006,Flight Ticket,Travel,6430,8,51440,Amazon
+2024-02-06,P004,Desk,Office,9276,1,9276,Amazon
+2024-02-06,P004,Desk,Office,9309,1,9309,Amazon
+2024-02-06,P007,Hotel Booking,Travel,6977,6,41862,MakeMyTrip
+2024-02-06,P001,Laptop,Electronics,49229,6,295374,Uber
+2024-02-06,P005,Software License,Software,22589,1,22589,Amazon
+2024-02-06,P004,Desk,Office,9583,2,19166,Amazon
+2024-02-06,P002,Printer,Electronics,14635,5,73175,Uber
+2024-02-06,P007,Hotel Booking,Travel,6582,7,46074,Flipkart
+2024-02-06,P004,Desk,Office,8997,5,44985,Amazon
+2024-02-06,P002,Printer,Electronics,16582,2,33164,Uber
+2024-02-06,P008,Food Catering,Food,2926,9,26334,Flipkart
+2024-02-06,P008,Food Catering,Food,2731,5,13655,Uber
+2024-02-06,P004,Desk,Office,7778,1,7778,Flipkart
+2024-02-06,P005,Software License,Software,19316,5,96580,MakeMyTrip
+2024-02-06,P003,Office Chair,Office,5916,8,47328,Uber
+2024-02-06,P008,Food Catering,Food,3545,3,10635,Flipkart
+2024-02-06,P007,Hotel Booking,Travel,5992,7,41944,Uber
+2024-02-06,P004,Desk,Office,9002,6,54012,Uber
+2024-02-06,P004,Desk,Office,7460,3,22380,MakeMyTrip
+2024-02-06,P003,Office Chair,Office,5752,5,28760,Swiggy
+2024-02-06,P002,Printer,Electronics,16831,3,50493,Flipkart
+2024-02-06,P002,Printer,Electronics,15807,10,158070,MakeMyTrip
+2024-02-06,P003,Office Chair,Office,5522,5,27610,MakeMyTrip
+2024-02-06,P001,Laptop,Electronics,52494,6,314964,Flipkart
+2024-02-07,P004,Desk,Office,7280,6,43680,Uber
+2024-02-07,P004,Desk,Office,9083,3,27249,Amazon
+2024-02-07,P007,Hotel Booking,Travel,5480,3,16440,Swiggy
+2024-02-07,P005,Software License,Software,18247,6,109482,Flipkart
+2024-02-07,P003,Office Chair,Office,4550,10,45500,Swiggy
+2024-02-07,P006,Flight Ticket,Travel,7703,9,69327,MakeMyTrip
+2024-02-07,P004,Desk,Office,9025,5,45125,Swiggy
+2024-02-07,P007,Hotel Booking,Travel,6722,2,13444,Swiggy
+2024-02-07,P008,Food Catering,Food,3146,4,12584,MakeMyTrip
+2024-02-07,P001,Laptop,Electronics,45226,5,226130,Amazon
+2024-02-07,P008,Food Catering,Food,3257,5,16285,Swiggy
+2024-02-07,P008,Food Catering,Food,3141,6,18846,Amazon
+2024-02-07,P008,Food Catering,Food,3041,5,15205,Swiggy
+2024-02-07,P005,Software License,Software,20227,6,121362,MakeMyTrip
+2024-02-07,P002,Printer,Electronics,14561,4,58244,Amazon
+2024-02-07,P001,Laptop,Electronics,58385,10,583850,Amazon
+2024-02-07,P007,Hotel Booking,Travel,5405,2,10810,Swiggy
+2024-02-07,P001,Laptop,Electronics,48784,7,341488,MakeMyTrip
+2024-02-07,P001,Laptop,Electronics,54709,2,109418,Flipkart
+2024-02-07,P006,Flight Ticket,Travel,7044,4,28176,Flipkart
+2024-02-07,P001,Laptop,Electronics,47114,2,94228,MakeMyTrip
+2024-02-07,P005,Software License,Software,23370,7,163590,Swiggy
+2024-02-07,P003,Office Chair,Office,4963,9,44667,Amazon
+2024-02-07,P004,Desk,Office,7353,10,74928,Flipkart
+2024-02-07,P003,Office Chair,Office,5590,5,27950,Flipkart
+2024-02-07,P001,Laptop,Electronics,47769,1,47769,Amazon
+2024-02-07,P007,Hotel Booking,Travel,5918,1,5918,Flipkart
+2024-02-07,P008,Food Catering,Food,3111,2,6222,Uber
+2024-02-07,P005,Software License,Software,20885,8,167080,Amazon
+2024-02-07,P006,Flight Ticket,Travel,6992,3,20976,Swiggy
+2024-02-07,P003,Office Chair,Office,5216,7,36512,MakeMyTrip
+2024-02-07,P001,Laptop,Electronics,46036,5,230180,Amazon
+2024-02-07,P008,Food Catering,Food,3276,4,13104,Amazon
+2024-02-07,P001,Laptop,Electronics,55107,1,55107,MakeMyTrip
+2024-02-07,P006,Flight Ticket,Travel,7966,1,7966,Swiggy
+2024-02-07,P008,Food Catering,Food,2811,4,11244,MakeMyTrip
+2024-02-07,P004,Desk,Office,7676,5,38380,Amazon
+2024-02-07,P003,Office Chair,Office,4584,3,13752,Swiggy
+2024-02-07,P007,Hotel Booking,Travel,6505,9,63440,Uber
+2024-02-07,P002,Printer,Electronics,16249,6,97494,Flipkart
+2024-02-07,P005,Software License,Software,20703,10,207030,Flipkart
+2024-02-07,P003,Office Chair,Office,5748,9,51732,Uber
+2024-02-07,P007,Hotel Booking,Travel,6279,2,12558,Flipkart
+2024-02-07,P006,Flight Ticket,Travel,7603,7,53221,Amazon
+2024-02-07,P003,Office Chair,Office,4545,5,22725,Swiggy
+2024-02-07,P007,Hotel Booking,Travel,6686,10,66860,Flipkart
+2024-02-07,P007,Hotel Booking,Travel,5703,2,11406,Flipkart
+2024-02-07,P007,Hotel Booking,Travel,6443,7,48405,MakeMyTrip
+2024-02-07,P003,Office Chair,Office,5360,8,42880,Uber
+2024-02-07,P008,Food Catering,Food,2813,10,28130,MakeMyTrip
+2024-02-08,P002,Printer,Electronics,15656,7,109592,Flipkart
+2024-02-08,P006,Flight Ticket,Travel,6944,4,27776,Amazon
+2024-02-08,P005,Software License,Software,20125,6,120750,Amazon
+2024-02-08,P007,Hotel Booking,Travel,5849,1,5849,Amazon
+2024-02-08,P004,Desk,Office,7634,2,15268,Uber
+2024-02-08,P001,Laptop,Electronics,47193,5,235965,Uber
+2024-02-08,P002,Printer,Electronics,14735,8,117880,Uber
+2024-02-08,P004,Desk,Office,8125,6,48750,Uber
+2024-02-08,P003,Office Chair,Office,4586,6,27516,Amazon
+2024-02-08,P008,Food Catering,Food,3486,7,24402,Uber
+2024-02-08,P001,Laptop,Electronics,45989,3,137967,MakeMyTrip
+2024-02-08,P005,Software License,Software,18675,10,186750,Flipkart
+2024-02-08,P002,Printer,Electronics,14577,8,116616,Uber
+2024-02-08,P003,Office Chair,Office,4769,10,47690,Uber
+2024-02-08,P006,Flight Ticket,Travel,7426,5,37130,Uber
+2024-02-08,P001,Laptop,Electronics,47899,9,431091,Flipkart
+2024-02-08,P003,Office Chair,Office,4928,7,34496,MakeMyTrip
+2024-02-08,P001,Laptop,Electronics,49582,2,99164,MakeMyTrip
+2024-02-08,P007,Hotel Booking,Travel,7195,1,7195,Amazon
+2024-02-08,P001,Laptop,Electronics,52585,2,105170,Swiggy
+2024-02-08,P003,Office Chair,Office,5145,7,36015,Uber
+2024-02-08,P003,Office Chair,Office,4632,8,37056,Uber
+2024-02-08,P003,Office Chair,Office,5559,6,33354,Swiggy
+2024-02-08,P006,Flight Ticket,Travel,8347,4,33388,MakeMyTrip
+2024-02-08,P004,Desk,Office,7510,6,45060,MakeMyTrip
+2024-02-08,P006,Flight Ticket,Travel,7957,9,71613,Uber
+2024-02-08,P001,Laptop,Electronics,46970,9,422730,MakeMyTrip
+2024-02-08,P007,Hotel Booking,Travel,5493,2,10986,Flipkart
+2024-02-08,P003,Office Chair,Office,5126,4,20504,Uber
+2024-02-08,P006,Flight Ticket,Travel,7812,8,62496,MakeMyTrip
+2024-02-08,P008,Food Catering,Food,2779,8,22232,Flipkart
+2024-02-08,P008,Food Catering,Food,3463,3,10389,Amazon
+2024-02-08,P002,Printer,Electronics,17784,4,71136,Flipkart
+2024-02-08,P001,Laptop,Electronics,47493,7,332451,Swiggy
+2024-02-08,P002,Printer,Electronics,17353,1,17353,Swiggy
+2024-02-08,P005,Software License,Software,23065,9,207585,Flipkart
+2024-02-08,P003,Office Chair,Office,5148,10,51480,Uber
+2024-02-08,P007,Hotel Booking,Travel,6342,10,63420,Amazon
+2024-02-08,P006,Flight Ticket,Travel,7635,6,45810,MakeMyTrip
+2024-02-08,P007,Hotel Booking,Travel,6843,2,13686,Flipkart
+2024-02-08,P007,Hotel Booking,Travel,5542,4,22168,MakeMyTrip
+2024-02-08,P004,Desk,Office,8920,9,80280,Swiggy
+2024-02-08,P005,Software License,Software,21274,6,127644,Flipkart
+2024-02-08,P005,Software License,Software,23512,9,211608,Amazon
+2024-02-08,P001,Laptop,Electronics,50427,3,151281,Swiggy
+2024-02-08,P004,Desk,Office,7404,2,14808,Uber
+2024-02-08,P007,Hotel Booking,Travel,6267,3,18801,MakeMyTrip
+2024-02-08,P006,Flight Ticket,Travel,6938,7,48566,MakeMyTrip
+2024-02-08,P001,Laptop,Electronics,54300,4,217200,Flipkart
+2024-02-08,P001,Laptop,Electronics,53466,10,534660,Amazon
+2024-02-09,P006,Flight Ticket,Travel,6366,6,38196,MakeMyTrip
+2024-02-09,P007,Hotel Booking,Travel,6760,10,67600,Amazon
+2024-02-09,P006,Flight Ticket,Travel,7236,9,65124,MakeMyTrip
+2024-02-09,P003,Office Chair,Office,4874,3,14622,Flipkart
+2024-02-09,P003,Office Chair,Office,5865,4,23460,MakeMyTrip
+2024-02-09,P005,Software License,Software,19161,5,95805,Uber
+2024-02-09,P006,Flight Ticket,Travel,6585,10,65850,Swiggy
+2024-02-09,P007,Hotel Booking,Travel,6125,8,49000,Flipkart
+2024-02-09,P004,Desk,Office,9418,6,56508,Uber
+2024-02-09,P004,Desk,Office,8015,5,40075,MakeMyTrip
+2024-02-09,P002,Printer,Electronics,13798,10,137980,Uber
+2024-02-09,P005,Software License,Software,21525,3,64575,Amazon
+2024-02-09,P007,Hotel Booking,Travel,6808,4,27232,Amazon
+2024-02-09,P005,Software License,Software,19908,5,99540,Uber
+2024-02-09,P008,Food Catering,Food,3319,2,6638,Uber
+2024-02-09,P003,Office Chair,Office,4705,2,9410,Swiggy
+2024-02-09,P008,Food Catering,Food,2754,9,24786,Uber
+2024-02-09,P008,Food Catering,Food,3569,9,32121,Amazon
+2024-02-09,P008,Food Catering,Food,3188,8,25504,Swiggy
+2024-02-09,P005,Software License,Software,21926,8,175408,Amazon
+2024-02-09,P002,Printer,Electronics,17877,8,143016,Flipkart
+2024-02-09,P004,Desk,Office,7290,3,21870,MakeMyTrip
+2024-02-09,P004,Desk,Office,8839,7,61873,Amazon
+2024-02-09,P006,Flight Ticket,Travel,7160,2,14320,Flipkart
+2024-02-09,P002,Printer,Electronics,15269,4,61076,Amazon
+2024-02-09,P001,Laptop,Electronics,52783,6,316698,Uber
+2024-02-09,P004,Desk,Office,7422,4,29688,Uber
+2024-02-09,P002,Printer,Electronics,14939,6,89634,Amazon
+2024-02-09,P007,Hotel Booking,Travel,6353,5,31765,Uber
+2024-02-09,P006,Flight Ticket,Travel,6486,1,6486,Swiggy
+2024-02-09,P002,Printer,Electronics,15278,2,30556,Uber
+2024-02-09,P002,Printer,Electronics,17973,2,35946,Uber
+2024-02-09,P007,Hotel Booking,Travel,7067,9,63603,Flipkart
+2024-02-09,P003,Office Chair,Office,5685,9,51165,Flipkart
+2024-02-09,P003,Office Chair,Office,4618,10,46180,MakeMyTrip
+2024-02-09,P006,Flight Ticket,Travel,8083,5,40415,Flipkart
+2024-02-09,P003,Office Chair,Office,5838,7,40866,Flipkart
+2024-02-09,P005,Software License,Software,20456,10,204560,Swiggy
+2024-02-09,P005,Software License,Software,19808,9,178272,Swiggy
+2024-02-09,P008,Food Catering,Food,2911,7,20377,Swiggy
+2024-02-09,P001,Laptop,Electronics,59789,1,59789,MakeMyTrip
+2024-02-09,P008,Food Catering,Food,3384,3,10152,Flipkart
+2024-02-09,P002,Printer,Electronics,17301,3,51903,Amazon
+2024-02-09,P005,Software License,Software,21560,6,129360,Uber
+2024-02-09,P002,Printer,Electronics,14844,2,29688,Swiggy
+2024-02-09,P007,Hotel Booking,Travel,5578,4,22312,Swiggy
+2024-02-09,P001,Laptop,Electronics,47848,6,287088,Amazon
+2024-02-09,P004,Desk,Office,7618,9,68562,MakeMyTrip
+2024-02-09,P005,Software License,Software,21028,5,105140,MakeMyTrip
+2024-02-09,P001,Laptop,Electronics,49839,5,249195,Uber
+2024-02-10,P002,Printer,Electronics,17564,2,35128,Uber
+2024-02-10,P006,Flight Ticket,Travel,7896,4,31584,Flipkart
+2024-02-10,P004,Desk,Office,9482,3,28446,Amazon
+2024-02-10,P006,Flight Ticket,Travel,7909,9,71181,Swiggy
+2024-02-10,P003,Office Chair,Office,5054,7,35378,Amazon
+2024-02-10,P007,Hotel Booking,Travel,6575,10,65750,MakeMyTrip
+2024-02-10,P006,Flight Ticket,Travel,7940,10,79400,Uber
+2024-02-10,P001,Laptop,Electronics,59635,3,178905,Swiggy
+2024-02-10,P003,Office Chair,Office,5124,6,30744,Amazon
+2024-02-10,P008,Food Catering,Food,3305,10,33050,Uber
+2024-02-10,P007,Hotel Booking,Travel,5819,6,34914,Swiggy
+2024-02-10,P002,Printer,Electronics,14882,3,44646,MakeMyTrip
+2024-02-10,P004,Desk,Office,8088,2,16176,Flipkart
+2024-02-10,P005,Software License,Software,23959,3,71877,Swiggy
+2024-02-10,P008,Food Catering,Food,2716,7,19012,Uber
+2024-02-10,P005,Software License,Software,21512,5,107560,Amazon
+2024-02-10,P004,Desk,Office,8254,9,74286,Uber
+2024-02-10,P002,Printer,Electronics,17733,1,17733,Uber
+2024-02-10,P005,Software License,Software,18736,2,37472,Flipkart
+2024-02-10,P002,Printer,Electronics,16192,3,48576,Amazon
+2024-02-10,P008,Food Catering,Food,3239,8,25912,Amazon
+2024-02-10,P003,Office Chair,Office,5775,4,27536,Swiggy
+2024-02-10,P008,Food Catering,Food,3360,6,20160,Flipkart
+2024-02-10,P006,Flight Ticket,Travel,7372,3,22116,Swiggy
+2024-02-10,P005,Software License,Software,22400,2,44800,Uber
+2024-02-10,P004,Desk,Office,7756,3,23268,Flipkart
+2024-02-10,P003,Office Chair,Office,4893,4,19572,Flipkart
+2024-02-10,P007,Hotel Booking,Travel,6585,3,19755,Uber
+2024-02-10,P005,Software License,Software,21201,5,106005,MakeMyTrip
+2024-02-10,P004,Desk,Office,8219,7,57533,Uber
+2024-02-10,P007,Hotel Booking,Travel,6637,5,33185,MakeMyTrip
+2024-02-10,P002,Printer,Electronics,17380,10,173800,MakeMyTrip
+2024-02-10,P001,Laptop,Electronics,53004,3,159012,Swiggy
+2024-02-10,P002,Printer,Electronics,13640,1,13640,Uber
+2024-02-10,P008,Food Catering,Food,3531,5,17655,Flipkart
+2024-02-10,P003,Office Chair,Office,5688,3,17064,Amazon
+2024-02-10,P005,Software License,Software,21825,7,152775,Swiggy
+2024-02-10,P002,Printer,Electronics,14949,7,104643,MakeMyTrip
+2024-02-10,P004,Desk,Office,7704,2,15408,Swiggy
+2024-02-10,P006,Flight Ticket,Travel,6775,3,20325,Swiggy
+2024-02-10,P008,Food Catering,Food,2790,7,19530,Uber
+2024-02-10,P008,Food Catering,Food,2830,1,2830,Flipkart
+2024-02-10,P002,Printer,Electronics,16693,2,33386,Swiggy
+2024-02-10,P007,Hotel Booking,Travel,5987,9,53883,Amazon
+2024-02-10,P004,Desk,Office,8832,1,8832,Flipkart
+2024-02-10,P001,Laptop,Electronics,57860,5,289300,MakeMyTrip
+2024-02-10,P007,Hotel Booking,Travel,6270,1,6270,Uber
+2024-02-10,P002,Printer,Electronics,14214,1,14214,Flipkart
+2024-02-10,P004,Desk,Office,9295,5,46475,Uber
+2024-02-10,P005,Software License,Software,20161,9,181449,Uber
+2024-02-11,P002,Printer,Electronics,14881,3,44643,MakeMyTrip
+2024-02-11,P005,Software License,Software,23376,9,210384,Swiggy
+2024-02-11,P005,Software License,Software,20555,10,205550,Amazon
+2024-02-11,P004,Desk,Office,8643,1,8643,Amazon
+2024-02-11,P008,Food Catering,Food,3271,3,9813,Uber
+2024-02-11,P005,Software License,Software,20820,5,104100,Uber
+2024-02-11,P006,Flight Ticket,Travel,6329,8,50632,Amazon
+2024-02-11,P006,Flight Ticket,Travel,6904,5,34520,Uber
+2024-02-11,P006,Flight Ticket,Travel,7072,5,35360,Uber
+2024-02-11,P005,Software License,Software,20972,5,104860,Flipkart
+2024-02-11,P007,Hotel Booking,Travel,5408,9,48672,Flipkart
+2024-02-11,P002,Printer,Electronics,16175,6,97050,Amazon
+2024-02-11,P002,Printer,Electronics,14306,10,143060,Swiggy
+2024-02-11,P005,Software License,Software,21439,3,64317,Amazon
+2024-02-11,P008,Food Catering,Food,2972,10,29720,Amazon
+2024-02-11,P007,Hotel Booking,Travel,5461,6,32766,Flipkart
+2024-02-11,P006,Flight Ticket,Travel,7167,9,64503,Uber
+2024-02-11,P004,Desk,Office,8311,5,41555,Amazon
+2024-02-11,P007,Hotel Booking,Travel,6816,8,54528,Uber
+2024-02-11,P002,Printer,Electronics,16552,1,16552,MakeMyTrip
+2024-02-11,P006,Flight Ticket,Travel,8227,9,74043,Amazon
+2024-02-11,P007,Hotel Booking,Travel,5738,2,15864,Uber
+2024-02-11,P004,Desk,Office,9578,3,28734,Uber
+2024-02-11,P002,Printer,Electronics,15744,9,141696,Uber
+2024-02-11,P006,Flight Ticket,Travel,6966,4,27864,Amazon
+2024-02-11,P004,Desk,Office,8827,3,26481,Swiggy
+2024-02-11,P005,Software License,Software,21027,4,84108,MakeMyTrip
+2024-02-11,P008,Food Catering,Food,3074,9,27666,MakeMyTrip
+2024-02-11,P001,Laptop,Electronics,49526,10,495260,Uber
+2024-02-11,P003,Office Chair,Office,5396,5,26980,MakeMyTrip
+2024-02-11,P004,Desk,Office,8457,6,50742,Flipkart
+2024-02-11,P008,Food Catering,Food,3087,4,12348,Flipkart
+2024-02-11,P007,Hotel Booking,Travel,6718,7,47026,MakeMyTrip
+2024-02-11,P006,Flight Ticket,Travel,7443,3,22329,MakeMyTrip
+2024-02-11,P005,Software License,Software,22110,7,154770,MakeMyTrip
+2024-02-11,P008,Food Catering,Food,3343,5,16715,Amazon
+2024-02-11,P007,Hotel Booking,Travel,6470,7,45290,Swiggy
+2024-02-11,P007,Hotel Booking,Travel,5891,4,23564,Amazon
+2024-02-11,P004,Desk,Office,9451,9,85059,Uber
+2024-02-11,P006,Flight Ticket,Travel,7762,7,54334,Amazon
+2024-02-11,P002,Printer,Electronics,17631,4,70524,Flipkart
+2024-02-11,P003,Office Chair,Office,5099,8,40792,MakeMyTrip
+2024-02-11,P002,Printer,Electronics,17676,10,176760,MakeMyTrip
+2024-02-11,P004,Desk,Office,9378,3,28134,Uber
+2024-02-11,P003,Office Chair,Office,4644,5,23220,Swiggy
+2024-02-11,P001,Laptop,Electronics,59072,6,354432,Amazon
+2024-02-11,P008,Food Catering,Food,3596,7,25172,Swiggy
+2024-02-11,P007,Hotel Booking,Travel,7034,10,70340,Swiggy
+2024-02-11,P004,Desk,Office,8478,10,84780,Uber
+2024-02-11,P004,Desk,Office,8524,9,76716,Amazon
+2024-02-12,P002,Printer,Electronics,13709,7,95963,MakeMyTrip
+2024-02-12,P007,Hotel Booking,Travel,5508,2,11016,Flipkart
+2024-02-12,P003,Office Chair,Office,4808,5,24040,Swiggy
+2024-02-12,P004,Desk,Office,8082,6,48492,Uber
+2024-02-12,P002,Printer,Electronics,13645,10,136450,Flipkart
+2024-02-12,P002,Printer,Electronics,14986,5,74930,Amazon
+2024-02-12,P001,Laptop,Electronics,45861,10,458610,Swiggy
+2024-02-12,P007,Hotel Booking,Travel,5408,3,16224,Amazon
+2024-02-12,P007,Hotel Booking,Travel,6849,3,20547,Amazon
+2024-02-12,P005,Software License,Software,19285,4,77140,Flipkart
+2024-02-12,P006,Flight Ticket,Travel,7215,4,28860,Uber
+2024-02-12,P007,Hotel Booking,Travel,7171,7,50197,Amazon
+2024-02-12,P007,Hotel Booking,Travel,5627,4,22508,Amazon
+2024-02-12,P006,Flight Ticket,Travel,6566,1,6566,Uber
+2024-02-12,P005,Software License,Software,22781,1,22781,Flipkart
+2024-02-12,P008,Food Catering,Food,2931,5,14655,Flipkart
+2024-02-12,P003,Office Chair,Office,5311,5,26555,Swiggy
+2024-02-12,P008,Food Catering,Food,3424,10,34240,Uber
+2024-02-12,P004,Desk,Office,9198,10,91980,Amazon
+2024-02-12,P002,Printer,Electronics,15493,5,77465,Amazon
+2024-02-12,P001,Laptop,Electronics,56626,5,283130,Swiggy
+2024-02-12,P001,Laptop,Electronics,52666,4,210664,Flipkart
+2024-02-12,P002,Printer,Electronics,13699,1,13699,Uber
+2024-02-12,P005,Software License,Software,22757,7,159299,Amazon
+2024-02-12,P005,Software License,Software,23053,5,115265,Uber
+2024-02-12,P005,Software License,Software,21920,1,21920,MakeMyTrip
+2024-02-12,P005,Software License,Software,19570,6,117420,Swiggy
+2024-02-12,P002,Printer,Electronics,15515,9,139635,Uber
+2024-02-12,P004,Desk,Office,9339,3,28017,Flipkart
+2024-02-12,P008,Food Catering,Food,2883,10,28830,Flipkart
+2024-02-12,P003,Office Chair,Office,4938,4,19752,MakeMyTrip
+2024-02-12,P008,Food Catering,Food,2814,6,16884,Flipkart
+2024-02-12,P006,Flight Ticket,Travel,8059,10,80590,Swiggy
+2024-02-12,P004,Desk,Office,8340,10,83400,Uber
+2024-02-12,P002,Printer,Electronics,16118,3,48354,Uber
+2024-02-12,P001,Laptop,Electronics,59463,9,535167,Amazon
+2024-02-12,P001,Laptop,Electronics,47547,2,95094,MakeMyTrip
+2024-02-12,P005,Software License,Software,23721,9,213489,Swiggy
+2024-02-12,P006,Flight Ticket,Travel,6515,7,45605,Flipkart
+2024-02-12,P003,Office Chair,Office,4604,4,18416,MakeMyTrip
+2024-02-12,P008,Food Catering,Food,3370,6,20220,Uber
+2024-02-12,P005,Software License,Software,22509,1,22509,Swiggy
+2024-02-12,P008,Food Catering,Food,2862,4,11448,Uber
+2024-02-12,P007,Hotel Booking,Travel,6896,4,27584,Uber
+2024-02-12,P008,Food Catering,Food,2714,9,24426,Amazon
+2024-02-12,P004,Desk,Office,9438,4,37752,Amazon
+2024-02-12,P008,Food Catering,Food,3425,5,21496,Amazon
+2024-02-12,P004,Desk,Office,9022,10,90220,Swiggy
+2024-02-12,P002,Printer,Electronics,15388,7,107716,Amazon
+2024-02-12,P007,Hotel Booking,Travel,5453,4,21812,MakeMyTrip
+2024-02-13,P006,Flight Ticket,Travel,7702,9,69318,Amazon
+2024-02-13,P005,Software License,Software,18560,2,37120,Amazon
+2024-02-13,P001,Laptop,Electronics,55806,10,558060,Uber
+2024-02-13,P008,Food Catering,Food,3514,10,35140,Swiggy
+2024-02-13,P002,Printer,Electronics,16848,5,87166,MakeMyTrip
+2024-02-13,P005,Software License,Software,20714,8,165712,Uber
+2024-02-13,P003,Office Chair,Office,4695,6,28170,Amazon
+2024-02-13,P005,Software License,Software,21675,8,173400,Uber
+2024-02-13,P004,Desk,Office,7659,9,68931,Flipkart
+2024-02-13,P005,Software License,Software,22676,4,90704,Flipkart
+2024-02-13,P003,Office Chair,Office,5804,7,40628,Uber
+2024-02-13,P001,Laptop,Electronics,53695,10,541500,Swiggy
+2024-02-13,P007,Hotel Booking,Travel,7095,5,35475,MakeMyTrip
+2024-02-13,P001,Laptop,Electronics,54647,7,382529,Swiggy
+2024-02-13,P003,Office Chair,Office,5202,6,31212,Amazon
+2024-02-13,P004,Desk,Office,9380,3,28140,Flipkart
+2024-02-13,P004,Desk,Office,8532,5,42660,Flipkart
+2024-02-13,P005,Software License,Software,23267,6,139602,Swiggy
+2024-02-13,P007,Hotel Booking,Travel,5653,9,50877,Amazon
+2024-02-13,P001,Laptop,Electronics,45243,4,185937,Flipkart
+2024-02-13,P003,Office Chair,Office,5310,8,42480,MakeMyTrip
+2024-02-13,P006,Flight Ticket,Travel,7470,9,67230,MakeMyTrip
+2024-02-13,P003,Office Chair,Office,4841,6,29046,Swiggy
+2024-02-13,P003,Office Chair,Office,4852,2,9704,Amazon
+2024-02-13,P007,Hotel Booking,Travel,5932,8,47456,Swiggy
+2024-02-13,P005,Software License,Software,21937,8,175496,Uber
+2024-02-13,P007,Hotel Booking,Travel,6563,1,6563,Swiggy
+2024-02-13,P008,Food Catering,Food,2935,1,2935,MakeMyTrip
+2024-02-13,P007,Hotel Booking,Travel,5696,2,11392,Uber
+2024-02-13,P005,Software License,Software,20969,3,62907,Amazon
+2024-02-13,P004,Desk,Office,8603,6,51618,Uber
+2024-02-13,P005,Software License,Software,23205,4,92820,Flipkart
+2024-02-13,P008,Food Catering,Food,3110,2,6220,Swiggy
+2024-02-13,P008,Food Catering,Food,3213,7,22491,Swiggy
+2024-02-13,P004,Desk,Office,8367,8,66936,Swiggy
+2024-02-13,P002,Printer,Electronics,15638,9,140742,Uber
+2024-02-13,P004,Desk,Office,9200,4,36800,MakeMyTrip
+2024-02-13,P007,Hotel Booking,Travel,6499,2,14700,MakeMyTrip
+2024-02-13,P004,Desk,Office,9243,7,64701,Swiggy
+2024-02-13,P001,Laptop,Electronics,57055,3,171165,Flipkart
+2024-02-13,P008,Food Catering,Food,3467,4,13868,MakeMyTrip
+2024-02-13,P008,Food Catering,Food,2717,8,21736,Swiggy
+2024-02-13,P002,Printer,Electronics,15318,2,30636,Flipkart
+2024-02-13,P006,Flight Ticket,Travel,6842,6,41052,MakeMyTrip
+2024-02-13,P008,Food Catering,Food,2757,2,5514,MakeMyTrip
+2024-02-13,P002,Printer,Electronics,15873,2,31746,Swiggy
+2024-02-13,P004,Desk,Office,9006,5,45030,Swiggy
+2024-02-13,P008,Food Catering,Food,3238,7,22666,Flipkart
+2024-02-13,P003,Office Chair,Office,4904,3,14712,Flipkart
+2024-02-13,P002,Printer,Electronics,15203,4,60812,Amazon
+2024-02-14,P002,Printer,Electronics,17134,5,85670,Flipkart
+2024-02-14,P005,Software License,Software,22624,2,45248,MakeMyTrip
+2024-02-14,P006,Flight Ticket,Travel,8129,9,73161,MakeMyTrip
+2024-02-14,P003,Office Chair,Office,5088,9,45792,Amazon
+2024-02-14,P002,Printer,Electronics,15447,7,108129,Uber
+2024-02-14,P007,Hotel Booking,Travel,6640,10,66400,Uber
+2024-02-14,P005,Software License,Software,21538,4,86152,Flipkart
+2024-02-14,P005,Software License,Software,19760,4,79040,Flipkart
+2024-02-14,P006,Flight Ticket,Travel,7787,9,70083,Uber
+2024-02-14,P003,Office Chair,Office,5758,6,34548,Uber
+2024-02-14,P001,Laptop,Electronics,46495,5,232475,Swiggy
+2024-02-14,P008,Food Catering,Food,3343,5,16715,Flipkart
+2024-02-14,P003,Office Chair,Office,5553,6,33318,MakeMyTrip
+2024-02-14,P005,Software License,Software,21621,1,21621,MakeMyTrip
+2024-02-14,P002,Printer,Electronics,15981,3,47943,MakeMyTrip
+2024-02-14,P008,Food Catering,Food,2968,10,29680,Swiggy
+2024-02-14,P001,Laptop,Electronics,53545,10,535450,Swiggy
+2024-02-14,P006,Flight Ticket,Travel,6735,10,67350,Swiggy
+2024-02-14,P004,Desk,Office,7603,1,7603,MakeMyTrip
+2024-02-14,P002,Printer,Electronics,14555,9,130995,Swiggy
+2024-02-14,P007,Hotel Booking,Travel,7183,3,21549,MakeMyTrip
+2024-02-14,P002,Printer,Electronics,13979,6,83874,Swiggy
+2024-02-14,P001,Laptop,Electronics,53950,2,107900,Flipkart
+2024-02-14,P004,Desk,Office,8458,5,42290,Flipkart
+2024-02-14,P003,Office Chair,Office,5896,4,26879,Swiggy
+2024-02-14,P008,Food Catering,Food,3254,9,29286,Uber
+2024-02-14,P002,Printer,Electronics,17362,10,173620,Flipkart
+2024-02-14,P003,Office Chair,Office,5153,3,15459,MakeMyTrip
+2024-02-14,P004,Desk,Office,9181,1,9181,Amazon
+2024-02-14,P007,Hotel Booking,Travel,5455,5,29763,Uber
+2024-02-14,P004,Desk,Office,7334,8,58672,Flipkart
+2024-02-14,P007,Hotel Booking,Travel,6054,2,12108,Swiggy
+2024-02-14,P004,Desk,Office,7718,7,54026,Uber
+2024-02-14,P001,Laptop,Electronics,53778,8,430224,Amazon
+2024-02-14,P004,Desk,Office,9119,6,54714,Uber
+2024-02-14,P006,Flight Ticket,Travel,7210,3,21630,Uber
+2024-02-14,P008,Food Catering,Food,3152,2,6304,Flipkart
+2024-02-14,P007,Hotel Booking,Travel,7082,5,35410,Flipkart
+2024-02-14,P007,Hotel Booking,Travel,6687,1,6687,Flipkart
+2024-02-14,P001,Laptop,Electronics,59790,1,59790,Flipkart
+2024-02-14,P008,Food Catering,Food,2901,4,11604,Uber
+2024-02-14,P005,Software License,Software,21579,7,151053,Amazon
+2024-02-14,P008,Food Catering,Food,3549,8,28392,Flipkart
+2024-02-14,P007,Hotel Booking,Travel,6443,4,25772,Uber
+2024-02-14,P004,Desk,Office,8617,7,60319,Swiggy
+2024-02-14,P008,Food Catering,Food,3121,5,15605,MakeMyTrip
+2024-02-14,P004,Desk,Office,8580,6,51480,Uber
+2024-02-14,P002,Printer,Electronics,17783,2,35566,Amazon
+2024-02-14,P006,Flight Ticket,Travel,6647,8,53176,Flipkart
+2024-02-14,P007,Hotel Booking,Travel,6080,8,52809,Flipkart
+2024-02-15,P003,Office Chair,Office,5555,6,33330,Swiggy
+2024-02-15,P008,Food Catering,Food,3132,7,21924,Amazon
+2024-02-15,P002,Printer,Electronics,13899,7,97293,Swiggy
+2024-02-15,P004,Desk,Office,8717,10,87170,Amazon
+2024-02-15,P004,Desk,Office,7784,10,77840,Swiggy
+2024-02-15,P006,Flight Ticket,Travel,7746,8,61968,Amazon
+2024-02-15,P002,Printer,Electronics,17925,1,17925,MakeMyTrip
+2024-02-15,P007,Hotel Booking,Travel,6117,8,48936,Uber
+2024-02-15,P005,Software License,Software,20803,10,208030,Swiggy
+2024-02-15,P003,Office Chair,Office,5598,4,22392,Amazon
+2024-02-15,P003,Office Chair,Office,5365,3,16095,Amazon
+2024-02-15,P004,Desk,Office,8480,10,84800,MakeMyTrip
+2024-02-15,P001,Laptop,Electronics,53147,1,55921,Flipkart
+2024-02-15,P005,Software License,Software,18021,2,36042,Amazon
+2024-02-15,P001,Laptop,Electronics,53781,9,484029,Uber
+2024-02-15,P004,Desk,Office,8434,8,67472,MakeMyTrip
+2024-02-15,P001,Laptop,Electronics,52316,7,366212,Amazon
+2024-02-15,P003,Office Chair,Office,5221,1,5221,MakeMyTrip
+2024-02-15,P002,Printer,Electronics,17174,8,137392,Flipkart
+2024-02-15,P005,Software License,Software,18781,6,112686,Uber
+2024-02-15,P005,Software License,Software,20231,4,80924,MakeMyTrip
+2024-02-15,P003,Office Chair,Office,5505,4,22020,Flipkart
+2024-02-15,P008,Food Catering,Food,3403,7,28295,Uber
+2024-02-15,P007,Hotel Booking,Travel,6607,4,26428,MakeMyTrip
+2024-02-15,P008,Food Catering,Food,2899,7,20293,Amazon
+2024-02-15,P008,Food Catering,Food,3492,3,10476,Uber
+2024-02-15,P001,Laptop,Electronics,55866,9,502794,MakeMyTrip
+2024-02-15,P005,Software License,Software,19333,7,135331,Swiggy
+2024-02-15,P003,Office Chair,Office,5461,10,54610,Amazon
+2024-02-15,P003,Office Chair,Office,4762,5,23810,Amazon
+2024-02-15,P002,Printer,Electronics,14076,6,84456,Amazon
+2024-02-15,P003,Office Chair,Office,5821,1,5821,Amazon
+2024-02-15,P007,Hotel Booking,Travel,6493,8,51944,Swiggy
+2024-02-15,P001,Laptop,Electronics,48244,7,337708,MakeMyTrip
+2024-02-15,P005,Software License,Software,21468,1,21468,Swiggy
+2024-02-15,P008,Food Catering,Food,3127,2,6254,Uber
+2024-02-15,P008,Food Catering,Food,3384,3,10152,Amazon
+2024-02-15,P008,Food Catering,Food,3480,4,13920,MakeMyTrip
+2024-02-15,P001,Laptop,Electronics,50677,2,101354,Amazon
+2024-02-15,P003,Office Chair,Office,4788,5,23940,MakeMyTrip
+2024-02-15,P001,Laptop,Electronics,59829,3,179487,Amazon
+2024-02-15,P006,Flight Ticket,Travel,7004,4,28016,Uber
+2024-02-15,P008,Food Catering,Food,3561,10,35610,Uber
+2024-02-15,P001,Laptop,Electronics,50882,3,152646,Flipkart
+2024-02-15,P003,Office Chair,Office,4516,9,40644,Flipkart
+2024-02-15,P007,Hotel Booking,Travel,6025,5,30125,Flipkart
+2024-02-15,P007,Hotel Booking,Travel,7028,4,28112,Uber
+2024-02-15,P001,Laptop,Electronics,46435,1,46435,Flipkart
+2024-02-15,P006,Flight Ticket,Travel,8205,7,57435,Swiggy
+2024-02-15,P007,Hotel Booking,Travel,7108,4,28432,Swiggy

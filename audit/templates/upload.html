@@ -13,156 +13,119 @@
   }
 
   .upload-zone {
-    border: 2px dashed var(--border-bright);
-    border-radius: var(--r-lg);
-    padding: 48px 24px;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--r-md);
+    padding: 60px 24px;
     text-align: center;
     cursor: pointer;
-    transition: all var(--dur) var(--ease);
-    background: var(--bg-elevated);
+    transition: var(--transition);
+    background: white;
   }
 
   .upload-zone:hover,
   .upload-zone.dragover {
-    border-color: var(--accent);
-    background: rgba(59, 130, 246, 0.08);
+    border-color: var(--text-purple);
+    background: var(--accent-subtle);
   }
 
   .upload-icon {
-    width: 56px;
-    height: 56px;
-    margin: 0 auto 16px;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: var(--accent-subtle);
-    border-radius: var(--r-md);
-    color: var(--accent);
+    border-radius: 50%;
+    color: var(--text-purple);
   }
 
   .upload-icon svg {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
   }
 
   .upload-text {
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text-main);
     margin-bottom: 8px;
   }
 
   .upload-subtext {
     color: var(--text-muted);
     font-size: 0.95rem;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
 
-  .upload-button {
+  /* Clean Black Buttons */
+  .btn-upload-primary {
     display: inline-block;
-    padding: 10px 24px;
-    background: var(--accent);
+    padding: 12px 32px;
+    background: var(--bg-sidebar); /* Pure Black from base.html */
     color: white;
-    border-radius: var(--r-md);
+    border-radius: var(--r-sm);
     font-weight: 500;
     cursor: pointer;
-    transition: background var(--dur) var(--ease);
+    transition: var(--transition);
     border: none;
   }
 
-  .upload-button:hover {
-    background: var(--accent-hover);
+  .btn-upload-primary:hover {
+    background: #262626;
+    transform: translateY(-1px);
   }
 
-  #file-input {
-    display: none;
-  }
+  #file-input { display: none; }
 
-  .file-list {
-    margin-top: 32px;
-  }
+  /* File Items */
+  .file-list { margin-top: 40px; }
 
   .file-item {
     display: flex;
     align-items: center;
     padding: 16px;
-    background: var(--bg-elevated);
+    background: white;
     border-radius: var(--r-md);
     margin-bottom: 12px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
   }
 
   .file-icon {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: var(--accent-subtle);
     border-radius: var(--r-sm);
-    color: var(--accent);
+    color: var(--text-purple);
     margin-right: 16px;
     flex-shrink: 0;
   }
 
-  .file-info {
-    flex: 1;
-    min-width: 0;
-  }
+  .file-info { flex: 1; min-width: 0; }
 
   .file-name {
-    color: var(--text-primary);
-    font-weight: 500;
-    margin-bottom: 4px;
-    word-break: break-all;
+    color: var(--text-main);
+    font-weight: 600;
+    margin-bottom: 2px;
   }
 
-  .file-size {
+  .file-meta {
     color: var(--text-muted);
     font-size: 0.85rem;
-  }
-
-  .file-progress {
-    width: 100%;
-    height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    margin-bottom: 8px;
-    overflow: hidden;
-  }
-
-  .file-progress-bar {
-    height: 100%;
-    background: var(--accent);
-    width: 0%;
-    transition: width 300ms ease;
   }
 
   .file-status {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
-  .file-status.uploading {
-    color: var(--accent);
-  }
-
-  .file-status.success {
-    color: var(--risk-low);
-  }
-
-  .file-status.error {
-    color: var(--risk-critical);
-  }
-
-  .file-actions {
-    display: flex;
-    gap: 8px;
-    margin-left: 16px;
-  }
+  .status-pending { color: var(--text-purple); }
+  .status-success { color: #10b981; }
 
   .btn-remove {
     width: 32px;
@@ -170,114 +133,101 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(239, 68, 68, 0.1);
-    border: none;
-    border-radius: var(--r-sm);
-    color: var(--risk-critical);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    color: #ef4444;
     cursor: pointer;
-    transition: background var(--dur) var(--ease);
-    flex-shrink: 0;
+    transition: var(--transition);
   }
 
   .btn-remove:hover {
-    background: rgba(239, 68, 68, 0.2);
+    background: #fef2f2;
+    border-color: #fecaca;
   }
 
+  /* Info Box with Purple Accents */
   .upload-info {
-    background: var(--accent-subtle);
-    border: 1px solid var(--accent-glow);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
     border-radius: var(--r-md);
-    padding: 16px;
-    margin-top: 24px;
-    color: var(--text-secondary);
+    padding: 20px;
+    margin-top: 32px;
+    color: var(--text-main);
     font-size: 0.9rem;
     line-height: 1.6;
   }
 
-  .upload-info strong {
-    color: var(--accent);
+  .upload-info strong { color: var(--text-purple); font-weight: 600; }
+
+  .history-header {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    color: var(--text-main);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
-  .spinner {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(59, 130, 246, 0.3);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
+  .history-header i { color: var(--text-purple); }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- ── PAGE HEADER ─────────────────────────────────────────── -->
-<div class="page-header fade-up">
-  <h1>Upload Financial Data</h1>
-  <p>Upload CSV or Excel files containing transaction data for anomaly detection analysis</p>
-</div>
+<div class="fade-in">
+  <div style="margin-bottom: 32px;">
+    <h2 style="font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Upload Financial Data</h2>
+    <p style="color: var(--text-muted);">Process CSV or Excel files for autonomous anomaly detection.</p>
+  </div>
 
-<!-- ── UPLOAD SECTION ─────────────────────────────────────── -->
-<div class="upload-container fade-up">
-
-  <!-- Upload Zone -->
-  <div class="upload-zone" id="uploadZone">
-    <div class="upload-icon">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
-      </svg>
+  <div class="upload-container">
+    <div class="upload-zone" id="uploadZone">
+      <div class="upload-icon">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+        </svg>
+      </div>
+      <div class="upload-text">Select a file or drag and drop here</div>
+      <div class="upload-subtext">Supported formats: .CSV, .XLSX (Max 50MB)</div>
+      <button type="button" class="btn-upload-primary" id="selectFilesBtn">Browse Files</button>
+      <input type="file" id="file-input" multiple accept=".csv,.xlsx,.xls">
     </div>
-    <div class="upload-text">Drag and drop files here</div>
-    <div class="upload-subtext">or</div>
-    <button type="button" class="upload-button" id="selectFilesBtn">Select Files</button>
-    <input type="file" id="file-input" multiple accept=".csv,.xlsx,.xls">
-  </div>
 
-  <!-- File List -->
-  <div class="file-list" id="fileList" style="display: none;">
-    <div style="color: var(--text-secondary); font-weight: 500; margin-bottom: 12px;">
-      Files to upload:
+    <div class="file-list" id="fileList" style="display: none;">
+      <div class="history-header"><i class="fa-solid fa-list-check"></i> Pending Queue</div>
+      <div id="filesContainer"></div>
+      
+      <div style="display: flex; gap: 12px; margin-top: 24px;">
+        <button type="button" class="btn-upload-primary" id="uploadBtn" style="background: var(--text-purple);">
+          Process Analysis
+        </button>
+        <button type="button" id="clearBtn" style="padding: 12px 24px; background: white; color: var(--text-main); border: 1px solid var(--border-color); border-radius: var(--r-sm); cursor: pointer; font-weight: 500;">
+          Clear All
+        </button>
+      </div>
     </div>
-    <div id="filesContainer"></div>
-    <div style="display: flex; gap: 12px; margin-top: 16px;">
-      <button type="button" class="upload-button" id="uploadBtn"
-        style="background: var(--risk-low); padding: 12px 24px; font-weight: 600;">
-        Upload Files
-      </button>
-      <button type="button" id="clearBtn"
-        style="padding: 12px 24px; background: var(--border); color: var(--text-primary); border: none; border-radius: var(--r-md); cursor: pointer; font-weight: 500;">
-        Clear
-      </button>
+
+    <div class="upload-info">
+      <div style="display: flex; gap: 12px; align-items: flex-start;">
+        <i class="fa-solid fa-circle-info" style="color: var(--text-purple); margin-top: 4px;"></i>
+        <div>
+          <strong>Analysis Requirements:</strong> Ensure your files include columns for <strong>Transaction Date</strong>, <strong>Amount</strong>, and <strong>Entity ID</strong>. Multi-file uploads will be merged into a single audit session.
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- Info Box -->
-  <div class="upload-info">
-    <strong>Supported Formats:</strong> CSV (.csv), Excel (.xlsx, .xls)
-    <br>
-    <strong>Maximum File Size:</strong> 50 MB per file
-    <br>
-    <strong>Expected Columns:</strong> Date, Amount, Account ID, Description (or similar)
-  </div>
-
-</div>
-
-<!-- ── UPLOADED FILES ─────────────────────────────────────── -->
-<div class="upload-container fade-up" style="margin-top: 48px;">
-  <div style="color: var(--text-secondary); font-weight: 500; margin-bottom: 16px;">
-    Recent Uploads
-  </div>
-  <div id="uploadedFilesList" style="display: none;">
-    <!-- Files will be loaded here -->
-  </div>
-  <div id="noUploads" style="text-align: center; padding: 32px; color: var(--text-muted);">
-    No files uploaded yet
+    <div style="margin-top: 60px;">
+      <div class="history-header">
+        <i class="fa-solid fa-clock-rotate-left"></i> Recent Activity
+      </div>
+      <div id="uploadedFilesList" style="display: none;"></div>
+      <div id="noUploads" style="text-align: center; padding: 40px; border: 1px dashed var(--border-color); border-radius: var(--r-md); color: var(--text-muted); font-size: 0.9rem;">
+        No previous upload activity found.
+      </div>
+    </div>
   </div>
 </div>
 
@@ -303,71 +253,10 @@ const noUploads = document.getElementById('noUploads');
 
 let selectedFiles = new Map();
 
-async function uploadInvoice() {
-    const fileInput = document.getElementById("fileInput");
-    const file = fileInput.files[0];
-
-    if (!file) {
-        alert("Select a file first");
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-        const response = await fetch("http://127.0.0.1:8000/api/invoice/upload/", {
-            method: "POST",
-            body: formData
-        });
-
-        const data = await response.json();
-
-        document.getElementById("result").innerHTML = `
-            <h3>Result</h3>
-            <p><b>Amount:</b> ${data.amount}</p>
-            <p><b>Risk:</b> ${data.risk}</p>
-            <p><b>Mismatch:</b> ${data.mismatch}</p>
-            <p><b>Text:</b> ${data.text}</p>
-        `;
-    } catch (error) {
-        console.error(error);
-        alert("Upload failed");
-    }
-}
-
-// Get CSRF token from meta tag or cookie
 function getCSRFToken() {
-  const token = document.querySelector('[name=csrfmiddlewaretoken]') || 
-                document.querySelector('meta[name="csrf-token"]');
-  
-  if (token && token.content) {
-    return token.content;
-  }
-  if (token && token.value) {
-    return token.value;
-  }
-  
-  // Fallback to cookie
-  return getCookie('csrftoken');
+  return document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
 }
 
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
-
-// File selection
 selectFilesBtn.addEventListener('click', () => fileInput.click());
 
 fileInput.addEventListener('change', (e) => {
@@ -375,7 +264,6 @@ fileInput.addEventListener('change', (e) => {
   fileInput.value = '';
 });
 
-// Drag and drop
 uploadZone.addEventListener('dragover', (e) => {
   e.preventDefault();
   uploadZone.classList.add('dragover');
@@ -393,10 +281,16 @@ uploadZone.addEventListener('drop', (e) => {
 
 function addFiles(files) {
   for (let file of files) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!['csv', 'xlsx', 'xls'].includes(ext)) {
+      alert("Please upload supported financial formats (.csv, .xlsx)");
+      continue;
+    }
+
     if (!selectedFiles.has(file.name)) {
       selectedFiles.set(file.name, {
         file: file,
-        id: Date.now() + Math.random(),
+        id: Math.random().toString(36).substr(2, 9),
         status: 'pending'
       });
     }
@@ -413,55 +307,27 @@ function renderFileList() {
   fileList.style.display = 'block';
   filesContainer.innerHTML = '';
 
-  for (let [name, data] of selectedFiles) {
-    const fileItem = document.createElement('div');
-    fileItem.className = 'file-item';
-    fileItem.id = 'file-' + data.id;
-
-    const sizeKB = (data.file.size / 1024).toFixed(2);
-    let statusHTML = '';
-
-    if (data.status === 'uploading') {
-      statusHTML = `
-        <div class="file-progress">
-          <div class="file-progress-bar" style="width: ${data.progress || 0}%"></div>
-        </div>
-        <div class="file-status uploading">
-          <span class="spinner"></span>
-          Uploading (${data.progress || 0}%)
-        </div>
-      `;
-    } else if (data.status === 'success') {
-      statusHTML = `<div class="file-status success">✓ Uploaded</div>`;
-    } else if (data.status === 'error') {
-      statusHTML = `<div class="file-status error">✗ ${data.error || 'Upload failed'}</div>`;
-    } else {
-      statusHTML = `<div class="file-status">Ready to upload</div>`;
-    }
-
-    fileItem.innerHTML = `
-      <div class="file-icon">
-        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M9 12h3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-        </svg>
-      </div>
+  selectedFiles.forEach((data, name) => {
+    const sizeMB = (data.file.size / (1024 * 1024)).toFixed(2);
+    const item = document.createElement('div');
+    item.className = 'file-item fade-in';
+    item.innerHTML = `
+      <div class="file-icon"><i class="fa-solid fa-file-csv"></i></div>
       <div class="file-info">
         <div class="file-name">${name}</div>
-        <div class="file-size">${sizeKB} KB</div>
-        ${statusHTML}
+        <div class="file-meta">${sizeMB} MB • <span class="file-status status-pending">Ready to Process</span></div>
       </div>
       <div class="file-actions">
-        <button type="button" class="btn-remove" onclick="removeFile('${data.id}')">×</button>
+        <button class="btn-remove" onclick="removeFile('${data.id}')"><i class="fa-solid fa-xmark"></i></button>
       </div>
     `;
-    filesContainer.appendChild(fileItem);
-  }
+    filesContainer.appendChild(item);
+  });
 }
 
 function removeFile(id) {
   for (let [name, data] of selectedFiles) {
-    if (data.id == id) {
+    if (data.id === id) {
       selectedFiles.delete(name);
       break;
     }
@@ -474,63 +340,28 @@ clearBtn.addEventListener('click', () => {
   renderFileList();
 });
 
-uploadBtn.addEventListener('click', uploadFiles);
-
-async function uploadFiles() {
+uploadBtn.addEventListener('click', async () => {
   if (selectedFiles.size === 0) return;
-
   uploadBtn.disabled = true;
+  uploadBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
 
-  for (let [name, data] of selectedFiles) {
-    if (data.status !== 'pending') continue;
+  const formData = new FormData();
+  selectedFiles.forEach((data) => formData.append('files', data.file));
 
-    data.status = 'uploading';
-    data.progress = 0;
-    renderFileList();
-
-    try {
-      const formData = new FormData();
-      formData.append('file', data.file);
-
-      const xhr = new XMLHttpRequest();
-
-      xhr.upload.addEventListener('progress', (e) => {
-        if (e.lengthComputable) {
-          data.progress = Math.round((e.loaded / e.total) * 100);
-          renderFileList();
-        }
-      });
-
-      xhr.addEventListener('load', () => {
-        if (xhr.status === 200 || xhr.status === 201) {
-          data.status = 'success';
-          loadUploadedFiles();
-        } else {
-          data.status = 'error';
-          data.error = 'HTTP ' + xhr.status;
-        }
-        renderFileList();
-      });
-
-      xhr.addEventListener('error', () => {
-        data.status = 'error';
-        data.error = 'Network error';
-        renderFileList();
-      });
-
-      xhr.open('POST', '/api/upload/');
-      xhr.setRequestHeader('X-CSRFToken', getCSRFToken());
-      xhr.send(formData);
-
-    } catch (err) {
-      data.status = 'error';
-      data.error = err.message;
-      renderFileList();
-    }
+  try {
+    const response = await fetch('/upload/', {
+      method: 'POST',
+      body: formData,
+      headers: { 'X-CSRFToken': getCSRFToken() }
+    });
+    if(response.ok) window.location.href = "/anomalies/";
+    else throw new Error("Server responded with an error");
+  } catch (err) {
+    alert("Analysis failed: " + err.message);
+    uploadBtn.disabled = false;
+    uploadBtn.innerText = 'Process Analysis';
   }
-
-  uploadBtn.disabled = false;
-}
+});
 
 function loadUploadedFiles() {
   fetch('/api/uploads/')
@@ -538,16 +369,11 @@ function loadUploadedFiles() {
     .then(data => {
       if (data.files && data.files.length > 0) {
         uploadedFilesList.innerHTML = data.files.map(f => `
-          <div class="file-item" style="cursor: default;">
-            <div class="file-icon" style="background: var(--risk-low-bg); color: var(--risk-low);">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/>
-              </svg>
-            </div>
+          <div class="file-item">
+            <div class="file-icon" style="color: #10b981; background: #ecfdf5;"><i class="fa-solid fa-circle-check"></i></div>
             <div class="file-info">
               <div class="file-name">${f.name}</div>
-              <div class="file-size">${new Date(f.uploaded_at).toLocaleString()}</div>
-              <div class="file-status success">✓ ${f.row_count} rows processed</div>
+              <div class="file-meta">Analyzed on ${new Date(f.uploaded_at).toLocaleDateString()}</div>
             </div>
           </div>
         `).join('');
@@ -556,9 +382,6 @@ function loadUploadedFiles() {
       }
     });
 }
-
-// Load initial uploaded files
 loadUploadedFiles();
 </script>
-
 {% endblock %}

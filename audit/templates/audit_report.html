@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Audit Intelligence Report{% endblock %}
+
+{% block content %}
+<div class="container report-wrapper">
+  
+  <div class="header-section">
+    <h1>Audit Intelligence Report</h1>
+    <div class="action-buttons">
+        <a href="{% url 'download_report' %}" class="btn-download">Download PDF Report</a>
+    </div>
+  </div>
+
+  <div class="card ai-insight-card">
+    <div class="card-header">
+      <h2>AI Executive Summaries</h2>
+      <span class="ai-badge">Gemini 2.5 Analysis</span>
+    </div>
+    <div class="ai-content">
+      <div class="summary-item">
+        <strong>Employee Analysis</strong> 
+        <p>{{ employee_summary }}</p>
+      </div>
+      <div class="summary-item">
+        <strong>Departmental Analysis</strong> 
+        <p>{{ department_summary }}</p>
+      </div>
+      <div class="summary-item">
+        <strong>Goods & Inventory</strong> 
+        <p>{{ goods_summary }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-container-grid">
+    <div class="card chart-card">
+      <h3>Employee Risk</h3>
+      <div class="chart-wrapper">
+        <canvas id="employeeChart"></canvas>
+      </div>
+    </div>
+    <div class="card chart-card">
+      <h3>Department Anomaly</h3>
+      <div class="chart-wrapper">
+        <canvas id="deptChart"></canvas>
+      </div>
+    </div>
+    <div class="card chart-card">
+      <h3>Goods Deviation</h3>
+      <div class="chart-wrapper">
+        <canvas id="goodsChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="tables-section">
+    <div class="card mt-4">
+        <div class="card-header"><h2>Detailed Employee Audit</h2></div>
+        <div class="table-wrapper">
+            <table class="audit-table">
+                <thead>
+                    <tr>
+                        <th>Employee ID</th>
+                        <th>Calculated Risk</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in results.employee %}
+                    <tr>
+                        <td><strong>{{ r.emp_id_original }}</strong></td>
+                        <td>{{ r.risk_score|floatformat:4 }}</td>
+                        <td>
+                            {% if r.risk_score < -0.1 %}
+                                <span class="status-pill crit">CRITICAL</span>
+                            {% elif r.risk_score < -0.05 %}
+                                <span class="status-pill hi">HIGH</span>
+                            {% else %}
+                                <span class="status-pill ok">STABLE</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header"><h2>Detailed Goods Audit</h2></div>
+        <div class="table-wrapper">
+            <table class="audit-table">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Anomaly Score</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for g in results.goods %}
+                    <tr>
+                        <td><strong>{{ g.product_name }}</strong></td>
+                        <td>{{ g.raw_score|floatformat:4 }}</td>
+                        <td>
+                            {% if g.raw_score > 50 %}
+                                <span class="status-pill crit">FLAGGED</span>
+                            {% else %}
+                                <span class="status-pill ok">NORMAL</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { 
+        legend: { display: false } 
+    },
+    scales: {
+        y: { 
+            grid: { color: '#e2e8f0' }, 
+            ticks: { color: '#64748b', font: { weight: '600' } } 
+        },
+        x: { 
+            grid: { display: false }, 
+            ticks: { color: '#64748b', font: { weight: '600' } } 
+        }
+    }
+};
+
+const getBarColor = (data) => data.map(v => 
+    Math.abs(v) > 0.1 ? '#dc2626' : Math.abs(v) > 0.05 ? '#d97706' : '#059669'
+);
+
+// 1. Employee Chart
+new Chart(document.getElementById('employeeChart'), {
+  type: 'bar',
+  data: {
+    labels: {{ employee_json|safe }},
+    datasets: [{
+      label: 'Risk Score',
+      data: {{ emp_scores_json|safe }},
+      backgroundColor: getBarColor({{ emp_scores_json|safe }}),
+      borderRadius: 4
+    }]
+  },
+  options: commonOptions
+});
+
+// 2. Department Chart
+new Chart(document.getElementById('deptChart'), {
+  type: 'bar',
+  data: {
+    labels: {{ dept_json|safe }},
+    datasets: [{
+      label: 'Anomaly Score',
+      data: {{ dept_scores_json|safe }},
+      backgroundColor: '#2563eb',
+      borderRadius: 4
+    }]
+  },
+  options: commonOptions
+});
+
+// 3. Goods Chart
+new Chart(document.getElementById('goodsChart'), {
+  type: 'line',
+  data: {
+    labels: {{ goods_json|safe }},
+    datasets: [{
+      label: 'Deviation Score',
+      data: {{ goods_scores_json|safe }},
+      borderColor: '#d97706',
+      backgroundColor: 'rgba(217, 119, 6, 0.1)',
+      fill: true,
+      tension: 0.4,
+      pointBackgroundColor: '#d97706'
+    }]
+  },
+  options: commonOptions
+});
+</script>
+
+<style>
+:root { 
+    --bg-light: #f8fafc; 
+    --card-bg: #ffffff; 
+    --text-dark: #1e293b; 
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --primary: #2563eb;
+    --accent: #4f46e5;
+}
+
+body { 
+    background: var(--bg-light); 
+    color: var(--text-dark); 
+    font-family: 'Inter', -apple-system, sans-serif; 
+    line-height: 1.6;
+}
+
+.report-wrapper { padding: 40px 20px; max-width: 1200px; margin: auto; }
+
+.header-section { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding-bottom: 1.5rem; 
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 2.5rem;
+}
+
+.header-section h1 { font-size: 1.75rem; font-weight: 800; color: var(--text-dark); }
+
+.btn-download { 
+    background: var(--primary); 
+    color: white; 
+    padding: 12px 24px; 
+    border-radius: 8px; 
+    text-decoration: none; 
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background 0.2s ease;
+}
+
+.btn-download:hover { background: #1d4ed8; }
+
+.card { 
+    background: var(--card-bg); 
+    padding: 1.5rem; 
+    border-radius: 12px; 
+    border: 1px solid var(--border-color); 
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
+.card-header h2 { font-size: 1.25rem; font-weight: 700; }
+
+.ai-insight-card { border-left: 5px solid var(--accent); }
+.ai-badge { 
+    background: #eef2ff; 
+    color: var(--accent); 
+    padding: 4px 12px; 
+    border-radius: 99px; 
+    font-size: 0.75rem; 
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.summary-item { margin-bottom: 1.5rem; }
+.summary-item strong { display: block; font-size: 0.9rem; color: var(--text-dark); margin-bottom: 4px; }
+.summary-item p { color: var(--text-muted); font-size: 0.95rem; }
+
+.chart-container-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+    gap: 1.5rem; 
+}
+.chart-wrapper { height: 280px; }
+.chart-card h3 { font-size: 0.9rem; margin-bottom: 1.25rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.audit-table { width: 100%; border-collapse: collapse; }
+.audit-table th { 
+    text-align: left; 
+    padding: 12px; 
+    background: #f8fafc; 
+    color: var(--text-muted); 
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--border-color);
+}
+.audit-table td { padding: 16px 12px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
+
+.status-pill { padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.02em; }
+.status-pill.crit { background: #fee2e2; color: #991b1b; }
+.status-pill.hi { background: #ffedd5; color: #9a3412; }
+.status-pill.ok { background: #dcfce7; color: #166534; }
+
+.mt-4 { margin-top: 2.5rem; }
+</style>
+{% endblock %}
