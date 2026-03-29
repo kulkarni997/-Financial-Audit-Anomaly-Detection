@@ -18,4 +18,5 @@ urlpatterns = [
     path("audit/project/", views.project_audit, name="project_audit"),
     path("audit/reimbursement/", views.reimbursement_audit, name="reimbursement_audit"),
     path("audit/approval/", views.approval_system, name="approval_system"),
+    path('download-audit/', views.download_full_project_audit_pdf, name='download_full_project_audit_pdf'),
 ]
