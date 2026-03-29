@@ -462,6 +462,11 @@ MODEL_PATH = r"C:\Users\HP\OneDrive\Desktop\EDUNET\-Financial-Audit-Anomaly-Dete
 model = joblib.load(MODEL_PATH)
 
 def project_audit(request):
+
+    import pandas as pd
+    import numpy as np
+    import json
+
     if request.method == "POST":
         form = ProjectAuditForm(request.POST, request.FILES)
 
@@ -469,53 +474,143 @@ def project_audit(request):
             user_input = form.cleaned_data
             csv_file = request.FILES["file"]
 
+            # 📥 READ CSV
             try:
                 df = pd.read_csv(csv_file)
             except Exception as e:
-                return render(request, "project_upload.html", {"form": form, "error": f"CSV Read Error: {str(e)}"})
+                return render(request, "project_upload.html", {
+                    "form": form,
+                    "error": f"CSV Read Error: {str(e)}"
+                })
 
-            # 🧹 1. CLEANING
+            # 🧹 CLEAN COLUMNS
             df.columns = df.columns.str.lower().str.strip()
-            df['transaction_date'] = pd.to_datetime(df['transaction_date'], errors='coerce')
+
+            # 🗓 DATE FIX
+            df['transaction_date'] = pd.to_datetime(
+                df.get('transaction_date'),
+                dayfirst=True,
+                errors='coerce'
+            )
             df['month'] = df['transaction_date'].dt.month.fillna(0)
-            df['day_name'] = df['transaction_date'].dt.day_name()
 
-            # 🧩 2. METADATA
-            df['project_type'] = user_input['project_type']
-            df['department'] = user_input['department']
-            for col in ['vendor', 'service_type', 'approval_status']:
-                if col not in df.columns: df[col] = "Unknown"
+            # 📊 NUMERIC CLEANING
+            df['actual_spend'] = pd.to_numeric(df.get('actual_spend'), errors='coerce').fillna(0)
+            df['planned_budget'] = pd.to_numeric(df.get('planned_budget'), errors='coerce')
 
-            # 📊 3. FEATURE ENGINEERING
             total_planned = float(user_input['total_planned_budget'])
-            if 'planned_budget' not in df.columns:
+
+            if df['planned_budget'].isna().all():
                 df['planned_budget'] = total_planned / max(len(df), 1)
 
+            df['planned_budget'] = df['planned_budget'].fillna(total_planned / max(len(df), 1))
+
+            # 🧠 FEATURES
             df['overrun_ratio'] = df['actual_spend'] / (df['planned_budget'] + 1)
             df['budget_gap'] = df['actual_spend'] - df['planned_budget']
             df['log_actual'] = np.log1p(df['actual_spend'])
-            df['log_budget'] = np.log1p(df['planned_budget'])
 
-            # 🤖 4. AI MODEL
+            # 🧩 CATEGORICAL
+            cat_cols = ['project_type', 'department', 'service_type', 'vendor', 'approval_status']
+            for col in cat_cols:
+                if col not in df.columns:
+                    df[col] = "Unknown"
+                df[col] = df[col].astype(str).fillna("Unknown")
+
+            # 🤖 MODEL INPUT (PIPELINE SAFE)
+            model_features = [
+                'planned_budget',
+                'actual_spend',
+                'overrun_ratio',
+                'budget_gap',
+                'log_actual',
+                'month',
+                'project_type',
+                'department',
+                'service_type',
+                'vendor'
+            ]
+
+            X = df[model_features].copy()
+
+            for col in ['planned_budget', 'actual_spend', 'overrun_ratio', 'budget_gap', 'log_actual', 'month']:
+                X[col] = pd.to_numeric(X[col], errors='coerce').fillna(0)
+
+            # 🤖 PREDICT
             try:
-                df['is_anomaly_raw'] = model.predict(df)
-                df['anomaly_score'] = model.decision_function(df)
+                df['is_anomaly_raw'] = model.predict(X)
+                df['anomaly_score'] = model.decision_function(X)
             except Exception as e:
+                print("MODEL ERROR:", e)
                 df['is_anomaly_raw'] = np.where(df['overrun_ratio'] > 2.0, -1, 1)
                 df['anomaly_score'] = 0
 
-            # ⚠️ 5. RISK LOGIC
+            # 🔥 RISK LOGIC
+            flexibility = user_input['budget_flexibility']
             flex_map = {"Strict": 1.1, "Moderate": 1.5, "Flexible": 2.0}
-            limit = flex_map.get(user_input['budget_flexibility'], 1.5)
-            top_95th = df['actual_spend'].quantile(0.95)
-            df['risk_level'] = 'Low Risk'
-            df.loc[((df['is_anomaly_raw'] == -1) & (df['overrun_ratio'] > limit)) | 
-                   (df['overrun_ratio'] > 5.0) | (df['actual_spend'] >= top_95th), 'risk_level'] = 'HIGH RISK'
+            limit = flex_map.get(flexibility, 1.5)
 
-            # 📊 6. DATA AGGREGATION FOR 6 GRAPHS
-            hr_df = df[df['risk_level'] == 'HIGH RISK'].copy()
-            day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-            
+            def compute_risk(row):
+                score = 0
+
+                if row['is_anomaly_raw'] == -1:
+                    score += 2
+                if row['overrun_ratio'] > limit:
+                    score += 2
+                elif row['overrun_ratio'] > 1:
+                    score += 1
+                if row['actual_spend'] > df['actual_spend'].quantile(0.95):
+                    score += 2
+                if flexibility == "Strict":
+                    score += 1
+
+                if score >= 5:
+                    return "HIGH RISK"
+                elif score >= 3:
+                    return "MEDIUM RISK"
+                else:
+                    return "LOW RISK"
+
+            df['risk_level'] = df.apply(compute_risk, axis=1)
+
+            hr_df = df[df['risk_level'] == 'HIGH RISK']
+
+            # =====================================================
+            # 📊 🔥 CHART DATA (MATCHES YOUR HTML EXACTLY)
+            # =====================================================
+
+            # 1. Burn Velocity
+            g1 = df.sort_values('transaction_date')
+            g1_labels = g1['transaction_date'].dt.strftime('%d-%m').fillna("").tolist()
+            g1_data = g1['actual_spend'].tolist()
+
+            # 2. Vendor Risk
+            g2 = df.groupby('vendor')['actual_spend'].sum().sort_values(ascending=False).head(5)
+            g2_labels = g2.index.tolist()
+            g2_data = g2.values.tolist()
+
+            # 3. Category Volatility
+            g3 = df.groupby('service_type')['actual_spend'].std().fillna(0)
+            g3_labels = g3.index.tolist()
+            g3_data = g3.values.tolist()
+
+            # 4. Approval Integrity
+            g4 = df.groupby('approval_status')['overrun_ratio'].mean().fillna(0)
+            g4_labels = g4.index.tolist()
+            g4_data = g4.values.tolist()
+
+            # 5. Temporal
+            g5 = df.groupby('month')['actual_spend'].sum()
+            g5_labels = g5.index.astype(str).tolist()
+            g5_data = g5.values.tolist()
+
+            # 6. Scatter
+            g6 = df[['actual_spend', 'anomaly_score']].to_dict(orient='records')
+
+            # =====================================================
+            # 📊 SUMMARY
+            # =====================================================
+
             summary = {
                 "meta": user_input,
                 "total_records": int(len(df)),
@@ -523,23 +618,31 @@ def project_audit(request):
                 "confidence": round(100 - (len(hr_df) / max(len(df), 1) * 100), 2),
                 "total_spent": float(df['actual_spend'].sum()),
                 "leakage": float(hr_df['actual_spend'].sum()),
-                "over_budget_x": round(df['actual_spend'].sum() / total_planned, 1) if total_planned > 0 else 0,
+                "over_budget_ratio": round(df['actual_spend'].sum() / total_planned, 2) if total_planned > 0 else 0,
                 "all_high_risks": hr_df.sort_values('actual_spend', ascending=False).to_dict(orient="records"),
-                
-                # GRAPH DATA
-                "g1_burn_labels": df.groupby('month')['actual_spend'].sum().cumsum().index.tolist(),
-                "g1_burn_data": df.groupby('month')['actual_spend'].sum().cumsum().values.tolist(),
-                "g2_vendor_labels": hr_df['vendor'].value_counts().head(5).index.tolist(),
-                "g2_vendor_data": hr_df['vendor'].value_counts().head(5).values.tolist(),
-                "g3_cat_labels": df.groupby('service_type')['overrun_ratio'].mean().nlargest(5).index.tolist(),
-                "g3_cat_data": df.groupby('service_type')['overrun_ratio'].mean().nlargest(5).values.tolist(),
-                "g4_app_labels": list(df['approval_status'].unique()),
-                "g4_app_risk": df[df['risk_level']=='HIGH RISK']['approval_status'].value_counts().tolist(),
-                "g5_temp_labels": day_order,
-                "g5_temp_data": df.groupby('day_name')['actual_spend'].mean().reindex(day_order).fillna(0).tolist(),
-                "g6_scatter": df[['actual_spend', 'anomaly_score', 'risk_level']].head(150).to_dict(orient="records")
+
+                # 🔥 GRAPH DATA (CRITICAL)
+                "g1_burn_labels": json.dumps(g1_labels),
+                "g1_burn_data": json.dumps(g1_data),
+
+                "g2_vendor_labels": json.dumps(g2_labels),
+                "g2_vendor_data": json.dumps(g2_data),
+
+                "g3_cat_labels": json.dumps(g3_labels),
+                "g3_cat_data": json.dumps(g3_data),
+
+                "g4_app_labels": json.dumps(g4_labels),
+                "g4_app_risk": json.dumps(g4_data),
+
+                "g5_temp_labels": json.dumps(g5_labels),
+                "g5_temp_data": json.dumps(g5_data),
+
+                "g6_scatter": json.dumps(g6),
             }
+
             return render(request, "project_results.html", {"summary": summary})
+
     else:
         form = ProjectAuditForm()
+
     return render(request, "project_upload.html", {"form": form})
