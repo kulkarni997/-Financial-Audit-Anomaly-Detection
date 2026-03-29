@@ -14,7 +14,7 @@
             --border: #e2e8f0; 
         }
 
-        * { box-sizing: border-box; } /* Ensures padding doesn't break width */
+        * { box-sizing: border-box; }
 
         body { 
             background: var(--bg); 
@@ -28,7 +28,6 @@
             align-items: center;
         }
 
-        /* Container to keep everything centered and constrained */
         .main-container {
             width: 100%;
             max-width: 1200px;
@@ -93,7 +92,6 @@
             gap: 25px; 
         }
 
-        /* Responsive fix for small mobile screens */
         @media (max-width: 500px) {
             .charts-grid { grid-template-columns: 1fr; }
         }
@@ -102,10 +100,10 @@
             background: var(--card); 
             padding: 20px; 
             border-radius: 16px; 
-            height: 380px; /* Increased height for better graph visibility */
+            height: 380px; 
             border: 1px solid var(--border); 
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            position: relative; /* Required for Chart.js responsive sizing */
+            position: relative; 
         }
 
         .chart-box h3 { 
@@ -118,7 +116,6 @@
             padding-bottom: 10px;
         }
 
-        /* Ensures the canvas actually stays inside the box */
         .chart-container {
             position: relative;
             height: 280px;
@@ -132,7 +129,7 @@
             border-radius: 16px; 
             border: 1px solid var(--border);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-            overflow-x: auto; /* Table scroll for mobile */
+            overflow-x: auto; 
         }
 
         .table-title { 
@@ -171,7 +168,7 @@
 
 <div class="main-container">
     <div class="header">
-        <h1>FINANCE FORENSICS | {{ summary.meta.project_name }}</h1>
+        <h1>FINANCE DASHBOARD | {{ summary.meta.project_name }}</h1>
         <div style="font-size: 0.85rem; font-weight: 700;">STATUS: <span style="color: var(--accent);">AUDIT VERIFIED</span></div>
     </div>
 
@@ -234,24 +231,34 @@
     Chart.defaults.color = '#64748b';
     Chart.defaults.font.family = "'Inter', sans-serif";
 
-    const chartConf = (id, type, labels, data, color) => {
+    // Professional Graph Palette (Violets & Blues)
+    const graphPalette = ['#7c3aed', '#6366f1', '#8b5cf6', '#a78bfa', '#4f46e5', '#c4b5fd', '#94a3b8'];
+
+    const chartConf = (id, type, labels, data, baseColor) => {
         new Chart(document.getElementById(id), {
             type: type,
             data: {
                 labels: labels,
                 datasets: [{
                     data: data, 
-                    backgroundColor: type === 'pie' ? ['#7c3aed', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe'] : color, 
-                    borderColor: color,
+                    // Use multi-color palette for Pie and Bar charts for better contrast
+                    backgroundColor: (type === 'pie' || type === 'bar') ? graphPalette : baseColor,
+                    borderColor: baseColor,
                     borderWidth: 2, 
                     tension: 0.3, 
-                    fill: type==='line' ? {target: 'origin', above: 'rgba(124, 58, 237, 0.05)'} : false
+                    fill: type === 'line' ? {target: 'origin', above: 'rgba(124, 58, 237, 0.05)'} : false
                 }]
             },
             options: { 
                 responsive: true, 
                 maintainAspectRatio: false, 
-                plugins: { legend: { display: type === 'pie', position: 'bottom' } },
+                plugins: { 
+                    legend: { 
+                        display: type === 'pie', 
+                        position: 'bottom',
+                        labels: { usePointStyle: true, padding: 15 }
+                    } 
+                },
                 scales: type === 'pie' ? {} : {
                     y: { grid: { color: '#f1f5f9' }, border: { display: false } },
                     x: { grid: { display: false } }
@@ -260,10 +267,11 @@
         });
     };
 
+    // Chart Initialization with updated color logic
     chartConf('c1', 'line', {{ summary.g1_burn_labels|safe }}, {{ summary.g1_burn_data|safe }}, '#7c3aed');
     chartConf('c2', 'pie', {{ summary.g2_vendor_labels|safe }}, {{ summary.g2_vendor_data|safe }}, '#7c3aed');
     chartConf('c3', 'bar', {{ summary.g3_cat_labels|safe }}, {{ summary.g3_cat_data|safe }}, '#7c3aed');
-    chartConf('c4', 'bar', {{ summary.g4_app_labels|safe }}, {{ summary.g4_app_risk|safe }}, '#dc2626');
+    chartConf('c4', 'bar', {{ summary.g4_app_labels|safe }}, {{ summary.g4_app_risk|safe }}, '#dc2626'); // High risk remains red
     chartConf('c5', 'line', {{ summary.g5_temp_labels|safe }}, {{ summary.g5_temp_data|safe }}, '#7c3aed');
 
     new Chart(document.getElementById('c6'), {
@@ -272,7 +280,8 @@
             datasets: [{
                 label: 'Risk Clusters',
                 data: {{ summary.g6_scatter|safe }}.map(p => ({ x: p.actual_spend, y: p.anomaly_score })),
-                backgroundColor: '#7c3aed'
+                backgroundColor: '#7c3aed',
+                pointRadius: 5
             }]
         },
         options: { 

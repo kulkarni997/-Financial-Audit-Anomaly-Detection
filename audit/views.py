@@ -460,9 +460,7 @@ def approval_system(request):
 # Load model once
 MODEL_PATH = r"C:\Users\HP\OneDrive\Desktop\EDUNET\-Financial-Audit-Anomaly-Detection\audit\ml_assets\project_Models\advanced_audit_pipeline.pkl"
 model = joblib.load(MODEL_PATH)
-
 def project_audit(request):
-
     import pandas as pd
     import numpy as np
     import json
@@ -474,19 +472,15 @@ def project_audit(request):
             user_input = form.cleaned_data
             csv_file = request.FILES["file"]
 
-            # 📥 READ CSV
-            try:
-                df = pd.read_csv(csv_file)
-            except Exception as e:
-                return render(request, "project_upload.html", {
-                    "form": form,
-                    "error": f"CSV Read Error: {str(e)}"
-                })
-
-            # 🧹 CLEAN COLUMNS
+            # ===============================
+            # 📥 LOAD
+            # ===============================
+            df = pd.read_csv(csv_file)
             df.columns = df.columns.str.lower().str.strip()
 
-            # 🗓 DATE FIX
+            # ===============================
+            # 🗓 DATE
+            # ===============================
             df['transaction_date'] = pd.to_datetime(
                 df.get('transaction_date'),
                 dayfirst=True,
@@ -494,148 +488,199 @@ def project_audit(request):
             )
             df['month'] = df['transaction_date'].dt.month.fillna(0)
 
-            # 📊 NUMERIC CLEANING
+            # ===============================
+            # 📊 NUMERIC
+            # ===============================
             df['actual_spend'] = pd.to_numeric(df.get('actual_spend'), errors='coerce').fillna(0)
             df['planned_budget'] = pd.to_numeric(df.get('planned_budget'), errors='coerce')
 
+            # ===============================
+            # 💰 USER BUDGET CONTROL (FIXED)
+            # ===============================
             total_planned = float(user_input['total_planned_budget'])
 
+            # Map textual flexibility to numeric %
+            flex_map = {
+                "Strict": 0.05,
+                "Moderate": 0.10,
+                "Flexible": 0.20
+            }
+            flexibility = flex_map.get(user_input.get('budget_flexibility', 'Moderate'), 0.10)
+
+            # Total actual spend & allowed limit
+            total_actual = df['actual_spend'].sum()
+            allowed_limit = total_planned * (1 + flexibility)
+
+            # Global budget breach flag
+            df['global_budget_breach'] = total_actual > allowed_limit
+
+            # Fill missing planned_budget if empty
             if df['planned_budget'].isna().all():
                 df['planned_budget'] = total_planned / max(len(df), 1)
 
             df['planned_budget'] = df['planned_budget'].fillna(total_planned / max(len(df), 1))
 
+            # Normalize planned_budget to match total planned
+            scale_factor = total_planned / (df['planned_budget'].sum() + 1)
+            df['planned_budget'] = df['planned_budget'] * scale_factor
+
+            # ===============================
             # 🧠 FEATURES
+            # ===============================
             df['overrun_ratio'] = df['actual_spend'] / (df['planned_budget'] + 1)
             df['budget_gap'] = df['actual_spend'] - df['planned_budget']
             df['log_actual'] = np.log1p(df['actual_spend'])
 
+            # ===============================
             # 🧩 CATEGORICAL
+            # ===============================
             cat_cols = ['project_type', 'department', 'service_type', 'vendor', 'approval_status']
             for col in cat_cols:
                 if col not in df.columns:
                     df[col] = "Unknown"
                 df[col] = df[col].astype(str).fillna("Unknown")
 
-            # 🤖 MODEL INPUT (PIPELINE SAFE)
+            # ===============================
+            # 🤖 MODEL INPUT
+            # ===============================
             model_features = [
-                'planned_budget',
-                'actual_spend',
-                'overrun_ratio',
-                'budget_gap',
-                'log_actual',
-                'month',
-                'project_type',
-                'department',
-                'service_type',
-                'vendor'
+                'planned_budget','actual_spend','overrun_ratio',
+                'budget_gap','log_actual','month',
+                'project_type','department','service_type','vendor'
             ]
-
             X = df[model_features].copy()
-
-            for col in ['planned_budget', 'actual_spend', 'overrun_ratio', 'budget_gap', 'log_actual', 'month']:
+            for col in ['planned_budget','actual_spend','overrun_ratio','budget_gap','log_actual','month']:
                 X[col] = pd.to_numeric(X[col], errors='coerce').fillna(0)
 
-            # 🤖 PREDICT
+            # ===============================
+            # 🤖 AI
+            # ===============================
             try:
                 df['is_anomaly_raw'] = model.predict(X)
                 df['anomaly_score'] = model.decision_function(X)
-            except Exception as e:
-                print("MODEL ERROR:", e)
-                df['is_anomaly_raw'] = np.where(df['overrun_ratio'] > 2.0, -1, 1)
+                has_ai = True
+            except:
+                df['is_anomaly_raw'] = 1
                 df['anomaly_score'] = 0
+                has_ai = False
 
-            # 🔥 RISK LOGIC
-            flexibility = user_input['budget_flexibility']
-            flex_map = {"Strict": 1.1, "Moderate": 1.5, "Flexible": 2.0}
-            limit = flex_map.get(flexibility, 1.5)
+            # ===============================
+            # 🔥 RISK ENGINE
+            # ===============================
+            dynamic_limit = df['overrun_ratio'].quantile(0.75)
+            peer_avg = df.groupby(['department', 'service_type'])['overrun_ratio'].transform('mean')
+            monthly_avg = df.groupby('month')['actual_spend'].transform('mean')
+            df['temporal_spike'] = df['actual_spend'] > (monthly_avg * 1.5)
+            df['impact_score'] = df['actual_spend'] / (df['actual_spend'].mean() + 1)
 
             def compute_risk(row):
                 score = 0
 
-                if row['is_anomaly_raw'] == -1:
-                    score += 2
-                if row['overrun_ratio'] > limit:
-                    score += 2
-                elif row['overrun_ratio'] > 1:
-                    score += 1
-                if row['actual_spend'] > df['actual_spend'].quantile(0.95):
-                    score += 2
-                if flexibility == "Strict":
-                    score += 1
+                # 🔴 GLOBAL budget breach
+                if row['global_budget_breach']:
+                    score += 4
 
-                if score >= 5:
+                # 🔴 adaptive deviation
+                if row['overrun_ratio'] > dynamic_limit:
+                    score += 3
+
+                # 🔴 peer anomaly
+                if row['overrun_ratio'] > (peer_avg.loc[row.name] * 1.3):
+                    score += 2
+
+                # 🔴 extreme overspend
+                if row['actual_spend'] > row['planned_budget'] * 2:
+                    score += 3
+
+                # 🔴 BIG share of total budget
+                if row['actual_spend'] > total_planned * 0.25:
+                    score += 3
+
+                # 🔴 temporal spike
+                if row['temporal_spike']:
+                    score += 2
+
+                # 🤖 AI signal
+                if has_ai and row['is_anomaly_raw'] == -1:
+                    score += 2
+
+                # 🔴 impact
+                if row['impact_score'] > 2:
+                    score += 2
+
+                # 🔴 budget gap severity
+                if row['budget_gap'] > df['budget_gap'].quantile(0.9):
+                    score += 2
+
+                if score >= 8:
                     return "HIGH RISK"
-                elif score >= 3:
+                elif score >= 4:
                     return "MEDIUM RISK"
                 else:
                     return "LOW RISK"
 
             df['risk_level'] = df.apply(compute_risk, axis=1)
 
+            df.replace([np.inf, -np.inf], 0, inplace=True)
+            df.fillna(0, inplace=True)
             hr_df = df[df['risk_level'] == 'HIGH RISK']
 
-            # =====================================================
-            # 📊 🔥 CHART DATA (MATCHES YOUR HTML EXACTLY)
-            # =====================================================
-
-            # 1. Burn Velocity
+            # ===============================
+            # 📊 GRAPHS
+            # ===============================
             g1 = df.sort_values('transaction_date')
             g1_labels = g1['transaction_date'].dt.strftime('%d-%m').fillna("").tolist()
             g1_data = g1['actual_spend'].tolist()
+            g1_colors = ['#dc2626' if x == -1 else '#7c3aed' for x in df['is_anomaly_raw']]
 
-            # 2. Vendor Risk
-            g2 = df.groupby('vendor')['actual_spend'].sum().sort_values(ascending=False).head(5)
+            g2 = df[df['risk_level'] != 'LOW RISK'].groupby('vendor')['actual_spend'].sum().sort_values(ascending=False).head(5)
             g2_labels = g2.index.tolist()
             g2_data = g2.values.tolist()
 
-            # 3. Category Volatility
             g3 = df.groupby('service_type')['actual_spend'].std().fillna(0)
-            g3_labels = g3.index.tolist()
-            g3_data = g3.values.tolist()
+            if g3.empty: g3 = pd.Series([0], index=["No Data"])
 
-            # 4. Approval Integrity
             g4 = df.groupby('approval_status')['overrun_ratio'].mean().fillna(0)
-            g4_labels = g4.index.tolist()
-            g4_data = g4.values.tolist()
+            if g4.empty: g4 = pd.Series([0], index=["No Data"])
 
-            # 5. Temporal
-            g5 = df.groupby('month')['actual_spend'].sum()
-            g5_labels = g5.index.astype(str).tolist()
-            g5_data = g5.values.tolist()
+            g5 = df.groupby('month')['actual_spend'].sum().fillna(0)
+            if g5.empty: g5 = pd.Series([0], index=["0"])
 
-            # 6. Scatter
-            g6 = df[['actual_spend', 'anomaly_score']].to_dict(orient='records')
+            g6 = df[['actual_spend','anomaly_score']].to_dict(orient='records')
 
-            # =====================================================
+            # ===============================
             # 📊 SUMMARY
-            # =====================================================
-
+            # ===============================
             summary = {
                 "meta": user_input,
                 "total_records": int(len(df)),
                 "high_risk_count": int(len(hr_df)),
                 "confidence": round(100 - (len(hr_df) / max(len(df), 1) * 100), 2),
-                "total_spent": float(df['actual_spend'].sum()),
+
+                "total_spent": float(total_actual),
+                "budget_limit": float(allowed_limit),
+                "budget_breach": bool(total_actual > allowed_limit),
+
                 "leakage": float(hr_df['actual_spend'].sum()),
-                "over_budget_ratio": round(df['actual_spend'].sum() / total_planned, 2) if total_planned > 0 else 0,
+                "over_budget_ratio": round(total_actual / total_planned, 2) if total_planned > 0 else 0,
+
                 "all_high_risks": hr_df.sort_values('actual_spend', ascending=False).to_dict(orient="records"),
 
-                # 🔥 GRAPH DATA (CRITICAL)
                 "g1_burn_labels": json.dumps(g1_labels),
                 "g1_burn_data": json.dumps(g1_data),
+                "g1_colors": json.dumps(g1_colors),
 
                 "g2_vendor_labels": json.dumps(g2_labels),
                 "g2_vendor_data": json.dumps(g2_data),
 
-                "g3_cat_labels": json.dumps(g3_labels),
-                "g3_cat_data": json.dumps(g3_data),
+                "g3_cat_labels": json.dumps(g3.index.tolist()),
+                "g3_cat_data": json.dumps(g3.values.tolist()),
 
-                "g4_app_labels": json.dumps(g4_labels),
-                "g4_app_risk": json.dumps(g4_data),
+                "g4_app_labels": json.dumps(g4.index.tolist()),
+                "g4_app_risk": json.dumps(g4.values.tolist()),
 
-                "g5_temp_labels": json.dumps(g5_labels),
-                "g5_temp_data": json.dumps(g5_data),
+                "g5_temp_labels": json.dumps(g5.index.astype(str).tolist()),
+                "g5_temp_data": json.dumps(g5.values.tolist()),
 
                 "g6_scatter": json.dumps(g6),
             }
