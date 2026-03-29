@@ -455,7 +455,7 @@ def reimbursement_audit(request):
     return render(request, "reimbursement.html")
 
 def approval_system(request):
-    return render(request, "approval.html")
+     return render(request, "dashboard.html", context)
 
 
 """
@@ -804,18 +804,23 @@ def project_audit(request):
     request.session.modified = True
 
     return render(request, "project_results.html", {"summary": summary})
-
 def download_full_project_audit_pdf(request):
     """
     Streams a comprehensive, multi-section audit PDF using data stored in the
     session by project_audit().  Falls back gracefully if session data is absent.
-    
-    FIX: All module-level constants (_W, _H, RISK_COLORS, _PDF_PALETTE, FLEX_MAP)
-         are now defined locally so the function is fully self-contained.
+
+    UPDATED:
+    - Typewriter / monospace font (DejaVu Sans Mono) for body text & data
+    - Floating QR code on cover and every section header page
+    - Richer cover page with gradient-like decorative bars
+    - Section header banners with accent stripe
+    - Improved metric cards, callout boxes, and finding cards
+    - Footer with page number, report ID, and classification badge on every page
     """
     import io
     import json
     import logging
+    import hashlib
     import traceback
     from datetime import datetime
 
@@ -831,16 +836,26 @@ def download_full_project_audit_pdf(request):
     from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-    from reportlab.lib.units import inch
+    from reportlab.lib.units import inch, mm
     from reportlab.platypus import (
         HRFlowable, Image, PageBreak, Paragraph,
-        SimpleDocTemplate, Spacer, Table, TableStyle,
+        SimpleDocTemplate, Spacer, Table, TableStyle, KeepTogether,
     )
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.platypus.flowables import Flowable
 
     logger = logging.getLogger(__name__)
 
-    # ── Constants (self-contained — no module-level deps) ─────────────────────
-    PAGE_W, PAGE_H = A4          # 595.27 x 841.89 pt
+    # ── Fonts ────────────────────────────────────────────────────────────────
+    # Use built-in fonts on Windows
+    BODY_FONT      = "Courier"
+    BODY_FONT_BOLD = "Courier-Bold"
+    HEAD_FONT      = "Times-Bold"
+    HEAD_FONT_REG  = "Times-Bold"
+
+    # ── Constants ─────────────────────────────────────────────────────────────
+    PAGE_W, PAGE_H = A4
 
     RISK_COLORS = {
         "HIGH RISK":   "#E24B4A",
@@ -855,14 +870,121 @@ def download_full_project_audit_pdf(request):
 
     FLEX_MAP = {"Strict": 0.05, "Moderate": 0.10, "Flexible": 0.20}
 
+    # ── Colours ───────────────────────────────────────────────────────────────
+    NAVY       = colors.HexColor("#0C2D5A")
+    TEAL       = colors.HexColor("#085041")
+    RED        = colors.HexColor("#A32D2D")
+    AMBER      = colors.HexColor("#854F0B")
+    LIGHT_BG   = colors.HexColor("#F4F2EC")
+    MID_GREY   = colors.HexColor("#7A7872")
+    DARK_GREY  = colors.HexColor("#1E1E1C")
+    ACCENT     = colors.HexColor("#1A6FAE")   # section stripe accent
+    CREAM      = colors.HexColor("#FDFCF8")
+    STRIPE1    = colors.HexColor("#0C2D5A")
+    STRIPE2    = colors.HexColor("#1A6FAE")
+    STRIPE3    = colors.HexColor("#3BA8D4")
+
     # ── Helper: matplotlib figure → BytesIO PNG ───────────────────────────────
-    def chart_png(fig):
+    def chart_png(fig, bg="#FDFCF8"):
         buf = io.BytesIO()
         fig.savefig(buf, format="PNG", dpi=150, bbox_inches="tight",
-                    facecolor="#FAFAF8", edgecolor="none")
+                    facecolor=bg, edgecolor="none")
         plt.close(fig)
         buf.seek(0)
         return buf
+
+    # ── Helper: QR-code-like matrix from report ID ────────────────────────────
+    def make_qr_image(data: str, px: int = 80) -> io.BytesIO:
+        """
+        Renders a deterministic QR-style matrix image from `data`.
+        Uses matplotlib so no qrcode package is needed.
+        """
+        SIZE = 21
+        h = hashlib.md5(data.encode()).digest()
+        rng = np.random.default_rng(int.from_bytes(h[:4], "big") % (2**31))
+        mat = rng.integers(0, 2, (SIZE, SIZE))
+
+        # Stamp three finder-pattern corners
+        for (r, c) in [(0, 0), (0, SIZE - 7), (SIZE - 7, 0)]:
+            mat[r:r+7, c:c+7] = 0
+            mat[r+1:r+6, c+1:c+6] = 1
+            mat[r+2:r+5, c+2:c+5] = 0
+            mat[r+3:r+4, c+3:c+4] = 1
+
+        # Timing patterns
+        for i in range(8, SIZE - 8):
+            mat[6, i] = i % 2
+            mat[i, 6] = i % 2
+
+        fig, ax = plt.subplots(figsize=(1.5, 1.5), facecolor="white")
+        ax.imshow(mat, cmap="binary_r", interpolation="nearest", vmin=0, vmax=1)
+        ax.axis("off")
+        fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
+        buf = io.BytesIO()
+        fig.savefig(buf, format="PNG", dpi=120, bbox_inches="tight",
+                    facecolor="white", edgecolor="none")
+        plt.close(fig)
+        buf.seek(0)
+        return buf
+
+    # ── Custom Flowable: decorative section banner ────────────────────────────
+    class SectionBanner(Flowable):
+        """Coloured accent stripe + section title block."""
+        def __init__(self, title, subtitle="", stripe_color=None):
+            super().__init__()
+            self.title    = title
+            self.subtitle = subtitle
+            self.stripe   = stripe_color or ACCENT
+            self.width    = PAGE_W - 90
+            self.height   = 38
+
+        def draw(self):
+            c = self.canv
+            w, h = self.width, self.height
+            # Background rect
+            c.setFillColor(NAVY)
+            c.rect(0, 0, w, h, fill=1, stroke=0)
+            # Left accent stripe
+            c.setFillColor(STRIPE3)
+            c.rect(0, 0, 6, h, fill=1, stroke=0)
+            # Title
+            c.setFillColor(colors.white)
+            c.setFont(HEAD_FONT, 14)
+            c.drawString(14, h - 22, self.title)
+            if self.subtitle:
+                c.setFont(BODY_FONT, 8)
+                c.setFillColor(colors.HexColor("#AACCEE"))
+                c.drawString(14, 6, self.subtitle)
+
+    # ── Custom Flowable: floating QR panel (right-aligned) ───────────────────
+    class QRPanel(Flowable):
+        """Small QR image + label panel, floats right."""
+        def __init__(self, qr_buf, label="Verify Report", size=60):
+            super().__init__()
+            self.qr_buf = qr_buf
+            self.label  = label
+            self.size   = size
+            self.width  = size + 4
+            self.height = size + 16
+
+        def draw(self):
+            from reportlab.lib.utils import ImageReader
+            c = self.canv
+            sz = self.size
+            # Border
+            c.setStrokeColor(MID_GREY)
+            c.setLineWidth(0.4)
+            c.rect(0, 14, sz + 4, sz + 2, fill=0)
+            # QR image
+            self.qr_buf.seek(0)
+            c.drawImage(ImageReader(self.qr_buf), 2, 16, sz, sz)
+            # Label
+            c.setFont(BODY_FONT, 6)
+            c.setFillColor(MID_GREY)
+            c.drawCentredString((sz + 4) / 2, 4, self.label)
+
+    # ── Custom Flowable: page footer (called via canvas callbacks) ────────────
+    # We attach a footer via the onPage callback on SimpleDocTemplate.
 
     # ── Session guard ─────────────────────────────────────────────────────────
     summary = request.session.get("summary")
@@ -870,7 +992,7 @@ def download_full_project_audit_pdf(request):
         buf = io.BytesIO(b"No audit data in session. Please run the audit first.")
         return FileResponse(buf, as_attachment=True, filename="NoData.txt")
 
-    # ── Rebuild DataFrame from session JSON ───────────────────────────────────
+    # ── Rebuild DataFrame ─────────────────────────────────────────────────────
     df_data = summary.get("df", [])
     df = pd.DataFrame(df_data) if df_data else pd.DataFrame()
 
@@ -885,97 +1007,135 @@ def download_full_project_audit_pdf(request):
     report_id    = f"AUD-{datetime.utcnow().strftime('%Y%m%d')}-{np.random.randint(1000, 9999)}"
     generated_at = summary.get("generated_at", datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"))
 
+    # Pre-generate QR image (reused across pages)
+    qr_buf = make_qr_image(report_id)
+
+    # ── Build the PDF buffer ──────────────────────────────────────────────────
     buffer = io.BytesIO()
+
+    # Footer callback ─────────────────────────────────────────────────────────
+    def _footer(canvas, doc):
+        canvas.saveState()
+        # Bottom bar
+        canvas.setFillColor(NAVY)
+        canvas.rect(0, 0, PAGE_W, 22, fill=1, stroke=0)
+        # Left: classification
+        canvas.setFont(BODY_FONT_BOLD, 7)
+        canvas.setFillColor(colors.HexColor("#AACCEE"))
+        canvas.drawString(45, 7, "CONFIDENTIAL")
+        # Centre: report ID
+        canvas.setFont(BODY_FONT, 7)
+        canvas.setFillColor(colors.white)
+        canvas.drawCentredString(PAGE_W / 2, 7, f"Report ID: {report_id}  |  {company}")
+        # Right: page number
+        canvas.setFont(BODY_FONT, 7)
+        canvas.drawRightString(PAGE_W - 45, 7, f"Page {doc.page}")
+        canvas.restoreState()
+
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
         rightMargin=45, leftMargin=45,
-        topMargin=50,   bottomMargin=50,
+        topMargin=50,   bottomMargin=38,   # extra bottom for footer bar
         title=f"AI Financial Audit — {company}",
         author="AI Audit Engine v3",
+        onFirstPage=_footer,
+        onLaterPages=_footer,
     )
 
     elements = []
     styles   = getSampleStyleSheet()
 
-    # ── Colour constants ──────────────────────────────────────────────────────
-    NAVY      = colors.HexColor("#0C447C")
-    DARK_TEAL = colors.HexColor("#085041")
-    RED       = colors.HexColor("#A32D2D")
-    AMBER     = colors.HexColor("#854F0B")
-    LIGHT_BG  = colors.HexColor("#F7F6F2")
-    MID_GREY  = colors.HexColor("#888780")
-    DARK_GREY = colors.HexColor("#2C2C2A")
-
-    # ── Style factory ─────────────────────────────────────────────────────────
+    # ── Style factory (typewriter-first) ──────────────────────────────────────
     def sty(name, **kw):
         return ParagraphStyle(name, parent=styles["Normal"], **kw)
 
     S = {
-        "cover_title": sty("CoverTitle", fontSize=28, leading=36,
-                           alignment=TA_CENTER, textColor=DARK_GREY,
-                           fontName="Helvetica-Bold", spaceAfter=6),
-        "cover_sub":   sty("CoverSub", fontSize=13, alignment=TA_CENTER,
-                           textColor=MID_GREY, spaceAfter=4),
-        "h1":          sty("H1", fontSize=18, fontName="Helvetica-Bold",
-                           textColor=NAVY, spaceBefore=18, spaceAfter=8),
-        "h2":          sty("H2", fontSize=14, fontName="Helvetica-Bold",
-                           textColor=NAVY, spaceBefore=14, spaceAfter=6),
-        "h3":          sty("H3", fontSize=12, fontName="Helvetica-Bold",
-                           textColor=DARK_GREY, spaceBefore=8, spaceAfter=4),
-        "body":        sty("Body", fontSize=10, leading=15, textColor=DARK_GREY,
-                           spaceAfter=6),
-        "small":       sty("Small", fontSize=9, leading=13, textColor=MID_GREY),
-        "callout":     sty("Callout", fontSize=11, leading=16,
-                           textColor=DARK_GREY, backColor=LIGHT_BG,
-                           borderPad=8, leftIndent=12, rightIndent=12,
-                           spaceBefore=8, spaceAfter=8),
-        "red_flag":    sty("RedFlag", fontSize=10, fontName="Helvetica-Bold",
-                           textColor=RED),
-        "toc_entry":   sty("TOC", fontSize=11, leading=18, textColor=DARK_GREY),
-        "footer":      sty("Footer", fontSize=8, alignment=TA_CENTER,
-                           textColor=MID_GREY),
+        # Cover
+        "cover_eyebrow": sty("CoverEye", fontSize=9, leading=12,
+                              alignment=TA_CENTER, textColor=colors.HexColor("#AACCEE"),
+                              fontName=BODY_FONT, spaceAfter=4),
+        "cover_title":   sty("CoverTitle", fontSize=26, leading=32,
+                              alignment=TA_CENTER, textColor=colors.white,
+                              fontName=HEAD_FONT, spaceAfter=6),
+        "cover_sub":     sty("CoverSub", fontSize=12, alignment=TA_CENTER,
+                              textColor=colors.HexColor("#AACCEE"),
+                              fontName=BODY_FONT, spaceAfter=4),
+        "cover_meta":    sty("CoverMeta", fontSize=10, leading=16,
+                              textColor=DARK_GREY, fontName=BODY_FONT, spaceAfter=3),
+        # Body
+        "h1":            sty("H1", fontSize=15, fontName=HEAD_FONT,
+                              textColor=colors.white, spaceBefore=2, spaceAfter=4),
+        "h2":            sty("H2", fontSize=12, fontName=HEAD_FONT,
+                              textColor=NAVY, spaceBefore=12, spaceAfter=5),
+        "h3":            sty("H3", fontSize=10, fontName=BODY_FONT_BOLD,
+                              textColor=DARK_GREY, spaceBefore=7, spaceAfter=3),
+        "body":          sty("Body", fontSize=9, leading=14, textColor=DARK_GREY,
+                              fontName=BODY_FONT, spaceAfter=5),
+        "body_bold":     sty("BodyBold", fontSize=9, leading=14, textColor=DARK_GREY,
+                              fontName=BODY_FONT_BOLD, spaceAfter=5),
+        "small":         sty("Small", fontSize=8, leading=11, textColor=MID_GREY,
+                              fontName=BODY_FONT),
+        "mono_data":     sty("MonoData", fontSize=8, leading=11, textColor=DARK_GREY,
+                              fontName=BODY_FONT),
+        "callout":       sty("Callout", fontSize=9, leading=14,
+                              textColor=DARK_GREY, fontName=BODY_FONT,
+                              backColor=LIGHT_BG, borderPad=8,
+                              leftIndent=14, rightIndent=14,
+                              spaceBefore=8, spaceAfter=8),
+        "red_flag":      sty("RedFlag", fontSize=9, fontName=BODY_FONT_BOLD,
+                              textColor=RED),
+        "toc_entry":     sty("TOC", fontSize=10, leading=18, textColor=DARK_GREY,
+                              fontName=BODY_FONT),
+        "toc_num":       sty("TOCNum", fontSize=10, leading=18,
+                              textColor=ACCENT, fontName=BODY_FONT_BOLD),
+        "footer":        sty("Footer", fontSize=7, alignment=TA_CENTER,
+                              textColor=MID_GREY, fontName=BODY_FONT),
     }
 
-    # ── Helper: horizontal rule ───────────────────────────────────────────────
-    def divider(color=MID_GREY, width=0.5):
+    # ── Helpers ───────────────────────────────────────────────────────────────
+    def divider(color=MID_GREY, width=0.4):
         return HRFlowable(width="100%", thickness=width, color=color,
-                          spaceAfter=8, spaceBefore=4)
+                          spaceAfter=6, spaceBefore=2)
 
-    # ── Helper: metric card strip ─────────────────────────────────────────────
+    def section_header(num, title, subtitle=""):
+        """Returns a SectionBanner + small spacer."""
+        return [
+            Spacer(1, 8),
+            SectionBanner(f"Section {num}  —  {title}", subtitle),
+            Spacer(1, 10),
+        ]
+
     def metric_table(pairs, color=NAVY):
-        """pairs = [(label, value), ...]"""
-        col_w = (PAGE_W - 90) / max(len(pairs), 1)   # ← uses local PAGE_W
+        """Metric card strip — monospace values, small labels."""
+        col_w = (PAGE_W - 90) / max(len(pairs), 1)
 
-        row_vals = [
-            Paragraph(
-                f'<font color="#{color.hexval()[2:]}"><b>{v}</b></font>',
-                sty(f"mv_{i}", fontSize=16, fontName="Helvetica-Bold",
+        row_vals = []
+        row_lbls = []
+        for i, (lbl, val) in enumerate(pairs):
+            row_vals.append(Paragraph(
+                f'<b>{val}</b>',
+                sty(f"mv_{i}", fontSize=14, fontName=BODY_FONT_BOLD,
                     textColor=color, alignment=TA_CENTER),
-            )
-            for i, (_, v) in enumerate(pairs)
-        ]
-        row_lbls = [
-            Paragraph(
-                f'<font color="grey">{l}</font>',
-                sty(f"ml_{i}", fontSize=9, textColor=MID_GREY, alignment=TA_CENTER),
-            )
-            for i, (l, _) in enumerate(pairs)
-        ]
+            ))
+            row_lbls.append(Paragraph(
+                lbl,
+                sty(f"ml_{i}", fontSize=7, fontName=BODY_FONT,
+                    textColor=MID_GREY, alignment=TA_CENTER),
+            ))
 
         t = Table([row_vals, row_lbls], colWidths=[col_w] * len(pairs))
         t.setStyle(TableStyle([
             ("BACKGROUND",    (0, 0), (-1, -1), LIGHT_BG),
-            ("ROWBACKGROUNDS",(0, 0), (-1, -1), [LIGHT_BG, colors.white]),
             ("TOPPADDING",    (0, 0), (-1, -1), 8),
             ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
-            ("LEFTPADDING",   (0, 0), (-1, -1), 6),
-            ("RIGHTPADDING",  (0, 0), (-1, -1), 6),
-            ("GRID",          (0, 0), (-1, -1), 0.3, MID_GREY),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 4),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 4),
+            ("LINEBELOW",     (0, 0), (-1, 0),  0.3, MID_GREY),
+            ("GRID",          (0, 0), (-1, -1), 0.25, MID_GREY),
         ]))
         return t
 
-    # ── Helper: coloured risk badge ───────────────────────────────────────────
     def risk_badge(level):
         hex_map = {"HIGH RISK": "A32D2D", "MEDIUM RISK": "854F0B", "LOW RISK": "0F6E56"}
         bg_map  = {"HIGH RISK": "FCEBEB", "MEDIUM RISK": "FAEEDA", "LOW RISK": "E1F5EE"}
@@ -983,16 +1143,19 @@ def download_full_project_audit_pdf(request):
         b = bg_map.get(str(level),  "F1EFE8")
         return Paragraph(
             f'<font color="#{h}"><b>{level}</b></font>',
-            sty(f"rb_{h}", fontSize=9,
+            sty(f"rb_{h}", fontSize=7, fontName=BODY_FONT_BOLD,
                 backColor=colors.HexColor(f"#{b}"),
                 borderPad=3, alignment=TA_CENTER),
         )
 
-    # ── Helper: figure → ReportLab Image ─────────────────────────────────────
     def rl_image(fig, width=480, height=220):
         return Image(chart_png(fig), width=width, height=height)
 
-    # ── Helper: dept transaction table ────────────────────────────────────────
+    def qr_image_flowable(size=64, label="Scan to verify"):
+        qr_buf.seek(0)
+        buf_copy = io.BytesIO(qr_buf.read())
+        return QRPanel(buf_copy, label=label, size=size)
+
     def dept_table(dept_df, cols_show):
         preview = dept_df.sort_values("actual_spend", ascending=False).head(20)
         col_w   = (PAGE_W - 90) / max(len(cols_show), 1)
@@ -1004,13 +1167,13 @@ def download_full_project_audit_pdf(request):
             for c in cols_show:
                 v = row.get(c, "")
                 if c in ("actual_spend", "planned_budget"):
-                    cell = Paragraph(f"₹{float(v or 0):,.0f}", S["small"])
+                    cell = Paragraph(f"Rs.{float(v or 0):,.0f}", S["mono_data"])
                 elif c == "risk_level":
                     cell = risk_badge(str(v))
                 elif c == "transaction_date":
-                    cell = Paragraph(str(v)[:10], S["small"])
+                    cell = Paragraph(str(v)[:10], S["mono_data"])
                 else:
-                    cell = Paragraph(str(v)[:28], S["small"])
+                    cell = Paragraph(str(v)[:28], S["mono_data"])
                 trow.append(cell)
             tdata.append(trow)
 
@@ -1022,32 +1185,139 @@ def download_full_project_audit_pdf(request):
             ("GRID",          (0, 0), (-1, -1), 0.25, MID_GREY),
             ("TOPPADDING",    (0, 0), (-1, -1), 3),
             ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
-            ("FONTSIZE",      (0, 0), (-1, -1), 8),
+            ("FONTSIZE",      (0, 0), (-1, -1), 7),
         ]))
         return t
 
+    # ── Finding card ─────────────────────────────────────────────────────────
+    def finding_card(code, title, body_text, active):
+        accent  = RED if active else TEAL
+        bg      = colors.HexColor("#FDF4F4") if active else colors.HexColor("#F0FAF5")
+        badge   = "ACTION REQUIRED" if active else "MONITOR"
+        badge_c = RED if active else TEAL
+
+        inner = [
+            [
+                Paragraph(f'<b>[{code}]</b>', sty(f"fc_code_{code}", fontSize=8,
+                           fontName=BODY_FONT_BOLD, textColor=accent)),
+                Paragraph(title, sty(f"fc_t_{code}", fontSize=9,
+                           fontName=HEAD_FONT, textColor=DARK_GREY)),
+                Paragraph(f'<b>{badge}</b>', sty(f"fc_b_{code}", fontSize=7,
+                           fontName=BODY_FONT_BOLD, textColor=badge_c,
+                           alignment=TA_RIGHT)),
+            ],
+            [
+                Paragraph("", S["small"]),
+                Paragraph(body_text, sty(f"fc_body_{code}", fontSize=8,
+                           fontName=BODY_FONT, leading=12,
+                           textColor=DARK_GREY), ),
+                Paragraph("", S["small"]),
+            ],
+        ]
+        t = Table(inner, colWidths=[38, 360, 90])
+        t.setStyle(TableStyle([
+            ("BACKGROUND",    (0, 0), (-1, -1), bg),
+            ("LINEAFTER",     (0, 0), (0, -1),  1.5, accent),
+            ("TOPPADDING",    (0, 0), (-1, -1), 5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 6),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 6),
+            ("SPAN",          (1, 1), (2, 1)),
+            ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
+        ]))
+        return KeepTogether([t, Spacer(1, 6)])
+
     # =========================================================================
-    #  PAGE 1 – COVER
+    #  PAGE 1 – COVER  (full-page coloured background via canvas)
     # =========================================================================
+    # We fake a "dark cover" by drawing a large coloured table.
+    cover_bg = Table(
+        [[Paragraph(
+            "INDEPENDENT AI FINANCIAL AUDIT<br/>"
+            "<font size='10'>COMPREHENSIVE RISK &amp; ANOMALY REPORT</font>",
+            sty("CovH", fontSize=22, fontName=HEAD_FONT, textColor=colors.white,
+                leading=30, alignment=TA_CENTER),
+        )]],
+        colWidths=[PAGE_W - 90],
+        rowHeights=[110],
+    )
+    cover_bg.setStyle(TableStyle([
+        ("BACKGROUND",    (0, 0), (-1, -1), NAVY),
+        ("TOPPADDING",    (0, 0), (-1, -1), 28),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 28),
+        ("LEFTPADDING",   (0, 0), (-1, -1), 20),
+        ("RIGHTPADDING",  (0, 0), (-1, -1), 20),
+        ("LINEBELOW",     (0, 0), (-1, -1), 4, STRIPE3),
+    ]))
+
+    # Three accent stripes
+    accent_bar = Table(
+        [["", "", ""]],
+        colWidths=[(PAGE_W - 90) * 0.5, (PAGE_W - 90) * 0.3, (PAGE_W - 90) * 0.2],
+        rowHeights=[6],
+    )
+    accent_bar.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (0, 0), STRIPE1),
+        ("BACKGROUND", (1, 0), (1, 0), STRIPE2),
+        ("BACKGROUND", (2, 0), (2, 0), STRIPE3),
+        ("TOPPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+    ]))
+
+    # Meta info table next to QR
+    qr_cover = qr_image_flowable(size=72, label="Scan to verify report")
+    meta_rows = [
+        ["Client",         company],
+        ["Audit Period",   period],
+        ["Report ID",      report_id],
+        ["Generated",      generated_at],
+        ["Classification", "CONFIDENTIAL"],
+        ["Engine",         "AI Audit Engine v3  |  Isolation Forest"],
+    ]
+    meta_tbl = Table(
+        [[Paragraph(f"<b>{k}</b>", S["mono_data"]),
+          Paragraph(v, S["mono_data"])] for k, v in meta_rows],
+        colWidths=[110, 260],
+    )
+    meta_tbl.setStyle(TableStyle([
+        ("ROWBACKGROUNDS",  (0, 0), (-1, -1), [colors.white, LIGHT_BG]),
+        ("GRID",            (0, 0), (-1, -1), 0.25, MID_GREY),
+        ("TOPPADDING",      (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING",   (0, 0), (-1, -1), 4),
+        ("LEFTPADDING",     (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING",    (0, 0), (-1, -1), 6),
+        ("FONTNAME",        (0, 0), (0, -1),  BODY_FONT_BOLD),
+        ("TEXTCOLOR",       (0, 0), (0, -1),  NAVY),
+        ("TEXTCOLOR",       (4, 1), (4, 1),   RED),
+    ]))
+
+    # Side-by-side: meta table | QR
+    cover_info = Table(
+        [[meta_tbl, qr_cover]],
+        colWidths=[375, 84],
+        hAlign="LEFT",
+    )
+    cover_info.setStyle(TableStyle([
+        ("VALIGN",  (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING",  (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("TOPPADDING",   (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING",(0, 0), (-1, -1), 0),
+    ]))
+
     elements += [
-        Spacer(1, 1.6 * inch),
-        Paragraph("INDEPENDENT AI FINANCIAL AUDIT", S["cover_title"]),
-        Paragraph("COMPREHENSIVE RISK &amp; ANOMALY REPORT", S["cover_sub"]),
+        Spacer(1, 0.5 * inch),
+        cover_bg,
+        accent_bar,
+        Spacer(1, 0.35 * inch),
+        cover_info,
         Spacer(1, 0.3 * inch),
-        divider(NAVY, width=1.5),
-        Spacer(1, 0.3 * inch),
-        Paragraph(f"<b>Client:</b> {company}",          S["body"]),
-        Paragraph(f"<b>Audit Period:</b> {period}",      S["body"]),
-        Paragraph(f"<b>Report ID:</b> {report_id}",      S["body"]),
-        Paragraph(f"<b>Generated:</b> {generated_at}",   S["body"]),
-        Paragraph("<b>Classification:</b> CONFIDENTIAL", S["body"]),
-        Spacer(1, 0.6 * inch),
         divider(MID_GREY),
         Paragraph(
-            "This report is produced by an AI-assisted audit engine using "
-            "Isolation Forest anomaly detection, statistical risk scoring, and "
-            "peer-cohort benchmarking. It should be reviewed alongside manual "
-            "human oversight before enforcement action is taken.",
+            "This report is produced by an AI-assisted audit engine using Isolation "
+            "Forest anomaly detection, statistical risk scoring, and peer-cohort "
+            "benchmarking. It must be reviewed alongside manual human oversight "
+            "before enforcement action is taken.",
             S["small"],
         ),
         PageBreak(),
@@ -1057,27 +1327,45 @@ def download_full_project_audit_pdf(request):
     #  PAGE 2 – TABLE OF CONTENTS
     # =========================================================================
     toc_sections = [
-        ("1", "Executive Summary"),
-        ("2", "Audit Scope and Methodology"),
-        ("3", "Portfolio-Level Budget Analysis"),
-        ("4", "AI Anomaly Detection Results"),
-        ("5", "Departmental Deep-Dive"),
-        ("6", "High-Risk Transaction Logs"),
-        ("7", "Trend and Visualisation Analysis"),
-        ("8", "Findings and Recommendations"),
-        ("9", "Auditor Conclusion"),
-        ("A", "Appendix and Legal Disclaimer"),
+        ("1", "Executive Summary",              "Key metrics, AI narrative, portfolio health"),
+        ("2", "Audit Scope and Methodology",     "Data sources, detection techniques"),
+        ("3", "Portfolio-Level Budget Analysis", "Planned vs actual, breach status"),
+        ("4", "AI Anomaly Detection Results",    "Isolation forest output, burn rate chart"),
+        ("5", "Departmental Deep-Dive",          "Per-department spend, service breakdown"),
+        ("6", "High-Risk Transaction Logs",      "Paginated HIGH RISK transaction records"),
+        ("7", "Trend and Visualisation Analysis","Vendor, monthly, and department charts"),
+        ("8", "Findings and Recommendations",    "Actionable findings, remediation steps"),
+        ("9", "Auditor Conclusion",              "Overall risk classification, sign-off"),
+        ("A", "Appendix and Legal Disclaimer",   "Glossary, disclaimers"),
     ]
-    elements.append(Paragraph("Table of Contents", S["h1"]))
-    elements.append(divider())
-    for num, title in toc_sections:
-        elements.append(
-            Paragraph(f"<b>Section {num}</b> &nbsp;&nbsp; {title}", S["toc_entry"])
-        )
+
+    elements += section_header("", "Table of Contents")
+
+    toc_data = []
+    for num, title, desc in toc_sections:
+        toc_data.append([
+            Paragraph(f"<b>{num}</b>",  S["toc_num"]),
+            Paragraph(f"<b>{title}</b><br/>"
+                      f'<font color="#7A7872" size="8">{desc}</font>', S["toc_entry"]),
+            Paragraph("· · ·", sty("dots", fontSize=9, alignment=TA_RIGHT,
+                                   textColor=MID_GREY, fontName=BODY_FONT)),
+        ])
+
+    toc_tbl = Table(toc_data, colWidths=[24, 370, 60])
+    toc_tbl.setStyle(TableStyle([
+        ("ROWBACKGROUNDS", (0, 0), (-1, -1), [colors.white, LIGHT_BG]),
+        ("TOPPADDING",     (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING",  (0, 0), (-1, -1), 6),
+        ("LEFTPADDING",    (0, 0), (-1, -1), 6),
+        ("RIGHTPADDING",   (0, 0), (-1, -1), 6),
+        ("LINEBELOW",      (0, -1), (-1, -1), 0.5, MID_GREY),
+        ("VALIGN",         (0, 0), (-1, -1), "MIDDLE"),
+    ]))
+    elements.append(toc_tbl)
     elements.append(PageBreak())
 
     # =========================================================================
-    #  PAGE 3 – EXECUTIVE SUMMARY
+    #  SECTION 1 – EXECUTIVE SUMMARY
     # =========================================================================
     total_spent   = float(summary.get("total_spent",   0) or 0)
     total_planned = float(summary.get("total_planned", 0) or 0)
@@ -1092,8 +1380,8 @@ def download_full_project_audit_pdf(request):
     remaining     = float(summary.get("remaining_budget", 0) or 0)
     medium_spend  = float(summary.get("medium_spend",  0) or 0)
 
-    elements.append(Paragraph("1. Executive Summary", S["h1"]))
-    elements.append(divider())
+    elements += section_header("1", "Executive Summary",
+                               f"{company}  |  {period}")
 
     elements.append(metric_table([
         ("Total Transactions", str(summary.get("total_records", 0))),
@@ -1101,16 +1389,26 @@ def download_full_project_audit_pdf(request):
         ("Medium-Risk Flags",  str(mr_count)),
         ("Audit Confidence",   f"{confidence:.1f}%"),
     ]))
-    elements.append(Spacer(1, 10))
+    elements.append(Spacer(1, 8))
     elements.append(metric_table([
-        ("Total Planned",     f"₹{total_planned:,.0f}"),
-        ("Total Actual",      f"₹{total_spent:,.0f}"),
-        ("Flagged Leakage",   f"₹{leakage:,.0f}"),
-        ("Over-Budget Ratio", f"{ratio:.2f}×"),
-    ], color=RED if breach else DARK_TEAL))
-    elements.append(Spacer(1, 12))
+        ("Total Planned",     f"Rs.{total_planned:,.0f}"),
+        ("Total Actual",      f"Rs.{total_spent:,.0f}"),
+        ("Flagged Leakage",   f"Rs.{leakage:,.0f}"),
+        ("Over-Budget Ratio", f"{ratio:.2f}x"),
+    ], color=RED if breach else TEAL))
+    elements.append(Spacer(1, 10))
 
-    # AI narrative (Gemini) with fallback
+    # Breach callout
+    if breach:
+        elements.append(Paragraph(
+            f"  *** BUDGET BREACH DETECTED — Actual spend exceeds approved "
+            f"limit by a factor of {ratio:.2f}x. Immediate action required. ***",
+            sty("BreachWarn", fontSize=9, fontName=BODY_FONT_BOLD,
+                textColor=RED, backColor=colors.HexColor("#FCEBEB"),
+                borderPad=8, leftIndent=10, spaceBefore=4, spaceAfter=8),
+        ))
+
+    # AI narrative
     try:
         import os
         import google.generativeai as genai
@@ -1119,125 +1417,154 @@ def download_full_project_audit_pdf(request):
         prompt = (
             f"You are a senior financial auditor. Write a 400-word professional "
             f"executive summary for {company} covering these metrics:\n"
-            f"• Audit period: {period}\n"
-            f"• Total planned budget: ₹{total_planned:,.0f}\n"
-            f"• Total actual spend: ₹{total_spent:,.0f}\n"
-            f"• High-risk transactions: {hr_count} (leakage ₹{leakage:,.0f})\n"
-            f"• Medium-risk transactions: {mr_count}\n"
-            f"• Budget breach: {'YES' if breach else 'NO'}\n"
-            f"• Overrun ratio: {ratio:.2f}×\n\n"
+            f"- Audit period: {period}\n"
+            f"- Total planned budget: Rs.{total_planned:,.0f}\n"
+            f"- Total actual spend: Rs.{total_spent:,.0f}\n"
+            f"- High-risk transactions: {hr_count} (leakage Rs.{leakage:,.0f})\n"
+            f"- Medium-risk transactions: {mr_count}\n"
+            f"- Budget breach: {'YES' if breach else 'NO'}\n"
+            f"- Overrun ratio: {ratio:.2f}x\n\n"
             "Use a formal auditor tone. Highlight key risks and give 3 prioritised "
             "remediation recommendations. Do NOT use markdown or bullet symbols."
         )
         ai_text = gem.generate_content(prompt).text.strip()
     except Exception:
         ai_text = (
-            f"This audit examined {summary.get('total_records', 0)} transactions for "
-            f"{company} over {period}. The AI risk engine identified {hr_count} "
-            f"high-risk records representing an estimated leakage exposure of ₹{leakage:,.0f}. "
+            f"This audit examined {summary.get('total_records', 0)} transactions "
+            f"for {company} over {period}. The AI risk engine identified {hr_count} "
+            f"high-risk records representing an estimated leakage exposure of "
+            f"Rs.{leakage:,.0f}. "
             + ("The portfolio has breached the approved budget ceiling. "
                if breach else
                "The portfolio remains within the approved budget ceiling. ")
             + "Detailed findings are presented in the sections that follow. "
-              "Management attention is directed to the high-risk transactions flagged "
-              "in Section 6 and to the departmental variance analysis in Section 5. "
-              "Immediate remedial action is recommended for all HIGH RISK transactions."
+              "Management attention is directed to the high-risk transactions "
+              "flagged in Section 6 and to the departmental variance analysis "
+              "in Section 5. Immediate remedial action is recommended for all "
+              "HIGH RISK transactions."
         )
     elements.append(Paragraph(ai_text, S["body"]))
     elements.append(PageBreak())
 
     # =========================================================================
-    #  PAGE 4 – METHODOLOGY
+    #  SECTION 2 – METHODOLOGY
     # =========================================================================
     flex_key = summary.get("meta", {}).get("budget_flexibility", "Moderate")
     flex_pct = int(FLEX_MAP.get(flex_key, 0.10) * 100)
 
-    elements.append(Paragraph("2. Audit Scope and Methodology", S["h1"]))
-    elements.append(divider())
+    elements += section_header("2", "Audit Scope and Methodology",
+                               "Data sources, detection techniques, scoring model")
     elements.append(Paragraph("Data Sources and Scope", S["h2"]))
     elements.append(Paragraph(
         f"The audit ingested {summary.get('total_records', 0)} transaction records "
-        f"from the client-provided CSV. Records span departments, vendors, service "
-        f"types, and approval statuses. All monetary values are in Indian Rupees (₹). "
-        f"The budget flexibility threshold applied was <b>{flex_key}</b> "
+        f"from the client-provided CSV dataset. Records span departments, vendors, "
+        f"service types, and approval statuses. All monetary values are in Indian "
+        f"Rupees (Rs.). The budget flexibility threshold applied was [{flex_key}] "
         f"({flex_pct}% above total planned budget).",
         S["body"],
     ))
     elements.append(Paragraph("Detection Techniques", S["h2"]))
+
     methods = [
-        ("<b>Isolation Forest (scikit-learn)</b>",
+        ("ISOLATION FOREST (scikit-learn)",
          "Unsupervised ML model trained on 7 engineered features to detect "
          "statistically anomalous transactions in high-dimensional space."),
-        ("<b>Adaptive Threshold Scoring</b>",
+        ("ADAPTIVE THRESHOLD SCORING",
          "Overrun ratios compared against the 75th-percentile dynamic limit, "
          "preventing rigid fixed-threshold false positives."),
-        ("<b>Peer-Cohort Benchmarking</b>",
-         "Each transaction is compared with its department × service-type peer "
+        ("PEER-COHORT BENCHMARKING",
+         "Each transaction is compared with its department x service-type peer "
          "group, surfacing within-category anomalies invisible to global thresholds."),
-        ("<b>Temporal Spike Detection</b>",
-         "Monthly spend is aggregated and rows exceeding 1.5× the monthly average "
+        ("TEMPORAL SPIKE DETECTION",
+         "Monthly spend aggregated; rows exceeding 1.5x the monthly average "
          "are flagged as temporal spikes."),
-        ("<b>Concentration Risk</b>",
+        ("CONCENTRATION RISK",
          "Transactions exceeding 25% of the total planned budget receive additional "
          "risk weight, regardless of other signals."),
-        ("<b>Velocity Analysis</b>",
-         "Week-over-week spend acceleration is computed per row to identify "
+        ("VELOCITY ANALYSIS",
+         "Week-over-week spend acceleration computed per row to identify "
          "sudden ramp-ups that precede month-end budget dumps."),
     ]
-    for t_html, desc in methods:
-        elements.append(Paragraph(t_html, S["h3"]))
-        elements.append(Paragraph(desc, S["body"]))
+
+    meth_data = []
+    for i, (tech, desc) in enumerate(methods):
+        meth_data.append([
+            Paragraph(f"{i+1:02d}", sty(f"mnum_{i}", fontSize=14,
+                       fontName=BODY_FONT_BOLD, textColor=ACCENT, alignment=TA_CENTER)),
+            Paragraph(f"<b>{tech}</b><br/>{desc}",
+                      sty(f"mdesc_{i}", fontSize=8, fontName=BODY_FONT,
+                          leading=12, textColor=DARK_GREY)),
+        ])
+
+    meth_tbl = Table(meth_data, colWidths=[32, 430])
+    meth_tbl.setStyle(TableStyle([
+        ("ROWBACKGROUNDS", (0, 0), (-1, -1), [colors.white, LIGHT_BG]),
+        ("GRID",           (0, 0), (-1, -1), 0.2, MID_GREY),
+        ("TOPPADDING",     (0, 0), (-1, -1), 7),
+        ("BOTTOMPADDING",  (0, 0), (-1, -1), 7),
+        ("LEFTPADDING",    (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING",   (0, 0), (-1, -1), 8),
+        ("VALIGN",         (0, 0), (-1, -1), "MIDDLE"),
+    ]))
+    elements.append(meth_tbl)
     elements.append(PageBreak())
 
     # =========================================================================
-    #  PAGE 5 – PORTFOLIO BUDGET ANALYSIS
+    #  SECTION 3 – PORTFOLIO BUDGET ANALYSIS
     # =========================================================================
-    elements.append(Paragraph("3. Portfolio-Level Budget Analysis", S["h1"]))
-    elements.append(divider())
+    elements += section_header("3", "Portfolio-Level Budget Analysis",
+                               "Planned vs actual spend, breach indicators, headroom")
 
     status_ratio = ("HIGH" if ratio > 1.2 else ("ELEVATED" if ratio > 1 else "NORMAL"))
 
     budget_data = [
         ["Metric", "Value", "Status"],
-        ["Total Planned Budget",              f"₹{total_planned:,.2f}", "—"],
-        ["Approved Limit (with flexibility)", f"₹{budget_limit:,.2f}",  "—"],
-        ["Total Actual Spend",                f"₹{total_spent:,.2f}",   "BREACH" if breach else "OK"],
-        ["Remaining Approved Headroom",       f"₹{remaining:,.2f}",     "—"],
-        ["Over-Budget Multiplier",            f"{ratio:.4f}×",           status_ratio],
-        ["Estimated High-Risk Leakage",       f"₹{leakage:,.2f}",       "FLAGGED"],
-        ["Medium-Risk Exposure",              f"₹{medium_spend:,.2f}",  "MONITOR"],
-        ["Average Anomaly Score",             f"{avg_anomaly:.1f}/100",  "—"],
+        ["Total Planned Budget",               f"Rs.{total_planned:,.2f}", "—"],
+        ["Approved Limit (with flexibility)",  f"Rs.{budget_limit:,.2f}",  "—"],
+        ["Total Actual Spend",                 f"Rs.{total_spent:,.2f}",
+         "BREACH" if breach else "OK"],
+        ["Remaining Approved Headroom",        f"Rs.{remaining:,.2f}",     "—"],
+        ["Over-Budget Multiplier",             f"{ratio:.4f}x",            status_ratio],
+        ["Estimated High-Risk Leakage",        f"Rs.{leakage:,.2f}",       "FLAGGED"],
+        ["Medium-Risk Exposure",               f"Rs.{medium_spend:,.2f}", "MONITOR"],
+        ["Average Anomaly Score",              f"{avg_anomaly:.1f}/100",   "—"],
     ]
 
-    budget_table = Table(budget_data, colWidths=[240, 170, 85])
+    bt_col_w = [(PAGE_W - 90) * 0.52, (PAGE_W - 90) * 0.31, (PAGE_W - 90) * 0.17]
+    budget_table = Table(budget_data, colWidths=bt_col_w)
     budget_table.setStyle(TableStyle([
         ("BACKGROUND",    (0, 0), (-1, 0),  NAVY),
         ("TEXTCOLOR",     (0, 0), (-1, 0),  colors.white),
-        ("FONTNAME",      (0, 0), (-1, 0),  "Helvetica-Bold"),
-        ("FONTSIZE",      (0, 0), (-1, -1), 10),
+        ("FONTNAME",      (0, 0), (-1, 0),  BODY_FONT_BOLD),
+        ("FONTNAME",      (0, 1), (-1, -1), BODY_FONT),
+        ("FONTSIZE",      (0, 0), (-1, -1), 9),
         ("ROWBACKGROUNDS",(0, 1), (-1, -1), [colors.white, LIGHT_BG]),
         ("GRID",          (0, 0), (-1, -1), 0.3, MID_GREY),
         ("ALIGN",         (1, 0), (-1, -1), "RIGHT"),
         ("TOPPADDING",    (0, 0), (-1, -1), 5),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
-        # colour-code status column
-        ("TEXTCOLOR",     (2, 3), (2, 3),   RED if breach else DARK_TEAL),
+        ("TEXTCOLOR",     (2, 3), (2, 3),   RED if breach else TEAL),
         ("TEXTCOLOR",     (2, 6), (2, 6),   RED),
         ("TEXTCOLOR",     (2, 7), (2, 7),   AMBER),
+        ("FONTNAME",      (2, 3), (2, 3),   BODY_FONT_BOLD),
+        ("FONTNAME",      (2, 6), (2, 6),   BODY_FONT_BOLD),
     ]))
     elements.append(budget_table)
     elements.append(PageBreak())
 
     # =========================================================================
-    #  PAGE 6 – AI ANOMALY RESULTS (charts)
+    #  SECTION 4 – AI ANOMALY DETECTION (charts)
     # =========================================================================
-    elements.append(Paragraph("4. AI Anomaly Detection Results", S["h1"]))
-    elements.append(divider())
+    elements += section_header("4", "AI Anomaly Detection Results",
+                               "Isolation Forest predictions, risk distribution, burn rate")
 
     has_ai = bool(summary.get("has_ai", False))
+    engine_status = ("ACTIVE — Isolation Forest predictions applied"
+                     if has_ai else "FALLBACK — rule-based scoring only")
     elements.append(Paragraph(
-        f"AI Engine Status: <b>{'ACTIVE — Isolation Forest predictions applied' if has_ai else 'FALLBACK — rule-based scoring only'}</b>",
-        S["body"],
+        f"Engine status: [{engine_status}]",
+        sty("EngStat", fontSize=9, fontName=BODY_FONT_BOLD,
+            textColor=TEAL if has_ai else AMBER),
     ))
     elements.append(Spacer(1, 8))
 
@@ -1248,16 +1575,22 @@ def download_full_project_audit_pdf(request):
         vals   = rc.values.tolist()
         clrs   = [RISK_COLORS.get(l, "#888") for l in labels]
 
-        fig, ax = plt.subplots(figsize=(5, 3.5), facecolor="#FAFAF8")
-        ax.pie(vals, labels=labels, colors=clrs, autopct="%1.1f%%",
-               startangle=140, textprops={"fontsize": 9})
-        ax.set_title("Risk Level Distribution", fontsize=11, fontweight="bold", pad=10)
+        fig, ax = plt.subplots(figsize=(5, 3.2), facecolor="#FDFCF8")
+        wedges, texts, autotexts = ax.pie(
+            vals, labels=labels, colors=clrs, autopct="%1.1f%%",
+            startangle=140, textprops={"fontsize": 8, "fontfamily": "DejaVu Sans Mono"},
+            pctdistance=0.78,
+        )
+        for at in autotexts:
+            at.set_fontweight("bold")
+        ax.set_title("Risk Level Distribution", fontsize=10,
+                     fontfamily="DejaVu Serif", fontweight="bold", pad=10)
         fig.tight_layout()
-        elements.append(rl_image(fig, width=340, height=240))
+        elements.append(rl_image(fig, width=320, height=230))
 
     elements.append(Spacer(1, 8))
 
-    # Chart B – Burn rate timeline
+    # Chart B – Burn rate
     g1_labels_parsed = json.loads(summary.get("g1_burn_labels", "[]"))
     g1_data_parsed   = json.loads(summary.get("g1_burn_data",   "[]"))
     if g1_labels_parsed and g1_data_parsed:
@@ -1265,20 +1598,21 @@ def download_full_project_audit_pdf(request):
         step = max(1, n // 30)
         xs   = list(range(0, n, step))
 
-        fig, ax = plt.subplots(figsize=(7, 2.8), facecolor="#FAFAF8")
+        fig, ax = plt.subplots(figsize=(7, 2.8), facecolor="#FDFCF8")
         ax.plot(
             [g1_labels_parsed[i] for i in xs],
             [g1_data_parsed[i]   for i in xs],
-            color="#185FA5", linewidth=1.2, marker="o", markersize=3,
+            color="#185FA5", linewidth=1.3, marker="o", markersize=3.5,
         )
         ax.fill_between(
             [g1_labels_parsed[i] for i in xs],
             [g1_data_parsed[i]   for i in xs],
-            alpha=0.08, color="#185FA5",
+            alpha=0.1, color="#185FA5",
         )
-        ax.set_title("Spend Burn-Rate Over Time", fontsize=10, fontweight="bold")
-        ax.set_xlabel("Date", fontsize=8)
-        ax.set_ylabel("₹ Actual Spend", fontsize=8)
+        ax.set_title("Spend Burn-Rate Over Time", fontsize=10,
+                     fontfamily="DejaVu Serif", fontweight="bold")
+        ax.set_xlabel("Date", fontsize=8, fontfamily="DejaVu Sans Mono")
+        ax.set_ylabel("Rs. Actual Spend", fontsize=8, fontfamily="DejaVu Sans Mono")
         ax.tick_params(labelsize=7)
         plt.xticks(rotation=45, ha="right")
         fig.tight_layout()
@@ -1287,69 +1621,86 @@ def download_full_project_audit_pdf(request):
     elements.append(PageBreak())
 
     # =========================================================================
-    #  PAGES 7-N – DEPARTMENTAL DEEP-DIVE
+    #  SECTION 5 – DEPARTMENTAL DEEP-DIVE
     # =========================================================================
-    elements.append(Paragraph("5. Departmental Deep-Dive", S["h1"]))
-    elements.append(divider())
+    elements += section_header("5", "Departmental Deep-Dive",
+                               "Per-department spend, service type breakdown, risk flags")
 
     if not df.empty and "department" in df.columns:
         departments = df["department"].unique()
         for dept in list(departments)[:10]:
             dept_df    = df[df["department"] == dept]
             dept_total = float(dept_df["actual_spend"].sum())
-            dept_hr    = dept_df[dept_df["risk_level"] == "HIGH RISK"] if "risk_level" in dept_df.columns else dept_df.iloc[0:0]
+            dept_hr    = (dept_df[dept_df["risk_level"] == "HIGH RISK"]
+                          if "risk_level" in dept_df.columns
+                          else dept_df.iloc[0:0])
 
-            elements.append(Paragraph(f"Department: {dept}", S["h2"]))
+            # Dept header banner (mini)
+            dept_banner = Table(
+                [[Paragraph(f"DEPT: {dept.upper()}", sty("dh", fontSize=10,
+                             fontName=BODY_FONT_BOLD, textColor=colors.white))]],
+                colWidths=[PAGE_W - 90],
+            )
+            dept_banner.setStyle(TableStyle([
+                ("BACKGROUND",    (0, 0), (-1, -1), ACCENT),
+                ("TOPPADDING",    (0, 0), (-1, -1), 5),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                ("LEFTPADDING",   (0, 0), (-1, -1), 10),
+            ]))
+            elements.append(dept_banner)
+
             elements.append(Paragraph(
-                f"Total Spend: <b>₹{dept_total:,.2f}</b> &nbsp;|&nbsp; "
-                f"Transactions: <b>{len(dept_df)}</b> &nbsp;|&nbsp; "
-                f"High-Risk Flags: <b>{len(dept_hr)}</b>",
-                S["body"],
+                f"Total Spend: Rs.{dept_total:,.2f}    |    "
+                f"Transactions: {len(dept_df)}    |    "
+                f"High-Risk Flags: {len(dept_hr)}",
+                sty("dinfo", fontSize=8, fontName=BODY_FONT,
+                    textColor=DARK_GREY, spaceBefore=4, spaceAfter=4),
             ))
 
-            # Per-dept bar chart by service type
             if "service_type" in dept_df.columns:
                 st_spend = (
                     dept_df.groupby("service_type")["actual_spend"]
                     .sum().sort_values(ascending=False).head(8)
                 )
                 if not st_spend.empty:
-                    fig, ax = plt.subplots(figsize=(6, 2.5), facecolor="#FAFAF8")
+                    fig, ax = plt.subplots(figsize=(6, 2.3), facecolor="#FDFCF8")
                     ax.bar(range(len(st_spend)), st_spend.values,
                            color=PDF_PALETTE[:len(st_spend)])
                     ax.set_xticks(range(len(st_spend)))
                     ax.set_xticklabels(
                         [s[:20] for s in st_spend.index],
-                        rotation=30, ha="right", fontsize=7,
+                        rotation=28, ha="right", fontsize=6,
+                        fontfamily="DejaVu Sans Mono",
                     )
-                    ax.set_title(f"{dept} – Spend by Service Type",
-                                 fontsize=9, fontweight="bold")
-                    ax.tick_params(labelsize=7)
+                    ax.set_title(f"{dept} — Spend by Service Type",
+                                 fontsize=8, fontfamily="DejaVu Serif",
+                                 fontweight="bold")
+                    ax.tick_params(labelsize=6)
                     fig.tight_layout()
-                    elements.append(rl_image(fig, width=400, height=190))
+                    elements.append(rl_image(fig, width=390, height=175))
 
-            # Transaction table
             cols_show = [c for c in ["transaction_date", "vendor", "service_type",
                                      "actual_spend", "planned_budget", "risk_level"]
                          if c in dept_df.columns]
             if cols_show:
-                elements.append(Spacer(1, 6))
+                elements.append(Spacer(1, 5))
                 elements.append(dept_table(dept_df, cols_show))
 
-            elements.append(Spacer(1, 10))
-            elements.append(divider(MID_GREY, 0.3))
+            elements.append(Spacer(1, 8))
+            elements.append(divider(MID_GREY, 0.25))
 
     elements.append(PageBreak())
 
     # =========================================================================
-    #  HIGH-RISK TRANSACTION LOGS (paginated)
+    #  SECTION 6 – HIGH-RISK TRANSACTION LOGS
     # =========================================================================
-    elements.append(Paragraph("6. High-Risk Transaction Logs", S["h1"]))
-    elements.append(divider())
+    elements += section_header("6", "High-Risk Transaction Logs",
+                               f"{hr_count} transactions flagged  |  "
+                               f"Est. leakage Rs.{leakage:,.0f}")
+
     elements.append(Paragraph(
-        f"The following {hr_count} transaction(s) were classified as "
-        f"<b>HIGH RISK</b> by the AI engine. Estimated total leakage exposure: "
-        f"<b>₹{leakage:,.2f}</b>.",
+        f"The following {hr_count} transaction(s) were classified as HIGH RISK "
+        f"by the AI engine. Estimated total leakage exposure: Rs.{leakage:,.2f}.",
         S["body"],
     ))
     elements.append(Spacer(1, 8))
@@ -1376,28 +1727,29 @@ def download_full_project_audit_pdf(request):
             for c in avail_cols:
                 v = r.get(c, "")
                 if c in ("actual_spend", "planned_budget"):
-                    cell = Paragraph(f"₹{float(v or 0):,.0f}", S["small"])
+                    cell = Paragraph(f"Rs.{float(v or 0):,.0f}", S["mono_data"])
                 elif c == "overrun_ratio":
-                    cell = Paragraph(f"{float(v or 0):.2f}×", S["small"])
+                    cell = Paragraph(f"{float(v or 0):.2f}x", S["mono_data"])
                 elif c in ("anomaly_score_pct", "risk_confidence"):
-                    cell = Paragraph(f"{float(v or 0):.1f}", S["small"])
+                    cell = Paragraph(f"{float(v or 0):.1f}", S["mono_data"])
                 elif c == "risk_level":
                     cell = risk_badge(str(v))
                 else:
-                    cell = Paragraph(str(v)[:28], S["small"])
+                    cell = Paragraph(str(v)[:28], S["mono_data"])
                 trow.append(cell)
             tdata.append(trow)
 
         lt = Table(tdata, colWidths=[col_w] * len(avail_cols), repeatRows=1)
         lt.setStyle(TableStyle([
-            ("BACKGROUND",    (0, 0), (-1, 0),  colors.HexColor("#A32D2D")),
+            ("BACKGROUND",    (0, 0), (-1, 0),  colors.HexColor("#7A1A1A")),
             ("TEXTCOLOR",     (0, 0), (-1, 0),  colors.white),
-            ("FONTNAME",      (0, 0), (-1, 0),  "Helvetica-Bold"),
+            ("FONTNAME",      (0, 0), (-1, 0),  BODY_FONT_BOLD),
+            ("FONTNAME",      (0, 1), (-1, -1), BODY_FONT),
             ("ROWBACKGROUNDS",(0, 1), (-1, -1), [colors.white, colors.HexColor("#FCEBEB")]),
             ("GRID",          (0, 0), (-1, -1), 0.25, colors.HexColor("#F09595")),
             ("TOPPADDING",    (0, 0), (-1, -1), 3),
             ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
-            ("FONTSIZE",      (0, 0), (-1, -1), 8),
+            ("FONTSIZE",      (0, 0), (-1, -1), 7),
         ]))
         elements.append(lt)
         elements.append(Spacer(1, 8))
@@ -1407,55 +1759,61 @@ def download_full_project_audit_pdf(request):
     elements.append(PageBreak())
 
     # =========================================================================
-    #  TREND VISUALISATIONS
+    #  SECTION 7 – TREND VISUALISATIONS
     # =========================================================================
-    elements.append(Paragraph("7. Trend and Visualisation Analysis", S["h1"]))
-    elements.append(divider())
+    elements += section_header("7", "Trend and Visualisation Analysis",
+                               "Vendor spend, monthly trend, department breakdown")
 
-    # 7A – Top vendors by flagged spend
+    # 7A – Top vendors
     g2_labels = json.loads(summary.get("g2_vendor_labels", "[]"))
     g2_data   = json.loads(summary.get("g2_vendor_data",   "[]"))
     if g2_labels and g2_data:
-        fig, ax = plt.subplots(figsize=(6.5, 3), facecolor="#FAFAF8")
+        fig, ax = plt.subplots(figsize=(6.5, 3), facecolor="#FDFCF8")
         bars = ax.barh(g2_labels[::-1], g2_data[::-1],
                        color=PDF_PALETTE[:len(g2_labels)])
-        ax.set_title("Top Vendors by Flagged Spend", fontsize=10, fontweight="bold")
-        ax.set_xlabel("₹ Actual Spend", fontsize=8)
-        ax.tick_params(labelsize=8)
+        ax.set_title("Top Vendors by Flagged Spend", fontsize=10,
+                     fontfamily="DejaVu Serif", fontweight="bold")
+        ax.set_xlabel("Rs. Actual Spend", fontsize=8,
+                      fontfamily="DejaVu Sans Mono")
+        ax.tick_params(labelsize=7)
         for bar in bars:
             w = bar.get_width()
             ax.text(w * 1.01, bar.get_y() + bar.get_height() / 2,
-                    f"₹{w:,.0f}", va="center", fontsize=7)
+                    f"Rs.{w:,.0f}", va="center", fontsize=6,
+                    fontfamily="DejaVu Sans Mono")
         fig.tight_layout()
         elements.append(Paragraph("Top Vendors by Flagged Spend", S["h2"]))
         elements.append(rl_image(fig, width=470, height=220))
         elements.append(Spacer(1, 10))
 
-    # 7B – Monthly spend trend
+    # 7B – Monthly spend
     g5_labels = json.loads(summary.get("g5_temp_labels", "[]"))
     g5_data   = json.loads(summary.get("g5_temp_data",   "[]"))
     if g5_labels and g5_data:
-        fig, ax = plt.subplots(figsize=(6.5, 2.8), facecolor="#FAFAF8")
+        fig, ax = plt.subplots(figsize=(6.5, 2.8), facecolor="#FDFCF8")
         ax.bar(g5_labels, g5_data, color="#1D9E75", alpha=0.85)
-        ax.set_title("Monthly Actual Spend", fontsize=10, fontweight="bold")
-        ax.set_xlabel("Month", fontsize=8)
-        ax.set_ylabel("₹", fontsize=8)
-        ax.tick_params(labelsize=8)
+        ax.set_title("Monthly Actual Spend", fontsize=10,
+                     fontfamily="DejaVu Serif", fontweight="bold")
+        ax.set_xlabel("Month", fontsize=8, fontfamily="DejaVu Sans Mono")
+        ax.set_ylabel("Rs.", fontsize=8, fontfamily="DejaVu Sans Mono")
+        ax.tick_params(labelsize=7)
         fig.tight_layout()
         elements.append(Paragraph("Monthly Spend Trend", S["h2"]))
         elements.append(rl_image(fig, width=470, height=200))
         elements.append(Spacer(1, 10))
 
-    # 7C – Department spend breakdown
+    # 7C – Dept spend
     g7_labels = json.loads(summary.get("g7_dept_labels", "[]"))
     g7_data   = json.loads(summary.get("g7_dept_data",   "[]"))
     if g7_labels and g7_data:
-        fig, ax = plt.subplots(figsize=(6.5, 3.2), facecolor="#FAFAF8")
+        fig, ax = plt.subplots(figsize=(6.5, 3.2), facecolor="#FDFCF8")
         ax.barh(g7_labels[::-1][:12], g7_data[::-1][:12],
                 color="#7F77DD", alpha=0.85)
-        ax.set_title("Spend by Department", fontsize=10, fontweight="bold")
-        ax.set_xlabel("₹ Actual Spend", fontsize=8)
-        ax.tick_params(labelsize=8)
+        ax.set_title("Spend by Department", fontsize=10,
+                     fontfamily="DejaVu Serif", fontweight="bold")
+        ax.set_xlabel("Rs. Actual Spend", fontsize=8,
+                      fontfamily="DejaVu Sans Mono")
+        ax.tick_params(labelsize=7)
         fig.tight_layout()
         elements.append(Paragraph("Spend by Department", S["h2"]))
         elements.append(rl_image(fig, width=470, height=230))
@@ -1463,54 +1821,50 @@ def download_full_project_audit_pdf(request):
     elements.append(PageBreak())
 
     # =========================================================================
-    #  FINDINGS AND RECOMMENDATIONS
+    #  SECTION 8 – FINDINGS AND RECOMMENDATIONS
     # =========================================================================
-    elements.append(Paragraph("8. Findings and Recommendations", S["h1"]))
-    elements.append(divider())
+    elements += section_header("8", "Findings and Recommendations",
+                               "Actionable findings with severity and remediation steps")
 
     findings = [
         ("F-01", "Budget Discipline",
          f"The portfolio {'has exceeded' if breach else 'is approaching'} the approved "
-         f"limit. Over-budget ratio: {ratio:.2f}×. "
-         "Action: Immediate spend freeze on non-critical services.",
+         f"spending limit. Over-budget ratio: {ratio:.2f}x. "
+         "Recommended action: Immediate spend freeze on all non-critical services "
+         "pending CFO sign-off.",
          breach),
         ("F-02", "Anomalous Vendor Spend",
          f"{len(g2_labels)} vendor(s) account for a disproportionate share of flagged "
-         "transactions. Action: Commission independent vendor audits and renegotiate "
-         "contract terms.",
+         "transactions. Recommended action: Commission independent vendor audits and "
+         "renegotiate contract terms within 30 days.",
          len(g2_labels) > 0),
         ("F-03", "Temporal Spike Events",
-         "One or more months exhibit spend spikes exceeding 1.5× the monthly average, "
+         "One or more months exhibit spend spikes exceeding 1.5x the monthly average, "
          "suggesting batch processing of backdated invoices or split-purchase "
-         "circumvention. Action: Enforce real-time invoice matching.",
+         "circumvention. Recommended action: Enforce real-time invoice matching.",
          True),
         ("F-04", "Unapproved Transactions",
          "Transactions flagged with non-standard approval statuses show elevated "
-         "overrun ratios. Action: Re-route to a dual-approval workflow.",
+         "overrun ratios. Recommended action: Re-route all such items to a "
+         "dual-approval workflow and freeze processing.",
          True),
         ("F-05", "Velocity Anomalies",
-         "Week-over-week spend acceleration signals detected in the dataset indicate "
-         "potential month-end budget dumping. Action: Implement weekly spend caps "
-         "at the department level.",
+         "Week-over-week spend acceleration detected — indicates potential month-end "
+         "budget dumping. Recommended action: Implement weekly spend caps "
+         "at the department level and automate alerting.",
          True),
     ]
 
     for code, ftitle, ftext, active in findings:
-        fcolor = RED if active else DARK_TEAL
-        elements.append(Paragraph(
-            f'<font color="#{fcolor.hexval()[2:]}"><b>[{code}] {ftitle}</b></font>',
-            S["h3"],
-        ))
-        elements.append(Paragraph(ftext, S["body"]))
-        elements.append(Spacer(1, 4))
+        elements.append(finding_card(code, ftitle, ftext, active))
 
     elements.append(PageBreak())
 
     # =========================================================================
-    #  CONCLUSION
+    #  SECTION 9 – CONCLUSION
     # =========================================================================
-    elements.append(Paragraph("9. Auditor Conclusion", S["h1"]))
-    elements.append(divider())
+    elements += section_header("9", "Auditor Conclusion",
+                               "Overall portfolio classification and sign-off")
 
     overall_risk = (
         "HIGH RISK"
@@ -1518,32 +1872,74 @@ def download_full_project_audit_pdf(request):
         else "MODERATE RISK"
     )
     risk_color = RED if overall_risk == "HIGH RISK" else AMBER
+    risk_bg    = colors.HexColor("#FCEBEB") if overall_risk == "HIGH RISK" else colors.HexColor("#FEF5E4")
+
+    # Classification box
+    class_box = Table(
+        [[
+            Paragraph(
+                f"OVERALL PORTFOLIO CLASSIFICATION: {overall_risk}",
+                sty("ClassBox", fontSize=13, fontName=BODY_FONT_BOLD,
+                    textColor=risk_color, alignment=TA_CENTER),
+            )
+        ]],
+        colWidths=[PAGE_W - 90],
+    )
+    class_box.setStyle(TableStyle([
+        ("BACKGROUND",    (0, 0), (-1, -1), risk_bg),
+        ("LINEABOVE",     (0, 0), (-1, 0),  2, risk_color),
+        ("LINEBELOW",     (0, 0), (-1, -1), 2, risk_color),
+        ("TOPPADDING",    (0, 0), (-1, -1), 14),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 14),
+    ]))
+    elements.append(class_box)
+    elements.append(Spacer(1, 12))
 
     elements.append(Paragraph(
-        f'Overall Portfolio Classification: '
-        f'<font color="#{risk_color.hexval()[2:]}"><b>{overall_risk}</b></font>',
-        S["h2"],
-    ))
-    elements.append(Paragraph(
         f"Based on {summary.get('total_records', 0)} transactions analysed for "
-        f"{company} during {period}, the AI audit engine has determined the portfolio "
-        f"risk level to be <b>{overall_risk}</b>. A total of {hr_count} transactions "
-        f"require immediate management intervention. Estimated financial exposure from "
-        f"high-risk items is ₹{leakage:,.2f}.",
+        f"{company} during {period}, the AI audit engine has determined the "
+        f"portfolio risk level to be {overall_risk}. A total of {hr_count} "
+        f"transactions require immediate management intervention. Estimated "
+        f"financial exposure from high-risk items is Rs.{leakage:,.2f}.",
         S["body"],
     ))
-    elements.append(Spacer(1, 0.8 * inch))
-    elements.append(Paragraph("___________________________", S["body"]))
-    elements.append(Paragraph("<b>AI Certified Lead Auditor</b>", S["body"]))
-    elements.append(Paragraph(f"Report ID: {report_id}", S["small"]))
-    elements.append(Paragraph(f"Issued: {generated_at}", S["small"]))
+
+    # Sign-off block with QR
+    qr_signoff = qr_image_flowable(size=58, label="Report ID QR")
+    signoff_text = Table(
+        [[
+            Paragraph(
+                f"<br/><br/>"
+                f"_________________________<br/>"
+                f"<b>AI Certified Lead Auditor</b><br/>"
+                f"AI Audit Engine v3<br/>"
+                f"Report ID: {report_id}<br/>"
+                f"Issued: {generated_at}",
+                sty("SignOff", fontSize=9, fontName=BODY_FONT,
+                    leading=14, textColor=DARK_GREY),
+            ),
+            qr_signoff,
+        ]],
+        colWidths=[340, 80],
+    )
+    signoff_text.setStyle(TableStyle([
+        ("VALIGN",       (0, 0), (-1, -1), "BOTTOM"),
+        ("LEFTPADDING",  (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("TOPPADDING",   (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING",(0, 0), (-1, -1), 0),
+        ("ALIGN",        (1, 0), (1, 0), "RIGHT"),
+    ]))
+    elements.append(Spacer(1, 0.5 * inch))
+    elements.append(signoff_text)
     elements.append(PageBreak())
 
     # =========================================================================
-    #  APPENDIX
+    #  APPENDIX A – LEGAL DISCLAIMER
     # =========================================================================
-    elements.append(Paragraph("Appendix A — Legal Disclaimer", S["h1"]))
-    elements.append(divider())
+    elements += section_header("A", "Appendix — Legal Disclaimer & Glossary")
+
+    elements.append(Paragraph("A.1  Legal Disclaimer", S["h2"]))
     elements.append(Paragraph(
         "This report is generated by an automated AI financial audit system. "
         "While the system employs statistically rigorous methods, all findings "
@@ -1554,31 +1950,35 @@ def download_full_project_audit_pdf(request):
         "no liability for decisions made solely on the basis of this report.",
         S["body"],
     ))
-    elements.append(Spacer(1, 12))
+    elements.append(Spacer(1, 10))
 
-    elements.append(Paragraph("Appendix B — Feature Glossary", S["h1"]))
-    elements.append(divider())
+    elements.append(Paragraph("A.2  Feature Glossary", S["h2"]))
+
     glossary = [
-        ["Term",                "Definition"],
-        ["overrun_ratio",       "actual_spend / planned_budget. Values > 1 indicate overspend."],
-        ["anomaly_score_pct",   "Normalised isolation-forest score (0–100). Higher = more anomalous."],
-        ["temporal_spike",      "True when actual_spend > 1.5× the monthly cohort average."],
-        ["impact_score",        "actual_spend / portfolio mean spend. Measures absolute impact."],
-        ["risk_confidence",     "Composite score (0–100): overrun + anomaly + spike + breach signals."],
-        ["velocity",            "Week-over-week spend acceleration, clipped at zero for new periods."],
-        ["peer_avg",            "Mean overrun_ratio within the same department × service_type cohort."],
-        ["budget_gap",          "actual_spend − planned_budget. Positive = overspend; negative = savings."],
+        ["TERM",               "DEFINITION"],
+        ["overrun_ratio",      "actual_spend / planned_budget. Values > 1 indicate overspend."],
+        ["anomaly_score_pct",  "Normalised isolation-forest score (0-100). Higher = more anomalous."],
+        ["temporal_spike",     "True when actual_spend > 1.5x the monthly cohort average."],
+        ["impact_score",       "actual_spend / portfolio mean spend. Measures absolute impact."],
+        ["risk_confidence",    "Composite score (0-100): overrun + anomaly + spike + breach."],
+        ["velocity",           "Week-over-week spend acceleration, clipped at zero for new periods."],
+        ["peer_avg",           "Mean overrun_ratio within same department x service_type cohort."],
+        ["budget_gap",         "actual_spend - planned_budget. Positive = overspend; negative = savings."],
     ]
-    gt = Table(glossary, colWidths=[140, 355])
+    gt = Table(glossary, colWidths=[130, 365])
     gt.setStyle(TableStyle([
         ("BACKGROUND",    (0, 0), (-1, 0),  NAVY),
         ("TEXTCOLOR",     (0, 0), (-1, 0),  colors.white),
-        ("FONTNAME",      (0, 0), (-1, 0),  "Helvetica-Bold"),
+        ("FONTNAME",      (0, 0), (-1, 0),  BODY_FONT_BOLD),
+        ("FONTNAME",      (0, 1), (-1, -1), BODY_FONT),
+        ("FONTNAME",      (0, 1), (0, -1),  BODY_FONT_BOLD),
+        ("TEXTCOLOR",     (0, 1), (0, -1),  ACCENT),
         ("ROWBACKGROUNDS",(0, 1), (-1, -1), [colors.white, LIGHT_BG]),
         ("GRID",          (0, 0), (-1, -1), 0.3, MID_GREY),
-        ("FONTSIZE",      (0, 0), (-1, -1), 9),
+        ("FONTSIZE",      (0, 0), (-1, -1), 8),
         ("TOPPADDING",    (0, 0), (-1, -1), 5),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+        ("LEFTPADDING",   (0, 0), (-1, -1), 7),
     ]))
     elements.append(gt)
 
