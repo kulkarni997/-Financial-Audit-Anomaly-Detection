@@ -117,6 +117,8 @@
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   padding: var(--sp-5);
+  padding-bottom: calc(var(--sp-5) * 1.5); /* added extra bottom padding */
+  margin-bottom: var(--sp-6); /* increased spacing between cards */
 }
 
 .chart-header {

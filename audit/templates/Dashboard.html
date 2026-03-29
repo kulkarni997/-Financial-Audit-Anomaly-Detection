@@ -125,6 +125,28 @@
   </div>
 </div>
 
+<div class="chart-card" style="margin-top:20px;">
+    <div class="chart-header">
+        <div>
+            <div class="chart-title">📄 Invoice OCR</div>
+            <div class="chart-subtitle">Upload invoice image and detect anomalies</div>
+        </div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:16px;">
+        <input type="file" id="ocrFile" style="flex:1;min-width:220px;" />
+        <button id="ocrUploadBtn" type="button" class="chart-pill" style="padding:10px 18px;border-radius:8px;">Upload & Analyze</button>
+    </div>
+
+    <div id="ocrResult" style="display:none; margin-top:15px; background: var(--bg-surface); border:1px solid var(--border); border-radius: var(--r-lg); padding: 16px;">
+        <p><strong>Amount:</strong> ₹<span id="ocrAmount"></span></p>
+        <p><strong>Risk:</strong> <span id="ocrRisk"></span></p>
+        <p><strong>Mismatch:</strong> <span id="ocrMismatch"></span></p>
+        <h4>Extracted Text:</h4>
+        <pre id="ocrText" style="white-space: pre-wrap; word-break: break-word;"></pre>
+    </div>
+</div>
+
 <div class="bottom-row fade-up fade-up-5">
   <div class="chart-card">
     <div class="chart-header" style="padding: 20px 20px 0;"><div class="chart-title">Top Vendors by Risk</div></div>
@@ -155,9 +177,18 @@
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
 <script>
   Chart.defaults.font.family = "'Plus Jakarta Sans', 'Inter', sans-serif";
   Chart.defaults.color = '#94a3b8';
+
+  // Data variables
+  var trendLabels = JSON.parse('{{ trend_labels|escapejs }}');
+  var trendScores = JSON.parse('{{ trend_scores|escapejs }}');
+  var lowCount = JSON.parse('{{ low|escapejs }}');
+  var mediumCount = JSON.parse('{{ medium|escapejs }}');
+  var highCount = JSON.parse('{{ high|escapejs }}');
+  var criticalCount = JSON.parse('{{ critical|escapejs }}');
 
   // --- TREND CHART ---
   const trendCtx = document.getElementById('trend-chart').getContext('2d');
@@ -168,9 +199,9 @@
   new Chart(trendCtx, {
     type: 'line',
     data: {
-      labels: {{ trend_labels|safe }},
+      labels: trendLabels,
       datasets: [{
-        data: {{ trend_scores|safe }},
+        data: trendScores,
         borderColor: '#4834d4',
         backgroundColor: trendGradient,
         fill: true,
@@ -214,7 +245,7 @@
     data: {
       labels: ['Low','Med','High','Crit'],
       datasets: [{
-        data: [{{ low }}, {{ medium }}, {{ high }}, {{ critical }}],
+        data: [lowCount, mediumCount, highCount, criticalCount],
         backgroundColor: ['#2ecc71','#f1c40f','#e67e22','#e74c3c'],
         borderWidth: 0,
         hoverOffset: 12,

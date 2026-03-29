@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice OCR</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        button {
+            background: #3b82f6;
+            border: none;
+            padding: 10px 20px;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .low { color: #22c55e; }
+        .high { color: #f97316; }
+        .critical { color: #ef4444; }
+
+        pre {
+            background: #020617;
+            padding: 10px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h2>📄 Invoice OCR</h2>
+
+    <input type="file" id="fileInput">
+    <br><br>
+    <button onclick="uploadInvoice()">Upload & Analyze</button>
+
+    <div id="result" class="card" style="display:none;">
+        <h3>🔍 Result</h3>
+
+        <p><strong>Amount:</strong> ₹<span id="amount"></span></p>
+
+        <p><strong>Risk:</strong>
+            <span id="risk"></span>
+        </p>
+
+        <p><strong>Mismatch:</strong>
+            <span id="mismatch"></span>
+        </p>
+
+        <h4>Extracted Text:</h4>
+        <pre id="text"></pre>
+    </div>
+</div>
+
+<script>
+async function uploadInvoice() {
+    const file = document.getElementById("fileInput").files[0];
+
+    if (!file) {
+        alert("Select file first");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        const res = await fetch("/api/invoice/upload/", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+
+        // Fill data
+        document.getElementById("amount").innerText = data.amount;
+
+        const riskEl = document.getElementById("risk");
+        riskEl.innerText = data.risk;
+
+        // Reset + apply class
+        riskEl.className = "";
+        riskEl.classList.add(data.risk);  // low / high / critical
+
+        document.getElementById("mismatch").innerText =
+            data.mismatch ? "Yes ⚠️" : "No";
+
+        document.getElementById("text").innerText = data.text;
+
+        document.getElementById("result").style.display = "block";
+
+    } catch (err) {
+        console.error(err);
+        alert("Upload failed");
+    }
+}
+</script>
+</body>
+</html>

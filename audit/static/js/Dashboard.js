@@ -272,90 +272,7 @@ function renderFeed(items) {
   });
 }
 
-// ── 7. D3 HEATMAP ────────────────────────────────────────────
-function renderHeatmap(data) {
-  const container = document.getElementById('heatmap-container');
-  if (!container || !window.d3) return;
 
-  container.innerHTML = '';
-
-  const depts      = [...new Set(data.map(d => d.dept))];
-  const categories = [...new Set(data.map(d => d.category))];
-
-  const cellSize = 48;
-  const marginLeft = 72;
-  const marginTop  = 40;
-  const W = marginLeft + categories.length * cellSize + 10;
-  const H = marginTop  + depts.length * cellSize + 10;
-
-  const svg = d3.select('#heatmap-container')
-    .append('svg')
-    .attr('width', '100%')
-    .attr('viewBox', `0 0 ${W} ${H}`)
-    .style('overflow', 'visible');
-
-  // Color scale: 0=green → 100=red through amber
-  const colorScale = d3.scaleLinear()
-    .domain([0, 35, 65, 100])
-    .range(['#22c55e', '#f59e0b', '#f97316', '#ef4444']);
-
-  // X axis (categories)
-  svg.selectAll('.cat-label')
-    .data(categories)
-    .enter().append('text')
-    .attr('x', (d, i) => marginLeft + i * cellSize + cellSize / 2)
-    .attr('y', marginTop - 10)
-    .attr('text-anchor', 'middle')
-    .attr('font-size', 10)
-    .attr('fill', '#8a9bbf')
-    .text(d => d);
-
-  // Y axis (depts)
-  svg.selectAll('.dept-label')
-    .data(depts)
-    .enter().append('text')
-    .attr('x', marginLeft - 8)
-    .attr('y', (d, i) => marginTop + i * cellSize + cellSize / 2 + 4)
-    .attr('text-anchor', 'end')
-    .attr('font-size', 10)
-    .attr('fill', '#8a9bbf')
-    .text(d => d);
-
-  // Cells
-  const cells = svg.selectAll('.cell')
-    .data(data)
-    .enter().append('g')
-    .attr('transform', d => {
-      const x = marginLeft + categories.indexOf(d.category) * cellSize;
-      const y = marginTop  + depts.indexOf(d.dept) * cellSize;
-      return `translate(${x},${y})`;
-    });
-
-  cells.append('rect')
-    .attr('width', cellSize - 3)
-    .attr('height', cellSize - 3)
-    .attr('rx', 5)
-    .attr('fill', d => colorScale(d.score))
-    .attr('opacity', 0)
-    .transition().duration(600).delay((_, i) => i * 20)
-    .attr('opacity', .85);
-
-  cells.append('text')
-    .attr('x', (cellSize - 3) / 2)
-    .attr('y', (cellSize - 3) / 2 + 4)
-    .attr('text-anchor', 'middle')
-    .attr('font-size', 11)
-    .attr('font-family', "'DM Mono', monospace")
-    .attr('font-weight', '600')
-    .attr('fill', d => d.score > 50 ? 'rgba(255,255,255,.9)' : 'rgba(0,0,0,.7)')
-    .attr('opacity', 0)
-    .text(d => d.score)
-    .transition().duration(400).delay((_, i) => i * 20 + 200)
-    .attr('opacity', 1);
-
-  // Tooltip
-  cells.append('title').text(d => `${d.dept} × ${d.category}: Risk ${d.score}`);
-}
 
 // ── 8. CHART PERIOD CONTROLS ──────────────────────────────────
 let trendChartInstance = null;
@@ -412,4 +329,129 @@ document.addEventListener('DOMContentLoaded', () => {
       content.classList.toggle('sidebar-collapsed');
     });
   }
+
+
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOM loaded - dashboard upload integration active");
+
+    const fileInput = document.getElementById("ocrFile") || document.getElementById("fileInput");
+    const uploadBtn = document.getElementById("ocrUploadBtn") ||
+                     document.querySelector('button[onclick*="uploadInvoice"]') ||
+                     Array.from(document.querySelectorAll('button')).find(btn =>
+                         btn.textContent.trim().toLowerCase().includes('upload')
+                     );
+
+    if (!uploadBtn) {
+        console.error('Unable to find upload button; please check template IDs');
+        return;
+    }
+
+    if (!fileInput) {
+        console.error('Unable to find file input; please check template IDs');
+        return;
+    }
+
+    uploadBtn.addEventListener("click", async (event) => {
+        event.preventDefault();
+        console.log("Upload & Analyze clicked");
+
+        uploadBtn.disabled = true;
+        const originalText = uploadBtn.textContent;
+        uploadBtn.textContent = "Analyzing...";
+
+        try {
+            await uploadInvoice();
+        } finally {
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = originalText;
+        }
+    });
+});
+
+async function uploadInvoice() {
+    const fileInput = document.getElementById("ocrFile") || document.getElementById("fileInput");
+    if (!fileInput) {
+        console.error('File input not found (#ocrFile or #fileInput)');
+        alert('Internal error: file element missing.');
+        return;
+    }
+
+    const file = fileInput.files?.[0];
+    if (!file) {
+        alert("Please select a file first.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const csrfToken = getCSRFToken();
+
+    try {
+        console.log("Sending file to /api/invoice/upload/", file.name, file.size);
+
+        const res = await fetch("/api/invoice/upload/", {
+            method: "POST",
+            body: formData,
+            credentials: 'same-origin',
+            headers: csrfToken ? { 'X-CSRFToken': csrfToken } : {}
+        });
+
+        if (!res.ok) {
+            const text = await res.text();
+            console.error("Upload API returned non-OK", res.status, text);
+            throw new Error(`Upload API error ${res.status}`);
+        }
+
+        const data = await res.json();
+        console.log("API response", data);
+
+        const show = (ids, value) => {
+            ids = Array.isArray(ids) ? ids : [ids];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = value;
+            });
+        };
+
+        show(["ocrAmount", "amount"], data.amount ?? 'N/A');
+
+        const riskVal = data.risk ?? 'unknown';
+        show(["ocrRisk", "risk"], riskVal);
+
+        const riskEl = document.getElementById("ocrRisk") || document.getElementById("risk");
+        if (riskEl) {
+            riskEl.className = '';
+            if (['low', 'medium', 'high', 'critical'].includes(riskVal)) {
+                riskEl.classList.add(riskVal);
+            }
+        }
+
+        show(["ocrMismatch", "mismatch"], data.mismatch === true ? "Yes ⚠️" : "No");
+        show(["ocrText", "text"], data.text ?? '');
+
+        const resultBlock = document.getElementById("ocrResult") || document.getElementById("result");
+        if (resultBlock) resultBlock.style.display = "block";
+
+    } catch (err) {
+        console.error("Upload failed", err);
+        alert("Upload failed. Check console for details.");
+    }
+}
+
+function getCSRFToken() {
+    const tokenEl = document.querySelector('[name=csrfmiddlewaretoken]') || document.querySelector('meta[name="csrf-token"]');
+    if (tokenEl) return tokenEl.value || tokenEl.content;
+
+    const name = 'csrftoken';
+    const cookies = document.cookie.split(';').map(c => c.trim());
+    for (let cookie of cookies) {
+        if (cookie.startsWith(name + '=')) {
+            return decodeURIComponent(cookie.slice(name.length + 1));
+        }
+    }
+    return null;
+}
+
