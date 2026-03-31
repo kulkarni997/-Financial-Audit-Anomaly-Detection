@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Invoice Analyzer</title>
+
+<!-- Chart.js CDN for bar/pie charts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<style>
+  /* ── Design: Editorial / Industrial – warm off-white, deep ink, bold accent ── */
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --ink:      #1a1410;
+    --paper:    #f5f0e8;
+    --warm:     #e8dfd0;
+    --accent:   #c84b2f;       /* burnt orange-red */
+    --food:     #d4824a;
+    --travel:   #4a7fa5;
+    --accom:    #6a9e6e;
+    --border:   #c8bfb0;
+    --muted:    #7a6e62;
+    --radius:   4px;
+    --shadow:   0 2px 12px rgba(26,20,16,.10);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 28px 40px 24px;
+    display: flex;
+    align-items: flex-end;
+    gap: 18px;
+    border-bottom: 4px solid var(--accent);
+  }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.2rem;
+    line-height: 1;
+    letter-spacing: -.5px;
+  }
+  header .subtitle {
+    font-size: .8rem;
+    font-weight: 300;
+    color: var(--border);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding-bottom: 3px;
+  }
+
+  /* ── Main layout ── */
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── Upload zone ── */
+  .upload-section {
+    margin: 36px 0 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .upload-section h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+  }
+
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    background: var(--warm);
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    position: relative;
+  }
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--accent);
+    background: #ede5d8;
+  }
+  .drop-zone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .drop-zone .icon { font-size: 2.2rem; margin-bottom: 10px; }
+  .drop-zone p { color: var(--muted); font-size: .9rem; }
+  .drop-zone strong { color: var(--ink); }
+
+  /* sample data button */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px;
+    border: 2px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .85rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    cursor: pointer;
+    border-radius: var(--radius);
+    transition: background .15s, color .15s;
+  }
+  .btn:hover { background: var(--ink); color: var(--paper); }
+  .btn.accent { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.accent:hover { background: #a83a20; border-color: #a83a20; }
+
+  .upload-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .format-hint {
+    font-family: 'DM Mono', monospace;
+    font-size: .75rem;
+    color: var(--muted);
+    background: var(--warm);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: var(--radius);
+  }
+
+  /* ── Status message ── */
+  #status-msg {
+    font-size: .88rem;
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    display: none;
+  }
+  #status-msg.success { background: #dff0e0; color: #2a6e30; border-left: 4px solid var(--accom); display: block; }
+  #status-msg.error   { background: #fae5e0; color: #7a2010; border-left: 4px solid var(--accent); display: block; }
+
+  /* ── Dashboard ── */
+  #dashboard { display: none; }
+
+  /* ── KPI cards ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin: 28px 0;
+  }
+  .kpi-card {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: var(--radius);
+    padding: 20px 22px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--accent);
+  }
+  .kpi-card.food::after  { background: var(--food); }
+  .kpi-card.travel::after { background: var(--travel); }
+  .kpi-card.accom::after { background: var(--accom); }
+
+  .kpi-label {
+    font-size: .7rem;
+    font-weight: 500;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--border);
+    margin-bottom: 6px;
+  }
+  .kpi-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.8rem;
+    line-height: 1;
+  }
+  .kpi-sub {
+    font-size: .75rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ── Section headings ── */
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); flex-shrink: 0;
+  }
+
+  /* ── Category insight cards ── */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+  .cat-card {
+    background: var(--warm);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    border-top: 4px solid var(--accent);
+  }
+  .cat-card.food   { border-top-color: var(--food); }
+  .cat-card.travel { border-top-color: var(--travel); }
+  .cat-card.accom  { border-top-color: var(--accom); }
+
+  .cat-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .cat-badge {
+    font-size: .65rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--accent);
+    color: #fff;
+  }
+  .cat-badge.food   { background: var(--food); }
+  .cat-badge.travel { background: var(--travel); }
+  .cat-badge.accom  { background: var(--accom); }
+
+  .cat-stat { display: flex; justify-content: space-between; margin-bottom: 7px; font-size: .87rem; }
+  .cat-stat .label { color: var(--muted); }
+  .cat-stat .val { font-weight: 600; font-family: 'DM Mono', monospace; font-size: .82rem; }
+
+  .progress-bar-wrap { margin-top: 12px; background: var(--border); border-radius: 20px; height: 6px; }
+  .progress-bar {
+    height: 100%; border-radius: 20px;
+    background: var(--accent);
+    transition: width .6s ease;
+  }
+  .progress-bar.food   { background: var(--food); }
+  .progress-bar.travel { background: var(--travel); }
+  .progress-bar.accom  { background: var(--accom); }
+
+  /* ── Charts ── */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    margin-bottom: 36px;
+  }
+  .chart-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .chart-card h3 { font-size: .85rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .chart-card canvas { max-height: 280px; }
+
+  /* ── Table ── */
+  .table-controls {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px;
+  }
+  .table-controls input, .table-controls select {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .85rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color .15s;
+  }
+  .table-controls input:focus, .table-controls select:focus { border-color: var(--accent); }
+  .table-controls input { flex: 1; min-width: 180px; }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: #fff;
+    box-shadow: var(--shadow);
+    margin-bottom: 8px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: .87rem; }
+  thead th {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 11px 16px;
+    text-align: left;
+    font-size: .72rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+  }
+  thead th:hover { background: #2c241e; }
+  thead th .sort-arrow { margin-left: 4px; opacity: .4; }
+  thead th.sorted .sort-arrow { opacity: 1; color: var(--accent); }
+
+  tbody tr { border-bottom: 1px solid var(--warm); transition: background .12s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--warm); }
+  td { padding: 10px 16px; }
+
+  .cat-pill {
+    display: inline-block;
+    font-size: .7rem; font-weight: 600; letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 2px 10px; border-radius: 20px;
+    color: #fff;
+  }
+  .cat-pill.food   { background: var(--food); }
+  .cat-pill.travel { background: var(--travel); }
+  .cat-pill.accom  { background: var(--accom); }
+  .cat-pill.other  { background: var(--muted); }
+
+  .amount-cell { font-family: 'DM Mono', monospace; font-weight: 500; text-align: right; }
+  .amount-cell.high { color: var(--accent); }
+
+  .table-footer {
+    font-size: .8rem; color: var(--muted); padding: 6px 2px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── Monthly trend table ── */
+  .trend-wrap { overflow-x: auto; margin-bottom: 36px; }
+  .trend-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  .trend-table th {
+    padding: 8px 14px; background: var(--warm); border: 1px solid var(--border);
+    font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
+  }
+  .trend-table td {
+    padding: 8px 14px; border: 1px solid var(--border);
+    font-family: 'DM Mono', monospace; font-size: .82rem;
+  }
+  .trend-table tr:hover td { background: var(--warm); }
+
+  /* ── Responsive ── */
+  @media(max-width: 640px) {
+    header { padding: 20px 16px; flex-direction: column; align-items: flex-start; gap: 4px; }
+    header h1 { font-size: 1.6rem; }
+    .container { padding: 0 12px; }
+    .kpi-value { font-size: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Invoice Analyzer</h1>
+  </div>
+  <span class="subtitle">Food · Travel · Accommodation</span>
+</header>
+
+<div class="container">
+
+  <!-- ── Upload Section ── -->
+  <section class="upload-section">
+    <h2>Upload Invoice Data</h2>
+
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" id="file-input" accept=".csv,.json" />
+      <div class="icon">📂</div>
+      <p><strong>Drop your CSV or JSON file here</strong></p>
+      <p>or click to browse</p>
+    </div>
+
+    <div class="upload-actions">
+      <button class="btn accent" onclick="loadSampleData()">⚡ Load Sample Data</button>
+      <span class="format-hint">Accepted: .csv &nbsp;|&nbsp; .json</span>
+    </div>
+
+    <div id="status-msg"></div>
+  </section>
+
+  <!-- ── Dashboard (hidden until data loaded) ── -->
+  <section id="dashboard">
+
+    <!-- KPI strip -->
+    <div class="kpi-grid" id="kpi-grid"></div>
+
+    <!-- Category insights -->
+    <div class="section-title"><span class="dot"></span>Category Breakdown</div>
+    <div class="cat-grid" id="cat-grid"></div>
+
+    <!-- Charts -->
+    <div class="section-title"><span class="dot"></span>Visual Insights</div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Spending by Category (Bar)</h3>
+        <canvas id="bar-chart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Category Share (Pie)</h3>
+        <canvas id="pie-chart"></canvas>
+      </div>
+      <div class="chart-card" style="grid-column: 1 / -1;">
+        <h3>Monthly Trend by Category</h3>
+        <canvas id="trend-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Interactive table -->
+    <div class="section-title"><span class="dot"></span>All Expenses</div>
+    <div class="table-controls">
+      <input type="text" id="search-input" placeholder="🔍  Search description…" oninput="renderTable()" />
+      <select id="cat-filter" onchange="renderTable()">
+        <option value="">All Categories</option>
+        <option value="Food">Food</option>
+        <option value="Travel">Travel</option>
+        <option value="Accommodation">Accommodation</option>
+        <option value="Other">Other</option>
+      </select>
+      <select id="sort-field" onchange="renderTable()">
+        <option value="date">Sort: Date</option>
+        <option value="amount">Sort: Amount</option>
+        <option value="category">Sort: Category</option>
+      </select>
+      <select id="sort-dir" onchange="renderTable()">
+        <option value="asc">↑ Asc</option>
+        <option value="desc">↓ Desc</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="cycleSortField('date')">Date <span class="sort-arrow">↕</span></th>
+            <th onclick="cycleSortField('category')">Category <span class="sort-arrow">↕</span></th>
+            <th>Description</th>
+            <th onclick="cycleSortField('amount')" style="text-align:right">Amount <span class="sort-arrow">↕</span></th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+    <div class="table-footer" id="table-footer"></div>
+
+    <!-- Monthly trend table -->
+    <div class="section-title" style="margin-top:32px"><span class="dot"></span>Monthly Trends</div>
+    <div class="trend-wrap">
+      <table class="trend-table" id="trend-table"></table>
+    </div>
+
+  </section>
+</div><!-- /container -->
+
+<script>
+/* ================================================================
+   Invoice Analyzer – Core Logic
+   ================================================================ */
+
+// ── Global state ──────────────────────────────────────────────────
+let allExpenses = [];        // parsed & normalized expense objects
+let barChart, pieChart, trendChart;  // Chart.js instances
+
+// ── Category keywords for auto-classification ─────────────────────
+// Each array contains keywords; if any appear in the description,
+// the expense is assigned that category.
+const CATEGORY_KEYWORDS = {
+  Food: [
+    'restaurant','food','lunch','dinner','breakfast','meal','cafe','coffee',
+    'pizza','burger','grocery','groceries','snack','drink','bakery','sushi',
+    'catering','swiggy','zomato','ubereats','doordash','grubhub'
+  ],
+  Travel: [
+    'flight','airline','air ticket','uber','ola','taxi','cab','train','bus',
+    'metro','fuel','petrol','diesel','toll','parking','car rental','lyft',
+    'boat','ferry','transit','transport','travel'
+  ],
+  Accommodation: [
+    'hotel','hostel','airbnb','motel','inn','lodge','resort','booking',
+    'stay','rent','accommodation','room','suite','guest house','oyo','makeMyTrip'
+  ]
+};
+
+// ── Currency formatter ─────────────────────────────────────────────
+const fmt = (n) => '₹' + Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+
+// ── Auto-classify an expense by its description ───────────────────
+function classify(description) {
+  const lower = (description || '').toLowerCase();
+  for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+    if (keywords.some(kw => lower.includes(kw))) return cat;
+  }
+  return 'Other';
+}
+
+// ── Normalize raw record into a consistent shape ──────────────────
+function normalize(record) {
+  // Support flexible CSV/JSON field names (case-insensitive)
+  const get = (...keys) => {
+    for (const k of keys) {
+      const found = Object.keys(record).find(rk => rk.toLowerCase() === k.toLowerCase());
+      if (found && record[found] !== undefined && record[found] !== '') return record[found];
+    }
+    return '';
+  };
+
+  const description = get('description','desc','item','details','name','narration') || 'N/A';
+  const rawAmount   = parseFloat(String(get('amount','total','price','cost','value','sum')).replace(/[^0-9.]/g,'')) || 0;
+  const rawDate     = get('date','transaction_date','invoice_date','dt');
+  const date        = rawDate ? new Date(rawDate) : new Date();
+  const isoDate     = isNaN(date) ? rawDate : date.toISOString().split('T')[0];
+
+  // Use provided category if present & valid, else auto-classify
+  let category = get('category','type','expense_type');
+  const validCats = ['Food','Travel','Accommodation','Other'];
+  if (!category || !validCats.some(v => v.toLowerCase() === category.toLowerCase())) {
+    category = classify(description);
+  } else {
+    // Normalize casing
+    category = validCats.find(v => v.toLowerCase() === category.toLowerCase()) || classify(description);
+  }
+
+  return { date: isoDate, category, description, amount: rawAmount };
+}
+
+// ── Parse CSV string into array of objects ─────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/).filter(Boolean);
+  if (lines.length < 2) throw new Error('CSV must have a header row and at least one data row.');
+
+  // Split on comma, handling quoted fields
+  const splitRow = (row) => {
+    const result = [];
+    let cur = '', inQ = false;
+    for (const ch of row) {
+      if (ch === '"') { inQ = !inQ; continue; }
+      if (ch === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    result.push(cur.trim());
+    return result;
+  };
+
+  const headers = splitRow(lines[0]);
+  return lines.slice(1).map(line => {
+    const vals = splitRow(line);
+    const obj = {};
+    headers.forEach((h, i) => { obj[h.trim()] = (vals[i] || '').trim(); });
+    return obj;
+  });
+}
+
+// ── File upload handler ────────────────────────────────────────────
+function handleFile(file) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    try {
+      let records;
+      if (ext === 'csv') {
+        records = parseCSV(e.target.result);
+      } else if (ext === 'json') {
+        const parsed = JSON.parse(e.target.result);
+        // Accept root array or { data: [...] } shape
+        records = Array.isArray(parsed) ? parsed : (parsed.data || parsed.invoices || parsed.expenses || []);
+      } else {
+        throw new Error('Unsupported format. Please upload CSV or JSON.');
+      }
+
+      allExpenses = records.map(normalize).filter(r => r.amount > 0);
+      if (allExpenses.length === 0) throw new Error('No valid expense rows found. Check your file format.');
+
+      showStatus(`✓ Loaded ${allExpenses.length} expenses from "${file.name}"`, 'success');
+      renderDashboard();
+    } catch (err) {
+      showStatus('✗ ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ── Status bar helper ──────────────────────────────────────────────
+function showStatus(msg, type) {
+  const el = document.getElementById('status-msg');
+  el.textContent = msg;
+  el.className = type;
+}
+
+// ── Sample data loader ─────────────────────────────────────────────
+function loadSampleData() {
+  const sample = [
+    { date:'2024-01-05', category:'Food',          description:'Swiggy dinner order',        amount:450 },
+    { date:'2024-01-08', category:'Travel',         description:'Uber cab to airport',         amount:850 },
+    { date:'2024-01-10', category:'Accommodation',  description:'OYO hotel stay 2 nights',     amount:3200 },
+    { date:'2024-01-14', category:'Food',          description:'Cafe Coffee Day breakfast',    amount:320 },
+    { date:'2024-01-20', category:'Travel',         description:'IndiGo flight ticket',        amount:5400 },
+    { date:'2024-02-02', category:'Food',          description:'Zomato lunch order',           amount:390 },
+    { date:'2024-02-07', category:'Accommodation',  description:'Airbnb weekend stay',         amount:4800 },
+    { date:'2024-02-12', category:'Travel',         description:'Ola auto ride',               amount:120 },
+    { date:'2024-02-15', category:'Food',          description:'Restaurant dinner with team',  amount:2200 },
+    { date:'2024-02-22', category:'Travel',         description:'Metro weekly pass',           amount:500 },
+    { date:'2024-03-01', category:'Accommodation',  description:'Taj hotel conference stay',   amount:9500 },
+    { date:'2024-03-05', category:'Food',          description:'Grocery shopping BigBasket',   amount:1850 },
+    { date:'2024-03-10', category:'Travel',         description:'Petrol refill',               amount:2800 },
+    { date:'2024-03-18', category:'Food',          description:'Team lunch pizza',             amount:1200 },
+    { date:'2024-03-25', category:'Travel',         description:'Train ticket IRCTC',          amount:1100 },
+    { date:'2024-04-03', category:'Food',          description:'Bakery snacks',                amount:280 },
+    { date:'2024-04-09', category:'Accommodation',  description:'Makemytrip resort booking',   amount:7200 },
+    { date:'2024-04-14', category:'Travel',         description:'Car rental weekend',          amount:3600 },
+    { date:'2024-04-20', category:'Food',          description:'Barbeque Nation dinner',       amount:3400 },
+    { date:'2024-04-28', category:'Travel',         description:'Toll charges expressway',     amount:240 },
+  ];
+  allExpenses = sample;
+  showStatus(`✓ Sample data loaded — ${sample.length} expenses across 4 months`, 'success');
+  renderDashboard();
+}
+
+// ── Master render: build KPIs, cards, charts, table, trend ────────
+function renderDashboard() {
+  document.getElementById('dashboard').style.display = 'block';
+  renderKPIs();
+  renderCategoryCards();
+  renderCharts();
+  renderTable();
+  renderTrendTable();
+}
+
+// ── Aggregate helper ───────────────────────────────────────────────
+function aggregate(expenses) {
+  const total   = expenses.reduce((s, e) => s + e.amount, 0);
+  const avg     = expenses.length ? total / expenses.length : 0;
+  const amounts = expenses.map(e => e.amount);
+  return {
+    total, avg, count: expenses.length,
+    max: expenses.length ? Math.max(...amounts) : 0,
+    min: expenses.length ? Math.min(...amounts) : 0,
+    maxItem: expenses.length ? expenses[expenses.indexOf(expenses.reduce((a,b) => a.amount>b.amount?a:b))] : null,
+    minItem: expenses.length ? expenses[expenses.indexOf(expenses.reduce((a,b) => a.amount<b.amount?a:b))] : null,
+  };
+}
+
+// ── KPI strip ─────────────────────────────────────────────────────
+function renderKPIs() {
+  const stats = aggregate(allExpenses);
+  const items = [
+    { label:'Total Spent',     value: fmt(stats.total),          sub: `${stats.count} transactions`,    cls:'' },
+    { label:'Average Expense', value: fmt(stats.avg),            sub: 'per transaction',                 cls:'' },
+    { label:'Highest Expense', value: fmt(stats.max),            sub: stats.maxItem?.description || '',  cls:'' },
+    { label:'Lowest Expense',  value: fmt(stats.min),            sub: stats.minItem?.description || '',  cls:'' },
+  ];
+  document.getElementById('kpi-grid').innerHTML = items.map(k => `
+    <div class="kpi-card ${k.cls}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.value}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+}
+
+// ── Category cards ────────────────────────────────────────────────
+function renderCategoryCards() {
+  const grandTotal = allExpenses.reduce((s,e) => s+e.amount, 0);
+  const cats = ['Food','Travel','Accommodation'];
+  const clsMap = { Food:'food', Travel:'travel', Accommodation:'accom' };
+  const emojiMap = { Food:'🍽️', Travel:'✈️', Accommodation:'🏨' };
+
+  document.getElementById('cat-grid').innerHTML = cats.map(cat => {
+    const exps  = allExpenses.filter(e => e.category === cat);
+    const stats = aggregate(exps);
+    const pct   = grandTotal > 0 ? (stats.total / grandTotal * 100) : 0;
+    const cls   = clsMap[cat];
+
+    return `
+    <div class="cat-card ${cls}">
+      <div class="cat-name">
+        ${emojiMap[cat]} ${cat}
+        <span class="cat-badge ${cls}">${pct.toFixed(1)}%</span>
+      </div>
+      <div class="cat-stat"><span class="label">Total</span><span class="val">${fmt(stats.total)}</span></div>
+      <div class="cat-stat"><span class="label">Count</span><span class="val">${stats.count}</span></div>
+      <div class="cat-stat"><span class="label">Average</span><span class="val">${fmt(stats.avg)}</span></div>
+      <div class="cat-stat"><span class="label">Highest</span><span class="val">${fmt(stats.max)}</span></div>
+      <div class="cat-stat"><span class="label">Lowest</span><span class="val">${fmt(stats.min)}</span></div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar ${cls}" style="width:${pct}%"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Chart.js charts ───────────────────────────────────────────────
+function renderCharts() {
+  const cats    = ['Food','Travel','Accommodation'];
+  const totals  = cats.map(c => allExpenses.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0));
+  const colors  = ['#d4824a','#4a7fa5','#6a9e6e'];
+
+  // Destroy old chart instances to avoid canvas reuse errors
+  if (barChart)   { barChart.destroy(); }
+  if (pieChart)   { pieChart.destroy(); }
+  if (trendChart) { trendChart.destroy(); }
+
+  // ── Bar chart: total per category ──
+  barChart = new Chart(document.getElementById('bar-chart'), {
+    type: 'bar',
+    data: {
+      labels: cats,
+      datasets: [{ label: 'Total Spent', data: totals, backgroundColor: colors, borderRadius: 4, borderSkipped: false }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ' ' + fmt(ctx.raw) } }
+      },
+      scales: { y: { ticks: { callback: v => '₹'+v.toLocaleString('en-IN') } } }
+    }
+  });
+
+  // ── Pie chart: percentage share ──
+  pieChart = new Chart(document.getElementById('pie-chart'), {
+    type: 'doughnut',
+    data: {
+      labels: cats,
+      datasets: [{ data: totals, backgroundColor: colors, hoverOffset: 8, borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: 'DM Sans' } } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmt(ctx.raw)} (${(ctx.parsed/totals.reduce((a,b)=>a+b,0)*100).toFixed(1)}%)` } }
+      }
+    }
+  });
+
+  // ── Line/bar trend: monthly spending per category ──
+  const monthlyData = buildMonthlyData();
+  const sortedMonths = Object.keys(monthlyData).sort();
+
+  trendChart = new Chart(document.getElementById('trend-chart'), {
+    type: 'bar',
+    data: {
+      labels: sortedMonths,
+      datasets: cats.map((cat, i) => ({
+        label: cat,
+        data: sortedMonths.map(m => monthlyData[m][cat] || 0),
+        backgroundColor: colors[i] + 'cc',
+        borderColor: colors[i],
+        borderWidth: 1,
+        borderRadius: 3,
+      }))
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: 'DM Sans' } } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.raw)}` } }
+      },
+      scales: {
+        x: { stacked: true },
+        y: { stacked: true, ticks: { callback: v => '₹'+v.toLocaleString('en-IN') } }
+      }
+    }
+  });
+}
+
+// ── Build monthly aggregation {month: {Food:x, Travel:y, ...}} ──
+function buildMonthlyData() {
+  const data = {};
+  allExpenses.forEach(e => {
+    const m = e.date ? e.date.slice(0,7) : 'Unknown'; // "YYYY-MM"
+    if (!data[m]) data[m] = { Food:0, Travel:0, Accommodation:0, Other:0 };
+    data[m][e.category] = (data[m][e.category] || 0) + e.amount;
+  });
+  return data;
+}
+
+// ── Interactive table with search/filter/sort ─────────────────────
+let sortField = 'date', sortDir = 'asc';
+
+function cycleSortField(field) {
+  if (sortField === field) {
+    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField = field;
+    sortDir = 'asc';
+  }
+  document.getElementById('sort-field').value = sortField;
+  document.getElementById('sort-dir').value   = sortDir;
+  renderTable();
+}
+
+function renderTable() {
+  const search   = (document.getElementById('search-input').value || '').toLowerCase();
+  const catFil   = document.getElementById('cat-filter').value;
+  sortField      = document.getElementById('sort-field').value;
+  sortDir        = document.getElementById('sort-dir').value;
+
+  // Filter
+  let filtered = allExpenses.filter(e => {
+    const matchSearch = e.description.toLowerCase().includes(search) || e.category.toLowerCase().includes(search);
+    const matchCat    = !catFil || e.category === catFil;
+    return matchSearch && matchCat;
+  });
+
+  // Sort
+  filtered.sort((a,b) => {
+    let av = a[sortField], bv = b[sortField];
+    if (sortField === 'amount') { av = +av; bv = +bv; }
+    if (av < bv) return sortDir === 'asc' ? -1 :  1;
+    if (av > bv) return sortDir === 'asc' ?  1 : -1;
+    return 0;
+  });
+
+  const maxAmt = Math.max(...filtered.map(e=>e.amount), 0);
+  const clsMap = { Food:'food', Travel:'travel', Accommodation:'accom', Other:'other' };
+
+  document.getElementById('table-body').innerHTML = filtered.map(e => `
+    <tr>
+      <td>${e.date}</td>
+      <td><span class="cat-pill ${clsMap[e.category]}">${e.category}</span></td>
+      <td>${e.description}</td>
+      <td class="amount-cell ${e.amount === maxAmt ? 'high' : ''}">${fmt(e.amount)}</td>
+    </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--muted)">No results found.</td></tr>';
+
+  document.getElementById('table-footer').textContent =
+    `Showing ${filtered.length} of ${allExpenses.length} expenses · Total: ${fmt(filtered.reduce((s,e)=>s+e.amount,0))}`;
+}
+
+// ── Monthly trend summary table ───────────────────────────────────
+function renderTrendTable() {
+  const monthlyData  = buildMonthlyData();
+  const sortedMonths = Object.keys(monthlyData).sort();
+  const cats         = ['Food','Travel','Accommodation','Other'];
+
+  // Pretty-print month "YYYY-MM" → "Jan 2024"
+  const prettyMonth = (ym) => {
+    const [y, m] = ym.split('-');
+    return new Date(y, m-1, 1).toLocaleString('en-IN', {month:'short', year:'numeric'});
+  };
+
+  const thead = `<thead><tr>
+    <th>Month</th>
+    ${cats.map(c=>`<th>${c}</th>`).join('')}
+    <th>Total</th>
+  </tr></thead>`;
+
+  const rows = sortedMonths.map(m => {
+    const row = monthlyData[m];
+    const tot = cats.reduce((s,c)=>s+(row[c]||0),0);
+    return `<tr>
+      <td><strong>${prettyMonth(m)}</strong></td>
+      ${cats.map(c=>`<td>${row[c] ? fmt(row[c]) : '—'}</td>`).join('')}
+      <td><strong>${fmt(tot)}</strong></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('trend-table').innerHTML = thead + `<tbody>${rows}</tbody>`;
+}
+
+// ── Wire up file input & drag-and-drop ─────────────────────────────
+document.getElementById('file-input').addEventListener('change', e => {
+  if (e.target.files[0]) handleFile(e.target.files[0]);
+});
+
+const dz = document.getElementById('drop-zone');
+
+dz.addEventListener('dragover', e => {
+  e.preventDefault();
+  dz.classList.add('drag-over');
+});
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+});
+</script>
+</body>
+</html>
