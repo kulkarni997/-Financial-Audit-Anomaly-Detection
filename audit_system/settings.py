@@ -143,3 +143,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # PORT (Render)
 # ================================
 PORT = os.environ.get("PORT")
+
+DEBUG = True
