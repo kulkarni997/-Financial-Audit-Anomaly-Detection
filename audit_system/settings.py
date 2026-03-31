@@ -10,9 +10,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ================================
 # SECURITY
 # ================================
-SECRET_KEY = 'django-insecure-min8oe6x%16$i3dcty@vhj54rnivquvod^p8_nj=ds-*j(a3uu'
 
-DEBUG = True  # change to True only if debugging
+SECRET_KEY = os.environ.get('django-insecure-min8oe6x%16$i3dcty@vhj54rnivquvod^p8_nj=ds-*j(a3uu', 'fallback-key')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+
+# SECRET_KEY = 'django-insecure-min8oe6x%16$i3dcty@vhj54rnivquvod^p8_nj=ds-*j(a3uu'
+
+# DEBUG = True  # change to True only if debugging
 
 ALLOWED_HOSTS = ['*']  # restrict later in production
 
