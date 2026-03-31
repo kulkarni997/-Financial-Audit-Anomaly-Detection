@@ -1,15 +1,19 @@
 import pandas as pd
 import joblib
 from sklearn.preprocessing import LabelEncoder
+import os
+import joblib
 
-MODEL_DIR = r"C:\Users\HP\OneDrive\Desktop\EDUNET\-Financial-Audit-Anomaly-Detection\audit\ml_assets\Emp_Models"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-model = joblib.load(f"{MODEL_DIR}/model.pkl")
-scaler = joblib.load(f"{MODEL_DIR}/scaler.pkl")
-le_vendor = joblib.load(f"{MODEL_DIR}/le_vendor.pkl")
-le_category = joblib.load(f"{MODEL_DIR}/le_category.pkl")
-le_department = joblib.load(f"{MODEL_DIR}/le_department.pkl")
-le_emp = joblib.load(f"{MODEL_DIR}/le_emp.pkl")
+MODEL_DIR = os.path.join(BASE_DIR, 'audit', 'ml_assets', 'Emp_Models')
+
+model = joblib.load(os.path.join(MODEL_DIR, "model.pkl"))
+scaler = joblib.load(os.path.join(MODEL_DIR, "scaler.pkl"))
+le_vendor = joblib.load(os.path.join(MODEL_DIR, "le_vendor.pkl"))
+le_category = joblib.load(os.path.join(MODEL_DIR, "le_category.pkl"))
+le_department = joblib.load(os.path.join(MODEL_DIR, "le_department.pkl"))
+le_emp = joblib.load(os.path.join(MODEL_DIR, "le_emp.pkl"))
 
 def safe_transform(le, series):
     mapping = {label: idx for idx, label in enumerate(le.classes_)}
