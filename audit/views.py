@@ -24,9 +24,8 @@ from django.db.models import Avg, Count, Q
 load_dotenv()
 
 # 1. MATPLOTLIB CONFIGURATION (Must be in this order)
-import matplotlib 
-matplotlib.use('Agg')  # Required for Django/Server environments
-import matplotlib.pyplot as plt
+
+
 
 # 2. DJANGO & REST FRAMEWORK
 from django.shortcuts import render, redirect
@@ -275,6 +274,10 @@ def dashboard_summary(request):
 
 # --- HELPER: GENERATE MATPLOTLIB GRAPHS ---
 def generate_category_graph(data, labels, title, chart_type="bar"):
+    import matplotlib.pyplot as plt
+    import matplotlib 
+    matplotlib.use('Agg')  # Required for Django/Server environments
+
     # Clear any previous plots to prevent data bleeding between requests
     plt.clf() 
     
@@ -317,6 +320,9 @@ def draw_page_border(canvas, doc):
 
 # --- MAIN PDF GENERATOR (Updated with correct Goods keys) ---
 def generate_pdf_report(results, summaries):
+    import matplotlib.pyplot as plt
+    import matplotlib 
+    matplotlib.use('Agg') 
     os.makedirs("media", exist_ok=True)
     pdf_path = "media/audit_report.pdf"
     doc = SimpleDocTemplate(pdf_path, pagesize=A4, rightMargin=45, leftMargin=45, topMargin=55, bottomMargin=45)
@@ -593,6 +599,9 @@ isolation_model = joblib.load(MODEL_PATH)
 
 
 def project_audit(request):
+    import matplotlib.pyplot as plt
+    import matplotlib 
+    matplotlib.use('Agg') 
     """
     POST  – accepts ProjectAuditForm + CSV upload → runs AI anomaly detection
             and risk scoring → stores summary in session → renders results page.
@@ -805,6 +814,9 @@ def project_audit(request):
 
     return render(request, "project_results.html", {"summary": summary})
 def download_full_project_audit_pdf(request):
+    import matplotlib.pyplot as plt
+    import matplotlib 
+    matplotlib.use('Agg') 
     """
     Streams a comprehensive, multi-section audit PDF using data stored in the
     session by project_audit().  Falls back gracefully if session data is absent.
