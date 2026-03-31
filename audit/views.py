@@ -58,14 +58,25 @@ from fraud_detection.goods_fraud_predictor import process_goods_audit
 
 # --- CONFIGURATION ---
 logger = logging.getLogger(__name__)
-api_key = os.getenv("GENAI_API_KEY")
-client = Client(api_key=api_key)   # ✅ new client object
+api_key = os.environ.get("GEMINI_API_KEY")
+
+if api_key:
+    client = Client(api_key=api_key)
+else:
+    client = None
 
 def generate_all_summaries(results: dict) -> dict:
     """
     Final optimized AI summary generator for 2026.
     Uses google-genai Client instead of deprecated configure().
     """
+
+    if not client:
+        return {
+            "employee_summary": "AI summary unavailable (missing API key).",
+            "department_summary": "AI summary unavailable (missing API key).",
+            "goods_summary": "AI summary unavailable (missing API key)."
+        }
 
     models_to_try = [
         "models/gemini-2.5-flash", 
