@@ -605,7 +605,17 @@ def _compute_risk_score(
 #  MAIN VIEW
 # ═════════════════════════════════════════════════════════════════════════════
 # Load model once at startup
-MODEL_PATH = r"C:\Users\HP\OneDrive\Desktop\EDUNET\-Financial-Audit-Anomaly-Detection\audit\ml_assets\project_Models\advanced_audit_pipeline.pkl"
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+MODEL_PATH = os.path.join(
+    BASE_DIR,
+    'audit',
+    'ml_assets',
+    'project_Models',
+    'advanced_audit_pipeline.pkl'
+)
 isolation_model = joblib.load(MODEL_PATH)
 
 
