@@ -1995,3 +1995,6 @@ def download_full_project_audit_pdf(request):
     filename = f"Audit_{safe_name}_{datetime.utcnow().strftime('%Y%m%d')}.pdf"
     return FileResponse(buffer, as_attachment=True, filename=filename,
                         content_type="application/pdf")
+
+def login_page(request):
+    return render(request, 'prologin.html')  

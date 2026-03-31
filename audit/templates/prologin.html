@@ -9,21 +9,17 @@
 
     <style>
         :root {
-            --primary: #6d28d9;       /* Rich Royal Purple */
+            --primary: #6d28d9;
             --primary-hover: #5b21b6;
-            --bg: #ffffff;            /* Pure White */
-            --text-main: #0f172a;     /* Dark Slate */
-            --text-muted: #64748b;    /* Slate Gray */
-            --input-bg: #f8fafc;      /* Light Gray Input */
-            --border: #e2e8f0;        /* Soft Border */
+            --bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --input-bg: #f8fafc;
+            --border: #e2e8f0;
             --danger: #dc2626;
         }
 
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         html, body {
             width: 100%;
@@ -37,13 +33,7 @@
             align-items: center;
         }
 
-        .login-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+        .login-container { width: 100%; display: flex; justify-content: center; align-items: center; padding: 20px; }
 
         .login-box {
             width: 100%;
@@ -70,31 +60,13 @@
 
         .logo-area span { color: var(--primary); }
 
-        .login-box h2 {
-            margin-bottom: 8px;
-            color: var(--text-main);
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
+        .login-box h2 { margin-bottom: 8px; color: var(--text-main); font-size: 1.5rem; font-weight: 700; }
 
-        .login-box p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-bottom: 32px;
-        }
+        .login-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 32px; }
 
-        .input-group {
-            margin-bottom: 18px;
-            text-align: left;
-        }
+        .input-group { margin-bottom: 18px; text-align: left; }
 
-        .input-group label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-main);
-            margin-bottom: 6px;
-        }
+        .input-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
 
         input {
             width: 100%;
@@ -135,32 +107,15 @@
             box-shadow: 0 4px 12px rgba(109, 40, 217, 0.2);
         }
 
-        .error {
-            color: var(--danger);
-            margin-top: 16px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            min-height: 1.25rem;
-        }
+        .error { color: var(--danger); margin-top: 16px; font-size: 0.85rem; font-weight: 500; min-height: 1.25rem; }
 
-        .footer-links {
-            margin-top: 24px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
+        .footer-links { margin-top: 24px; font-size: 0.85rem; color: var(--text-muted); }
 
-        .footer-links a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-        }
+        .footer-links a { color: var(--primary); text-decoration: none; font-weight: 600; }
 
-        @media (max-width: 480px) {
-            .login-box { padding: 30px 20px; }
-        }
+        @media (max-width: 480px) { .login-box { padding: 30px 20px; } }
     </style>
 </head>
-
 <body>
 
 <div class="login-container">
@@ -175,7 +130,7 @@
 
         <div class="input-group">
             <label for="username">Username</label>
-            <input type="text" id="username" placeholder="e.g. admin">
+            <input type="text" id="username" placeholder="admin">
         </div>
 
         <div class="input-group">
@@ -195,30 +150,20 @@
 
 <script>
 function login() {
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
+    const userField = document.getElementById("username").value;
+    const passField = document.getElementById("password").value;
     const errorDiv = document.getElementById("error");
+    
+    errorDiv.innerText = ""; 
 
-    errorDiv.innerText = ""; // clear old error
-
-    // Hardcoded check
-    if (username === "admin" && password === "admin123") {
-        // Simulate login success by setting a flag
-        localStorage.setItem("isLoggedIn", "true");
-
-        // Redirect to dashboard
-        window.location.href = "/dashboard/";
+    // THE DUMMY CHECK
+    if (userField === "admin" && passField === "admin123") {
+        // Redirecting to your "pro_dashboard" name from urls.py
+        window.location.href = "{% url 'pro_dashboard' %}";
     } else {
-        errorDiv.innerText = "Invalid username or password";
+        errorDiv.innerText = "Invalid credentials. Try admin / admin123";
     }
 }
-
-// Optional: Allow pressing "Enter" to log in
-document.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        login();
-    }
-});
 </script>
 
 </body>

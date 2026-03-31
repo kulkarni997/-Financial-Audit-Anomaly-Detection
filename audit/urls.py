@@ -13,6 +13,7 @@ urlpatterns = [
     # API endpoints
     path('api/uploads/', views.api_get_uploads, name='api_uploads'),
     path('api/dashboard-summary/', views.dashboard_summary, name='dashboard_summary'),
+    path('pro-login/', views.login_page, name='prologin'),
 
     path("pro-dashboard/", views.pro_dashboard, name="pro_dashboard"),  # Pro Plan
     path("audit/project/", views.project_audit, name="project_audit"),
