@@ -282,6 +282,8 @@ def dashboard_summary(request):
     }
     return Response(data)
 
+def settings_view(request):
+    return render(request, 'settings.html')
 
 # --- HELPER: GENERATE MATPLOTLIB GRAPHS ---
 def generate_category_graph(data, labels, title, chart_type="bar"):

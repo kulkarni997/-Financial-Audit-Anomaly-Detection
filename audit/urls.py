@@ -5,7 +5,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),          # Dashboard page
     path('upload/', views.upload_zip, name='upload'),               # Upload CSVs
     path('anomalies/', views.anomalies, name='anomalies'),          # Show anomalies & charts
-
+    path('settings/', views.settings_view, name='settings'),
     # Report views
     path('report/', views.show_report, name='report'),              # Single report view
     path('download-report/', views.download_report, name='download_report'),  # PDF download
