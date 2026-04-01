@@ -23,9 +23,6 @@ from django.db.models import Avg, Count, Q
 # Load the environment variables from .env
 load_dotenv()
 
-# 1. MATPLOTLIB CONFIGURATION (Must be in this order)
-
-
 
 # 2. DJANGO & REST FRAMEWORK
 from django.shortcuts import render, redirect
@@ -169,52 +166,94 @@ def dashboard(request):
     }
     return render(request, "dashboard.html", context)
 
-
 def upload_zip(request):
     if request.method == "POST" and request.FILES.getlist("files"):
         uploaded_files = request.FILES.getlist("files")
-        
+
         for file in uploaded_files:
             try:
+                # Save file temporarily
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as temp:
                     for chunk in file.chunks():
                         temp.write(chunk)
                     temp_path = temp.name
 
                 file_name = file.name.lower()
-                if "employee" in file_name:
-                    res = process_employee_audit(temp_path, pd.DataFrame())
-                    for r in res.to_dict("records"):
-                        Anomaly.objects.create(
-                            category="employee",
-                            label=r.get("emp_id_original"),
-                            score=float(r.get("risk_score", 0))
-                        )
-                elif "department" in file_name:
-                    res = process_department_audit(temp_path)
-                    for r in res.to_dict("records"):
-                        Anomaly.objects.create(
-                            category="department",
-                            label=r.get("department_original"),
-                            score=float(r.get("anomaly_score", 0))
-                        )
-                elif "goods" in file_name:
-                    res = process_goods_audit(temp_path)
-                    for r in res.to_dict("records"):
-                        Anomaly.objects.create(
-                            category="goods",
-                            label=r.get("product_name"),
-                            score=float(r.get("raw_score", 0))
-                        )
 
+                df = safe_read_csv(temp_path)
+
+                # =========================
+                # EMPLOYEE
+                # =========================
+                if "employee" in file_name:
+                    try:
+                        res = process_employee_audit(df).head(1000)
+
+                        anomalies = [
+                            Anomaly(
+                                category="employee",
+                                label=r.get("emp_id_original"),
+                                score=float(r.get("risk_score", 0))
+                            )
+                            for r in res.to_dict("records")
+                        ]
+
+                        Anomaly.objects.bulk_create(anomalies)
+
+                    except Exception as ml_error:
+                        logger.error(f"Employee ML failed: {ml_error}")
+
+                # =========================
+                # DEPARTMENT
+                # =========================
+                elif "department" in file_name:
+                    try:
+                        res = process_department_audit(df).head(1000)
+
+                        anomalies = [
+                            Anomaly(
+                                category="department",
+                                label=r.get("department_original"),
+                                score=float(r.get("anomaly_score", 0))
+                            )
+                            for r in res.to_dict("records")
+                        ]
+
+                        Anomaly.objects.bulk_create(anomalies)
+
+                    except Exception as ml_error:
+                        logger.error(f"Department ML failed: {ml_error}")
+
+                # =========================
+                # GOODS
+                # =========================
+                elif "goods" in file_name:
+                    try:
+                        res = process_goods_audit(df).head(1000)
+
+                        anomalies = [
+                            Anomaly(
+                                category="goods",
+                                label=r.get("product_name"),
+                                score=float(r.get("raw_score", 0))
+                            )
+                            for r in res.to_dict("records")
+                        ]
+
+                        Anomaly.objects.bulk_create(anomalies)
+
+                    except Exception as ml_error:
+                        logger.error(f"Goods ML failed: {ml_error}")
+
+                # Cleanup
                 os.unlink(temp_path)
+
             except Exception as e:
                 logger.error(f"File processing error: {file.name} - {e}")
 
         return redirect("dashboard")
 
     return render(request, "upload.html")
-
 
 def anomalies(request):
     """Dashboard view providing both tables and Chart.js graphs."""
@@ -494,10 +533,6 @@ import json
 import logging
 import traceback
 from datetime import datetime
-
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
